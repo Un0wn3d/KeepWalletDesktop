@@ -1,6 +1,8 @@
-﻿namespace Diplom.ViewModels;
+﻿using Diplom;
 
-public partial class MainWindowViewModel : ViewModelBase
+namespace Diplom.ViewModels;
+
+public class MainWindowViewModel : ViewModelBase
 {
-    public string Greeting { get; } = "Welcome to Avalonia!";
+
 }

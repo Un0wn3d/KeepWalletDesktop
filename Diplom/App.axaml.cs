@@ -6,6 +6,8 @@ using System.Linq;
 using Avalonia.Markup.Xaml;
 using Diplom.ViewModels;
 using Diplom.Views;
+using Serilog;
+using Serilog.Core;
 
 namespace Diplom;
 
@@ -14,6 +16,10 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+
+#if DEBUG
+        this.AttachDeveloperTools();
+#endif
     }
 
     public override void OnFrameworkInitializationCompleted()
