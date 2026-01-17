@@ -6,21 +6,12 @@ using Serilog;
 
 namespace Diplom.Views;
 
-public partial class MainWindow : Window
+public partial class MainView : Window
 {
-    public MainWindow()
+    public MainView()
     {
         InitializeComponent();
         DataContext = new MainViewModel();
-    }
-
-    private void Button_123(object? sender, RoutedEventArgs e)
-    {
-        Log.Debug("Button clicked");
-    }
-
-    private void Button_Setting(object? sender, RoutedEventArgs e)
-    {
-        Log.Debug("Button clicked");
+        Language.Content = "Language";
     }
 }

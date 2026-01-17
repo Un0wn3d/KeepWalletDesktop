@@ -4,5 +4,30 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Diplom.Views.Controls.LeftPanel">
-    Welcome to Avalonia!
+    <!-- Left Panel -->
+    <Border Background="{DynamicResource Color.LeftPanel}" 
+            Width="77"
+            HorizontalAlignment="Left"
+            BorderThickness="0"
+            Padding="15"
+            CornerRadius="15"
+            VerticalAlignment="Stretch"
+            Margin="10">
+            
+        <Grid RowDefinitions="*, auto"
+              HorizontalAlignment="Center">
+                
+            <!-- Icon -->
+            <StackPanel Grid.Row="0">
+                <Image Source="../../Assets/avalonia-logo.ico" />
+            </StackPanel>
+
+            <!-- Buttons -->
+            <Button Grid.Row="1" Focusable="False" Background="Transparent" Name="Settings">
+                <StackPanel>
+                    <Svg Path="/Assets/settings.svg"></Svg>
+                </StackPanel>
+            </Button>
+        </Grid>
+    </Border>
 </UserControl>

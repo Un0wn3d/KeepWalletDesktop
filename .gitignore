@@ -6,3 +6,4 @@ riderModule.iml
 .vs/
 .idea/
 /logs
+appsettings.json

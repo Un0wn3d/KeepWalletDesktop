@@ -9,5 +9,6 @@ public partial class LeftPanel : UserControl
     public LeftPanel()
     {
         InitializeComponent();
+        
     }
 }

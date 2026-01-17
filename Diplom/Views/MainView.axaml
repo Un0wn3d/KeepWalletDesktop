@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Diplom.ViewModels"
+        xmlns:helpers="using:Diplom"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:Diplom.Views.Controls"
@@ -8,7 +9,7 @@
         xmlns:sys="clr-namespace:System;assembly=netstandard"
         xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Diplom.Views.MainWindow"
+        x:Class="Diplom.Views.MainView"
         x:DataType="vm:MainViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="Diplom"
@@ -27,15 +28,15 @@
         
         
         <!-- Main -->
-        <Border Grid.Column="1" Margin="10, 10, 10, 0">
+        <Border Grid.Column="1" Margin="10, 10, 10, 10">
             
             <!-- Up Panel, money, analysis, all transactions -->
-            <Grid RowDefinitions="Auto, Auto, 300, *" RowSpacing="10">
+            <Grid RowDefinitions="Auto, 100, 300, Auto" RowSpacing="10">
                 <!-- Up Panel -->
                 <Border Grid.Row="0" BorderThickness="0">
                     <Grid ColumnDefinitions="*, Auto">
                     <TextBlock Text="Hello, Vadym" />
-                    <Button Grid.Column="1">Lng</Button>
+                    <Button Grid.Column="1" Name="Language">Lng</Button>
                     </Grid>
                 </Border>
                 
@@ -69,7 +70,7 @@
                         <Border Grid.Column="1" Background="AliceBlue" CornerRadius="15" Padding="10">
                             <Grid RowDefinitions="Auto, *">
                                 <TextBlock Foreground="{DynamicResource Color.Text1}" Text="Доходи та Витрати" />
-                                <lvc:CartesianChart Grid.Row="1" SeriesSource="{}" Background="AliceBlue" Foreground="{DynamicResource Color.Text1}">
+                                <lvc:CartesianChart Grid.Row="1" SeriesSource="" Background="AliceBlue" Foreground="{DynamicResource Color.Text1}">
                                     <lvc:CartesianChart.SeriesTemplate>
                                         <DataTemplate>
                                             <lvc:XamlColumnSeries
@@ -85,8 +86,24 @@
                 </Border>
                 
                 <!-- all transactions -->
-                <Border Grid.Row="3" Background="Aquamarine" CornerRadius="15, 15, 0, 0" Padding="10">
-                    <TextBlock Text="Останні витрати" />
+                <Border Grid.Row="3" Background="Aquamarine" CornerRadius="15" Padding="10">
+                    <StackPanel>
+                        <TextBlock Text="Останні витрати"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,8"/>
+                        <ItemsControl ItemsSource="{Binding LatestExpenses}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="helpers:DatabaseService+Transaction">
+                                    <Border Margin="0,4" Padding="8" Background="#EEFFFFFF" CornerRadius="8">
+                                        <Grid ColumnDefinitions="*, Auto">
+                                            <TextBlock Text="{Binding TransactionType}" Foreground="Black" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding Amount}" Foreground="Black" FontWeight="Bold"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
                 </Border>
             </Grid>
         </Border>
