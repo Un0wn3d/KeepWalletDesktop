@@ -1,0 +1,97 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Diplom.ViewModels"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:Diplom.Views.Controls"
+        xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+        xmlns:sys="clr-namespace:System;assembly=netstandard"
+        xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Diplom.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Diplom"
+        Background="{DynamicResource Color.Background}">
+
+    <Design.DataContext>
+        <!-- This only sets the DataContext for the previewer in an IDE,
+             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
+        <vm:MainViewModel/>
+    </Design.DataContext>
+
+    <!-- APP -->
+    <Grid ColumnDefinitions="Auto, *" MinWidth="500">
+        <!-- Left Panel -->
+        <controls:LeftPanel Grid.Column="0"></controls:LeftPanel>
+        
+        
+        <!-- Main -->
+        <Border Grid.Column="1" Margin="10, 10, 10, 0">
+            
+            <!-- Up Panel, money, analysis, all transactions -->
+            <Grid RowDefinitions="Auto, Auto, 300, *" RowSpacing="10">
+                <!-- Up Panel -->
+                <Border Grid.Row="0" BorderThickness="0">
+                    <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="Hello, Vadym" />
+                    <Button Grid.Column="1">Lng</Button>
+                    </Grid>
+                </Border>
+                
+                <!-- Money -->
+                <Border Grid.Row="1">
+                    <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                        <Border Grid.Column="0" Background="Blue" CornerRadius="15" Padding="10">
+                            <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Всього" />
+                        </Border>
+                        <Border Grid.Column="1" Background="Green" CornerRadius="15" Padding="10">
+                            <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Дохід" />
+                        </Border>
+                        <Border Grid.Column="2" Background="Red" CornerRadius="15" Padding="10">
+                            <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Витрати" />
+                        </Border>
+                    </Grid>
+                </Border>
+                
+                <!-- analysis -->
+                <Border Grid.Row="2">
+                    <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                        <Border Grid.Column="0" Background="AliceBlue" CornerRadius="15" Padding="10">
+                            <Grid RowDefinitions="Auto, *">
+                                <TextBlock Foreground="{DynamicResource Color.Text1}" Text="Витрати за категоріями" />
+                                
+                                <lvc:PieChart Grid.Row="1" Background="AliceBlue"
+                                    Series="{Binding Series}">
+                                </lvc:PieChart>
+                            </Grid>
+                        </Border>
+                        <Border Grid.Column="1" Background="AliceBlue" CornerRadius="15" Padding="10">
+                            <Grid RowDefinitions="Auto, *">
+                                <TextBlock Foreground="{DynamicResource Color.Text1}" Text="Доходи та Витрати" />
+                                <lvc:CartesianChart Grid.Row="1" SeriesSource="{}" Background="AliceBlue" Foreground="{DynamicResource Color.Text1}">
+                                    <lvc:CartesianChart.SeriesTemplate>
+                                        <DataTemplate>
+                                            <lvc:XamlColumnSeries
+                                                SeriesName="123"
+                                                Values="2"
+                                                Fill=""/>
+                                        </DataTemplate>
+                                    </lvc:CartesianChart.SeriesTemplate>
+                                </lvc:CartesianChart>
+                            </Grid>
+                        </Border>
+                    </Grid>
+                </Border>
+                
+                <!-- all transactions -->
+                <Border Grid.Row="3" Background="Aquamarine" CornerRadius="15, 15, 0, 0" Padding="10">
+                    <TextBlock Text="Останні витрати" />
+                </Border>
+            </Grid>
+        </Border>
+    </Grid>
+    
+    
+
+</Window>
