@@ -1,7 +1,7 @@
 ﻿using Serilog;
 using Serilog.Events;
 
-namespace Diplom.Helpers
+namespace Diplom.Services
 {
     internal class SerilogConfig
     {

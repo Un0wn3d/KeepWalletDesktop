@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Diplom;
+namespace Diplom.Services;
 
 public class DatabaseService
 {

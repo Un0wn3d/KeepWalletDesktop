@@ -1,7 +1,6 @@
 ﻿using Avalonia;
 using Serilog;
 using System;
-using Diplom.Helpers;
 
 namespace Diplom;
 

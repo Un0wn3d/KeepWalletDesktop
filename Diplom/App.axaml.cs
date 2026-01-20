@@ -4,7 +4,7 @@ using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using AvaloniaUI.DiagnosticsSupport;
-using Diplom.Helpers;
+using Diplom.Services;
 using Diplom.ViewModels;
 using Diplom.Views;
 using Serilog;
@@ -34,6 +34,7 @@ public partial class App : Application
 #endif
 
         Log.Information("App is started!");
+        SQLiteService.start();
     }
 
     public override void OnFrameworkInitializationCompleted()

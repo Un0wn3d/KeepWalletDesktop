@@ -1,5 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Diplom.Helpers;
+using Diplom.Services;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using Serilog;
