@@ -14,16 +14,34 @@
             VerticalAlignment="Stretch"
             Margin="10">
             
-        <Grid RowDefinitions="*, auto"
+        <Grid RowDefinitions="Auto, *, Auto"
               HorizontalAlignment="Center">
                 
             <!-- Icon -->
             <StackPanel Grid.Row="0">
                 <Image Source="../../Assets/avalonia-logo.ico" />
             </StackPanel>
+            
+            <StackPanel Grid.Row="1">
+                <Button Background="Aqua">
+                    <StackPanel>
+                        <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                        <!-- <Label Content="Home"></Label> -->
+                    </StackPanel>
+                </Button>
+                <Button Background="Aqua">
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                </Button>
+                <Button Background="Aqua">
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                </Button>
+                <Button Background="Aqua">
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                </Button>
+            </StackPanel>
 
             <!-- Buttons -->
-            <Button Grid.Row="1" Focusable="False" Background="Transparent" Name="Settings">
+            <Button Grid.Row="2" Focusable="False" Background="Transparent" Name="Settings">
                 <StackPanel>
                     <Svg Path="/Assets/settings.svg"></Svg>
                 </StackPanel>

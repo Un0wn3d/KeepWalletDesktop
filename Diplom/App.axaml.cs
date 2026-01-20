@@ -29,7 +29,7 @@ public partial class App : Application
         AvaloniaXamlLoader.Load(this);
 
 #if DEBUG
-        AllocConsole();
+        // AllocConsole();
         this.AttachDeveloperTools();
 #endif
 
