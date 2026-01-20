@@ -30,22 +30,25 @@
                     </StackPanel>
                 </Button>
                 <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE1D2;"></Label>
                 </Button>
                 <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xEA04;"></Label>
                 </Button>
                 <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE4AE;"></Label>
+                </Button>
+                <Button Background="Aqua">
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE10A;"></Label>
                 </Button>
             </StackPanel>
 
             <!-- Buttons -->
-            <Button Grid.Row="2" Focusable="False" Background="Transparent" Name="Settings">
-                <StackPanel>
-                    <Svg Path="/Assets/settings.svg"></Svg>
-                </StackPanel>
-            </Button>
+            <StackPanel Grid.Row="2">
+                <Button Focusable="False" Background="Aqua" Name="Settings">
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE270;"></Label>
+                </Button>
+            </StackPanel>
         </Grid>
     </Border>
 </UserControl>
