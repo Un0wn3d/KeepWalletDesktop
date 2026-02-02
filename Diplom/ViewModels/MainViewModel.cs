@@ -5,12 +5,15 @@ using LiveChartsCore.SkiaSharpView;
 using Serilog;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Diplom.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
+
     public ISeries[] Series { get; set; }
         = new ISeries[]
         {
@@ -20,29 +23,22 @@ public partial class MainViewModel : ViewModelBase
             new PieSeries<double> { Values = new double[] { 4 } },
             new PieSeries<double> { Values = new double[] { 3 } }
         };
-
-    private readonly DatabaseService _databaseService;
-
+    
     [ObservableProperty]
-    private ObservableCollection<DatabaseService.Transaction> _latestExpenses = new();
-
+    private ObservableCollection<Transaction> latestExpenses;
     public MainViewModel()
     {
-        _databaseService = new DatabaseService();
-        LoadLatestExpenses();
+        latestExpenses = new ObservableCollection<Transaction>();
+        Transactions();
     }
 
-    private async void LoadLatestExpenses()
+    private void Transactions()
     {
-        try
-        {
-            var expenses = await _databaseService.GetLatestExpensesAsync(5);
-            Log.Information("Loaded {Count} expenses", expenses.Count);
-            LatestExpenses = new ObservableCollection<DatabaseService.Transaction>(expenses);
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Failed to load expenses");
-        }
+        using var db = new AppDBContext();
+        var transactions = db.Transaction.ToList();
+        
+        
+        LatestExpenses = new ObservableCollection<Transaction>(transactions);
     }
+
 }

@@ -1,44 +1,33 @@
-﻿using System;
-using Microsoft.Data.Sqlite;
-using Serilog;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Diplom.Services;
 
-public class SQLiteService
+public class AppDBContext : DbContext
 {
-    public static void start()
+    public DbSet<Transaction> Transaction { get; set; }
+
+    public string DbPath { get; }
+
+    public AppDBContext()
     {
-        Log.Information("Starting SQLite");
-        
-        try
-        {
-            Log.Information("Connecting SQLite");
-            using var connection = new SqliteConnection("Data Source=identifier.sqlite");
-
-            connection.Open();
-
-            Log.Information("Executing SQLite");
-            using var command = connection.CreateCommand();
-            command.CommandText = """
-                                  SELECT name
-                                  FROM nt
-                              """;
-
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                var name = reader.GetString(0);
-    
-                Log.Information($"{name}");
-                Console.WriteLine($"Hello, {name}!");
-            }
-            }
-        catch (Exception e)
-        {
-            Log.Error(e, "fuck");
-            throw;
-        }
-        
+        // var folder = Environment.SpecialFolder.LocalApplicationData;
+        // var path = Environment.GetFolderPath(folder);
+        // DbPath = System.IO.Path.Join(path, "base.db");
+        DbPath = "base.db";
     }
+
+    // The following configures EF to create a Sqlite database file in the
+    // special "local" folder for your platform.
+    protected override void OnConfiguring(DbContextOptionsBuilder options)
+        => options.UseSqlite($"Data Source={DbPath}");
+}
+
+public class Transaction
+{
+    public int ID { get; set; }
+    public string Type { get; set; }
+    public double Cost { get; set; }
 }

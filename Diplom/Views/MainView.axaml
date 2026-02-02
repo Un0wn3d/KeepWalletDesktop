@@ -23,6 +23,7 @@
     </Design.DataContext>
 
     <!-- APP -->
+        
     <Grid ColumnDefinitions="Auto, *" MinWidth="500">
         <!-- Left Panel -->
         <controls:LeftPanel Grid.Column="0"></controls:LeftPanel>
@@ -30,6 +31,7 @@
         
         <!-- Main -->
         <Border Grid.Column="1" Margin="10, 10, 10, 10">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
             
             <!-- Up Panel, money, analysis, all transactions -->
             <Grid RowDefinitions="Auto, 100, 300, Auto" RowSpacing="10">
@@ -88,25 +90,39 @@
                 
                 <!-- all transactions -->
                 <Border Grid.Row="3" Background="Aquamarine" CornerRadius="15" Padding="10">
-                    <StackPanel>
-                        <TextBlock Text="Останні витрати"
+                    <Grid RowDefinitions="Auto, Auto">
+                        <TextBlock Grid.Row="0" Text="Останні витрати"
                                    FontWeight="Bold"
                                    Margin="0,0,0,8"/>
-                        <ItemsControl ItemsSource="{Binding LatestExpenses}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="services:DatabaseService+Transaction">
-                                    <Border Margin="0,4" Padding="8" Background="#EEFFFFFF" CornerRadius="8">
+                        
+                        <ListBox Grid.Row="1" ItemsSource="{Binding LatestExpenses}" Background="Aquamarine">
+                            <ListBox.Styles>
+                                <Style Selector="ListBoxItem">
+                                    <Setter Property="Margin" Value="0"/>
+                                    <Setter Property="Padding" Value="0"/>
+                                </Style>
+                            </ListBox.Styles>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0,6" Padding="8" Background="#EEFFFFFF" CornerRadius="8">
                                         <Grid ColumnDefinitions="*, Auto">
-                                            <TextBlock Text="{Binding TransactionType}" Foreground="Black" VerticalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="{Binding Amount}" Foreground="Black" FontWeight="Bold"/>
+                                            <TextBlock Grid.Column="0" Text="{Binding Type}" 
+                                                       Foreground="Black" 
+                                                       VerticalAlignment="Center"/>
+                    
+                                            <TextBlock Grid.Column="1" 
+                                                       Text="{Binding Cost, StringFormat='{}{0:F2}'}" 
+                                                       Foreground="Black" 
+                                                       FontWeight="Bold"/>
                                         </Grid>
                                     </Border>
                                 </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
                 </Border>
             </Grid>
+    </ScrollViewer>
         </Border>
     </Grid>
     

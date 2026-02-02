@@ -12,33 +12,33 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Diplom;
 
 public partial class App : Application
 {
-#if DEBUG
-    [DllImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool AllocConsole();
-#endif
-
     public override void Initialize()
     {
-        SerilogConfig.Initialize();
         AvaloniaXamlLoader.Load(this);
-
-#if DEBUG
-        // AllocConsole();
         this.AttachDeveloperTools();
-#endif
-
-        Log.Information("App is started!");
-        SQLiteService.start();
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
+        SerilogConfig.Initialize();
+        using var db = new AppDBContext();
+
+        for (int i = 0; 10 >i; i++)
+        {
+            db.Add(new Transaction { Type = "Expence", Cost = 1002 });
+        }
+
+        db.SaveChanges();
+        
+        Log.Information("App is started!");
+        
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -69,14 +69,14 @@ public partial class App : Application
     
     private async Task InitializeAsync()
     {
-        try
-        {
-            var db = new DatabaseService();
-            await db.ReadDataAsync();
-        }
-        catch (Exception ex)
-        {
-            Log.Error(ex, "Database error");
-        }
+        // try
+        // {
+        //     var db = new DatabaseService();
+        //     await db.ReadDataAsync();
+        // }
+        // catch (Exception ex)
+        // {
+        //     Log.Error(ex, "Database error");
+        // }
     }
 }
