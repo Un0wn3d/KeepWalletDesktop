@@ -18,35 +18,51 @@
               HorizontalAlignment="Center">
                 
             <!-- Icon -->
-            <StackPanel Grid.Row="0">
+            <StackPanel Grid.Row="0" Margin="0,0,0,10">
                 <Image Source="../../Assets/avalonia-logo.ico" />
             </StackPanel>
             
-            <StackPanel Grid.Row="1">
-                <Button Background="Aqua">
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" Spacing="2" >
+                <Button>
                     <StackPanel>
-                        <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE2C2;"></Label>
+                        <Button FontFamily="{DynamicResource Phosphor-Fill}" 
+                               Classes="icon" 
+                               Content="&#xE2C2;" 
+                               Foreground="Cyan"
+                               FontSize="25"
+                               Click="btn_Home">
+                        </Button>
                         <!-- <Label Content="Home"></Label> -->
                     </StackPanel>
                 </Button>
-                <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE1D2;"></Label>
+                <Button>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE1D2;"
+                           Foreground="Cyan"
+                           FontSize="25"></Label>
                 </Button>
-                <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xEA04;"></Label>
+                <Button>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xEA04;"
+                           Foreground="Cyan"
+                           FontSize="25"></Label>
                 </Button>
-                <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE4AE;"></Label>
+                <Button>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE4AE;"
+                           Foreground="Cyan"
+                           FontSize="25"></Label>
                 </Button>
-                <Button Background="Aqua">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE10A;"></Label>
+                <Button>
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE10A;"
+                           Foreground="Cyan"
+                           FontSize="25"></Label>
                 </Button>
             </StackPanel>
 
             <!-- Buttons -->
-            <StackPanel Grid.Row="2">
-                <Button Focusable="False" Background="Aqua" Name="Settings">
-                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE270;"></Label>
+            <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                <Button Focusable="False" Name="Settings">
+                    <Label FontFamily="{DynamicResource Phosphor-Fill}" Classes="icon" Content="&#xE270;"
+                               Foreground="Cyan"
+                               FontSize="25"></Label>
                 </Button>
             </StackPanel>
         </Grid>

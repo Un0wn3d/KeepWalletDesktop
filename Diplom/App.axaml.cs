@@ -12,7 +12,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System;
-using System.Linq;
 using Microsoft.EntityFrameworkCore;
 
 namespace Diplom;
@@ -32,7 +31,11 @@ public partial class App : Application
 
         for (int i = 0; 10 >i; i++)
         {
-            db.Add(new Transaction { Type = "Expence", Cost = 1002 });
+            db.Add(new Transaction { Type = "Expense", Cost = 1002 });
+        }
+        for (int i = 0; 10 >i; i++)
+        {
+            db.Add(new Transaction { Type = "Income", Cost = 2000 });
         }
 
         db.SaveChanges();

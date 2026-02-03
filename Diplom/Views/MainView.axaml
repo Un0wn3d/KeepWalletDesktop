@@ -6,9 +6,6 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:controls="clr-namespace:Diplom.Views.Controls"
         xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
-        xmlns:sys="clr-namespace:System;assembly=netstandard"
-        xmlns:scg="clr-namespace:System.Collections.Generic;assembly=netstandard"
-        xmlns:services="clr-namespace:Diplom.Services"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Diplom.Views.MainView"
         x:DataType="vm:MainViewModel"
@@ -47,13 +44,38 @@
                 <Border Grid.Row="1">
                     <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
                         <Border Grid.Column="0" Background="Blue" CornerRadius="15" Padding="10">
-                            <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Всього" />
+                            <StackPanel>
+                                <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Всього" />
+                                <TextBlock 
+                                    Foreground="{DynamicResource Color.Text2}" 
+                                    Text="{Binding Money}"
+                                    FontSize="32"
+                                    FontWeight="Bold"
+                                    TextAlignment="Center"/>
+                            </StackPanel>
+                            
                         </Border>
                         <Border Grid.Column="1" Background="Green" CornerRadius="15" Padding="10">
-                            <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Дохід" />
+                            <StackPanel>
+                                <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Дохід" />
+                                <TextBlock 
+                                    Foreground="{DynamicResource Color.Text2}" 
+                                    Text="{Binding Income}"
+                                    FontSize="32"
+                                    FontWeight="Bold"
+                                    TextAlignment="Center"/>
+                            </StackPanel>
                         </Border>
                         <Border Grid.Column="2" Background="Red" CornerRadius="15" Padding="10">
-                            <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Витрати" />
+                            <StackPanel>
+                                <TextBlock Foreground="{DynamicResource Color.Text2}" Text="Витрати" />
+                                <TextBlock 
+                                    Foreground="{DynamicResource Color.Text2}" 
+                                    Text="{Binding Expense}"
+                                    FontSize="32"
+                                    FontWeight="Bold"
+                                    TextAlignment="Center"/>
+                            </StackPanel>
                         </Border>
                     </Grid>
                 </Border>
@@ -73,15 +95,9 @@
                         <Border Grid.Column="1" Background="AliceBlue" CornerRadius="15" Padding="10">
                             <Grid RowDefinitions="Auto, *">
                                 <TextBlock Foreground="{DynamicResource Color.Text1}" Text="Доходи та Витрати" />
-                                <lvc:CartesianChart Grid.Row="1" SeriesSource="" Background="AliceBlue" Foreground="{DynamicResource Color.Text1}">
-                                    <lvc:CartesianChart.SeriesTemplate>
-                                        <DataTemplate>
-                                            <lvc:XamlColumnSeries
-                                                SeriesName="123"
-                                                Values="2"
-                                                Fill=""/>
-                                        </DataTemplate>
-                                    </lvc:CartesianChart.SeriesTemplate>
+                                <lvc:CartesianChart Grid.Row="1" Background="AliceBlue" Foreground="{DynamicResource Color.Text1}"
+                                                    Series="{Binding Chart}">
+                                    
                                 </lvc:CartesianChart>
                             </Grid>
                         </Border>
