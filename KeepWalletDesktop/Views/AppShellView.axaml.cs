@@ -11,30 +11,31 @@ public partial class AppShellView : UserControl
         InitializeComponent();
     }
 
-    private void CategoryLimit_OnLostFocus(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void AppShell_OnKeyDown(object? sender, KeyEventArgs e)
     {
-        SaveCategoryLimit(sender);
-    }
-
-    private void CategoryLimit_OnKeyDown(object? sender, KeyEventArgs e)
-    {
-        if (e.Key != Key.Enter)
+        if (e.Key != Key.Escape ||
+            DataContext is not MainViewModel { IsCategoryDetailsOpen: true } viewModel)
         {
             return;
         }
 
-        SaveCategoryLimit(sender);
+        viewModel.CloseCategoryDetailsCommand.Execute(null);
         e.Handled = true;
     }
 
-    private void SaveCategoryLimit(object? sender)
+    private void CategoryDetailsOverlay_OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (sender is not TextBox { DataContext: CategoryDetailItemViewModel category } ||
-            DataContext is not MainViewModel viewModel)
+        if (!ReferenceEquals(e.Source, sender))
         {
             return;
         }
 
-        viewModel.UpdateCategoryLimitCommand.Execute(category);
+        if (DataContext is not MainViewModel { IsCategoryDetailsOpen: true } viewModel)
+        {
+            return;
+        }
+
+        viewModel.CloseCategoryDetailsCommand.Execute(null);
+        e.Handled = true;
     }
 }

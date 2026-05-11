@@ -352,7 +352,11 @@ public partial class MainViewModel : ViewModelBase
     public MainViewModel()
     {
         var apiOptions = AppConfiguration.GetApiOptions();
-        ApiBaseUrl = apiOptions.BaseUrl;
+        var userSettings = UserSettingsStore.Load();
+        ApiBaseUrl = string.IsNullOrWhiteSpace(userSettings.ApiBaseUrl)
+            ? apiOptions.BaseUrl
+            : userSettings.ApiBaseUrl;
+        ApiLogin = userSettings.LastLogin;
         LoadServerSettingsFromBaseUrl();
         InitializeLanguages();
         ResetAuthorizedUser();
@@ -714,6 +718,7 @@ public partial class MainViewModel : ViewModelBase
         _apiClient?.Dispose();
         _apiClient = null;
         IsServerDialogOpen = false;
+        SaveLocalUserSettings();
         ApiStatusMessage = $"{Texts.ApiConnectionTitle}: {ApiBaseUrl}";
     }
 
@@ -740,6 +745,7 @@ public partial class MainViewModel : ViewModelBase
 
             var auth = await _apiClient!.LoginAsync(ApiLogin.Trim(), ApiPassword);
             ApplyAuthorizedUser(auth.Username, auth.Email, auth.RoleName);
+            SaveLocalUserSettings();
             ApiPassword = string.Empty;
             ApiStatusMessage = $"{Texts.LoginSuccessPrefix}: {auth.Username}.";
             await LoadCategoriesAsync();
@@ -793,6 +799,7 @@ public partial class MainViewModel : ViewModelBase
 
             ApplyAuthorizedUser(auth.Username, auth.Email, auth.RoleName);
             ApiLogin = RegisterEmail.Trim();
+            SaveLocalUserSettings();
             ApiPassword = string.Empty;
             RegisterPassword = string.Empty;
             ApiStatusMessage = $"{Texts.RegisterSuccessPrefix}: {auth.Username}.";
@@ -1578,6 +1585,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenCategoryDetailsAsync()
     {
+        await LoadTransactionsAsync();
         await LoadBudgetsAsync();
         UpdateCategoryDetails();
         IsCategoryDetailsOpen = true;
@@ -1631,6 +1639,61 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task SaveCategoryDetailsAsync()
+    {
+        if (IsApiBusy)
+        {
+            return;
+        }
+
+        var categories = CategoryDetails.ToArray();
+        if (categories.Length == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+
+            foreach (var category in categories)
+            {
+                if (!category.TryApplyLimit() ||
+                    !int.TryParse(category.CategoryCode, NumberStyles.Integer, CultureInfo.InvariantCulture, out var categoryId))
+                {
+                    continue;
+                }
+
+                var budget = await _apiClient!.UpsertBudgetAsync(
+                    categoryId,
+                    new UpsertBudgetRequestDto(
+                        SelectedBankAccount?.GroupId,
+                        category.Limit,
+                        TimeSpan.FromDays(30),
+                        DateOnly.FromDateTime(DateTime.Today),
+                        true));
+
+                categoryLimits[budget.CategoryId.ToString(CultureInfo.InvariantCulture)] = budget.Amount;
+            }
+
+            UpdateCategoryDetails();
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
     private void CloseTransactionDialog()
     {
         IsTransactionDialogOpen = false;
@@ -1648,6 +1711,15 @@ public partial class MainViewModel : ViewModelBase
 
         ServerHost = $"{uri.Scheme}://{uri.Host}";
         ServerPort = uri.IsDefaultPort ? string.Empty : uri.Port.ToString(CultureInfo.InvariantCulture);
+    }
+
+    private void SaveLocalUserSettings()
+    {
+        UserSettingsStore.Save(new UserSettings
+        {
+            ApiBaseUrl = ApiBaseUrl.Trim().TrimEnd('/'),
+            LastLogin = ApiLogin.Trim()
+        });
     }
 
     private void UpdateCharts()

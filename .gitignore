@@ -9,3 +9,5 @@ riderModule.iml
 KeepWalletDesktop/logs/
 *.DotSettings.user
 .codex
+Directory.Build.props
+Directory.Build.targets

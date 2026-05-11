@@ -175,7 +175,7 @@ public partial class CategoryDetailItemViewModel : ObservableObject
                 Values = [used],
                 Fill = new SolidColorPaint(gaugeColor),
                 Stroke = null,
-                InnerRadius = 70,
+                InnerRadius = 78,
                 DataLabelsSize = 0
             },
             new PieSeries<double>
@@ -183,7 +183,7 @@ public partial class CategoryDetailItemViewModel : ObservableObject
                 Values = [remaining],
                 Fill = new SolidColorPaint(new SKColor(226, 232, 240)),
                 Stroke = null,
-                InnerRadius = 70,
+                InnerRadius = 78,
                 DataLabelsSize = 0
             }
         ];
