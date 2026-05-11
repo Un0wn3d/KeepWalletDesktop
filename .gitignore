@@ -7,3 +7,5 @@ riderModule.iml
 .idea/
 /logs
 appsettings.json
+*.DotSettings.user
+.codex

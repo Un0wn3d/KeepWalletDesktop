@@ -1,0 +1,145 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="KeepWalletDesktop.Views.GroupsView"
+             x:DataType="vm:MainViewModel">
+    <Border Grid.Column="1" Margin="10" IsVisible="{Binding IsGroupsPage}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12">
+                <TextBlock Text="{Binding Texts.GroupsTitle}" Classes="page-title" />
+
+                <Border Classes="panel-card">
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                        <TextBox Text="{Binding NewGroupNameInput}"
+                                 Watermark="{Binding Texts.GroupNameHint}" />
+                        <Button Grid.Column="1"
+                                Content="{Binding Texts.AddGroupButton}"
+                                Classes="primary-button"
+                                Command="{Binding AddGroupCommand}" />
+                    </Grid>
+                </Border>
+
+                <ItemsControl ItemsSource="{Binding Groups}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:GroupItemViewModel">
+                            <Border Classes="list-item-card">
+                                <Grid ColumnDefinitions="2*, *, *, *" ColumnSpacing="12">
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1" Text="{Binding RoleName}" Classes="muted" />
+                                    <TextBlock Grid.Column="2" Text="{Binding MemberCount}" />
+                                    <TextBlock Grid.Column="3" Text="{Binding CreatedAtDisplay}" Classes="muted" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Classes="panel-card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="Group access" Classes="card-title" />
+
+                        <Grid ColumnDefinitions="*, *, Auto" ColumnSpacing="8">
+                            <ComboBox ItemsSource="{Binding Groups}"
+                                      SelectedItem="{Binding SelectedAccessGroup}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:GroupItemViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding GroupMemberRoles}"
+                                      SelectedItem="{Binding SelectedGroupMemberRole}" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
+                            <TextBox Text="{Binding GroupMemberLoginInput}"
+                                     Watermark="Search by username, email or name" />
+                            <Button Grid.Column="1"
+                                    Content="Search"
+                                    Classes="secondary-button"
+                                    Command="{Binding SearchGroupUsersCommand}" />
+                            <Button Grid.Column="2"
+                                    Content="Add user"
+                                    Classes="primary-button"
+                                    Command="{Binding AddGroupMemberCommand}" />
+                        </Grid>
+
+                        <ComboBox ItemsSource="{Binding GroupUserSearchResults}"
+                                  SelectedItem="{Binding SelectedGroupUser}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:UserListItemViewModel">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding Username}" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Email}" Classes="muted" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <TextBlock Text="Members" FontWeight="SemiBold" />
+                        <ItemsControl ItemsSource="{Binding SelectedGroupMembers}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:GroupMemberItemViewModel">
+                                    <Grid ColumnDefinitions="2*, 2*, *, Auto" ColumnSpacing="8" Margin="0,4">
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding Username}" FontWeight="SemiBold" />
+                                            <TextBlock Text="{Binding FullName}" Classes="muted" />
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding RoleName}"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding JoinedAtDisplay}"
+                                                   Classes="muted"
+                                                   VerticalAlignment="Center" />
+                                        <Button Grid.Column="3"
+                                                Content="Remove"
+                                                Classes="secondary-button"
+                                                Command="{Binding $parent[UserControl].DataContext.RemoveGroupMemberCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                            <ComboBox ItemsSource="{Binding BankAccounts}"
+                                      SelectedItem="{Binding SelectedSharedBankAccount}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BankAccountItemViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1"
+                                    Content="Share account"
+                                    Classes="secondary-button"
+                                    Command="{Binding ShareBankAccountWithGroupCommand}" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                            <ComboBox ItemsSource="{Binding Savings}"
+                                      SelectedItem="{Binding SelectedSharedSaving}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:SavingOptionViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="1"
+                                    Content="Share savings"
+                                    Classes="secondary-button"
+                                    Command="{Binding ShareSavingWithGroupCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

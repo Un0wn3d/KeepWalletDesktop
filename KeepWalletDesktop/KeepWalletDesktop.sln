@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepWalletDesktop", "KeepWalletDesktop.csproj", "{58838BE5-2C1D-5EA4-3957-DA7DCF0F652C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{58838BE5-2C1D-5EA4-3957-DA7DCF0F652C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58838BE5-2C1D-5EA4-3957-DA7DCF0F652C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58838BE5-2C1D-5EA4-3957-DA7DCF0F652C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58838BE5-2C1D-5EA4-3957-DA7DCF0F652C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A7FE5FE6-13A2-4358-9B26-26AA2080CF50}
+	EndGlobalSection
+EndGlobal

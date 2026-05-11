@@ -1,0 +1,229 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="KeepWalletDesktop.Views.HomeView"
+             x:DataType="vm:MainViewModel">
+        <Border Grid.Column="1" Margin="10, 10, 10, 10" IsVisible="{Binding IsHomePage}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid RowDefinitions="100, 220, Auto" RowSpacing="10">
+                    <Border Grid.Row="0">
+                        <Grid ColumnDefinitions="*, *, *" ColumnSpacing="10">
+                            <Border Grid.Column="0" Classes="metric-card total">
+                                <StackPanel>
+                                    <TextBlock Foreground="{DynamicResource Color.Text2}" Text="{Binding Texts.Total}" />
+                                    <TextBlock Foreground="{DynamicResource Color.Text2}"
+                                               Text="{Binding Money}"
+                                               FontSize="32"
+                                               FontWeight="Bold"
+                                               TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1" Classes="metric-card income">
+                                <StackPanel>
+                                    <TextBlock Foreground="{DynamicResource Color.Text2}" Text="{Binding Texts.Income}" />
+                                    <TextBlock Foreground="{DynamicResource Color.Text2}"
+                                               Text="{Binding Income}"
+                                               FontSize="32"
+                                               FontWeight="Bold"
+                                               TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Classes="metric-card expense">
+                                <StackPanel>
+                                    <TextBlock Foreground="{DynamicResource Color.Text2}" Text="{Binding Texts.Expenses}" />
+                                    <TextBlock Foreground="{DynamicResource Color.Text2}"
+                                               Text="{Binding Expense}"
+                                               FontSize="32"
+                                               FontWeight="Bold"
+                                               TextAlignment="Center" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1">
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
+                            <Button Grid.Column="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0"
+                                    MinHeight="0"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch"
+                                    VerticalContentAlignment="Stretch"
+                                    Command="{Binding OpenCategoryDetailsCommand}">
+                                <Border Classes="panel-card alt"
+                                        HorizontalAlignment="Stretch"
+                                        VerticalAlignment="Stretch">
+                                    <Grid RowDefinitions="Auto, *">
+                                        <TextBlock Foreground="{DynamicResource Color.Text1}"
+                                                   Text="{Binding Texts.TransactionBreakdownTitle}" />
+                                        <Grid Grid.Row="1" ColumnDefinitions="*, 220" ColumnSpacing="10">
+                                            <lvc:PieChart Grid.Column="0"
+                                                          Background="{DynamicResource Color.SurfaceAlt}"
+                                                          Series="{Binding Series}" />
+                                            <ItemsControl Grid.Column="1"
+                                                          ItemsSource="{Binding ExpenseCategoryLegend}"
+                                                          IsVisible="{Binding HasExpenseTransactions}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CategoryLegendItemViewModel">
+                                                        <Grid ColumnDefinitions="14, *, Auto"
+                                                              ColumnSpacing="8"
+                                                              Margin="0,4">
+                                                            <Border Width="10"
+                                                                    Height="10"
+                                                                    CornerRadius="5"
+                                                                    Background="{Binding ColorBrush}"
+                                                                    VerticalAlignment="Center" />
+                                                            <TextBlock Grid.Column="1"
+                                                                       Text="{Binding Name}"
+                                                                       TextWrapping="Wrap"
+                                                                       VerticalAlignment="Center" />
+                                                            <TextBlock Grid.Column="2"
+                                                                       Text="{Binding AmountDisplay}"
+                                                                       Classes="muted"
+                                                                       VerticalAlignment="Center" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                            <TextBlock Text="{Binding Texts.ChartNoDataText}"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       IsVisible="{Binding HasNoExpenseTransactions}" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </Button>
+                            <Border Grid.Column="1" Classes="panel-card alt">
+                                <Grid RowDefinitions="Auto, *">
+                                    <TextBlock Foreground="{DynamicResource Color.Text1}"
+                                               Text="{Binding Texts.TransactionTimelineTitle}" />
+                                    <Grid Grid.Row="1">
+                                        <lvc:CartesianChart Background="{DynamicResource Color.SurfaceAlt}"
+                                                            Series="{Binding Chart}"
+                                                            XAxes="{Binding TransactionTimelineXAxes}"
+                                                            YAxes="{Binding TransactionTimelineYAxes}" />
+                                        <TextBlock Text="{Binding Texts.ChartNoDataText}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"
+                                                   IsVisible="{Binding HasNoTransactions}" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Classes="expenses-card">
+                            <Grid RowDefinitions="Auto, Auto, Auto, *">
+                                <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,8">
+                                    <TextBlock Grid.Column="0"
+                                               Text="{Binding Texts.TransactionsSectionTitle}"
+                                               Classes="card-title" />
+                                    <Button Grid.Column="1"
+                                            Content="{Binding Texts.AllTransactionsLink}"
+                                            Classes="link-button"
+                                            Command="{Binding OpenAllTransactionsCommand}" />
+                                </Grid>
+
+                                <TextBlock Grid.Row="1"
+                                           Text="{Binding Texts.NoTransactionsText}"
+                                           IsVisible="{Binding HasNoTransactions}"
+                                           Margin="0,0,0,8" />
+
+                                <Grid Grid.Row="2"
+                                      ColumnDefinitions="72, 5*, 2*, 2*"
+                                      ColumnSpacing="12"
+                                      Margin="8,0,8,2"
+                                      IsVisible="{Binding HasTransactions}">
+                                    <TextBlock Text="{Binding Texts.TransactionDateLabel}"
+                                               Classes="muted"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding Texts.TransactionDescriptionLabel}"
+                                               Classes="muted"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="2"
+                                               Text="{Binding Texts.TransactionCategoryLabel}"
+                                               Classes="muted"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="3"
+                                               Text="{Binding Texts.TransactionAmountLabel}"
+                                               Classes="muted"
+                                               FontWeight="SemiBold" />
+                                </Grid>
+
+                                <ItemsControl Grid.Row="3" ItemsSource="{Binding VisibleTransactions}" Background="{DynamicResource Color.AquaPanel}">
+                                    <ItemsControl.Styles>
+                                        <Style Selector="Button.transaction-row-button">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                        </Style>
+                                        <Style Selector="Button.transaction-row-button:pointerover">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                        </Style>
+                                        <Style Selector="Button.transaction-row-button:pressed">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                        </Style>
+                                        <Style Selector="Button.transaction-row-button:pointerover /template/ ContentPresenter">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                        </Style>
+                                        <Style Selector="Button.transaction-row-button:pressed /template/ ContentPresenter">
+                                            <Setter Property="Background" Value="Transparent" />
+                                            <Setter Property="BorderBrush" Value="Transparent" />
+                                        </Style>
+                                    </ItemsControl.Styles>
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:TransactionItemViewModel">
+                                            <Button Background="Transparent"
+                                                    Classes="transaction-row-button"
+                                                    BorderThickness="0"
+                                                    Padding="0"
+                                                    HorizontalAlignment="Stretch"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    Command="{Binding $parent[UserControl].DataContext.EditTransactionCommand}"
+                                                    CommandParameter="{Binding .}">
+                                                <Border Classes="list-item-card">
+                                                    <Grid ColumnDefinitions="72, 5*, 2*, 2*"
+                                                          ColumnSpacing="12"
+                                                          VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding TransactionDateShortDisplay}"
+                                                                   VerticalAlignment="Center"
+                                                                   FontWeight="SemiBold" />
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding DescriptionDisplay}"
+                                                                   VerticalAlignment="Center"
+                                                                   TextWrapping="Wrap" />
+                                                        <Border Grid.Column="2"
+                                                                Background="{DynamicResource Color.SurfaceAlt}"
+                                                                CornerRadius="20"
+                                                                Padding="12,6">
+                                                            <TextBlock Text="{Binding CategoryDisplay}"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="3"
+                                                                   Text="{Binding AmountDisplay}"
+                                                                   VerticalAlignment="Center"
+                                                                   FontWeight="Bold" />
+                                                    </Grid>
+                                                </Border>
+                                            </Button>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </Border>
+</UserControl>

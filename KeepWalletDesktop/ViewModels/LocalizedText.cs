@@ -1,0 +1,391 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Linq;
+
+namespace KeepWalletDesktop.ViewModels;
+
+public interface ILocalizedText
+{
+    string WelcomeText { get; }
+    string ExitButton { get; }
+    string Greeting { get; }
+    string Total { get; }
+    string Income { get; }
+    string Expenses { get; }
+    string ExpensesByCategory { get; }
+    string IncomeAndExpenses { get; }
+    string LatestExpenses { get; }
+    string AuthSubtitle { get; }
+    string LoginTitle { get; }
+    string ApiUrlLabel { get; }
+    string ServerHostLabel { get; }
+    string ServerPortLabel { get; }
+    string LoginOrEmailLabel { get; }
+    string PasswordLabel { get; }
+    string LoginButton { get; }
+    string RegisterTitle { get; }
+    string UsernameLabel { get; }
+    string EmailLabel { get; }
+    string FullNameLabel { get; }
+    string RegisterButton { get; }
+    string NotRegisteredPrompt { get; }
+    string SwitchToRegisterLink { get; }
+    string AlreadyRegisteredPrompt { get; }
+    string SwitchToLoginLink { get; }
+    string ApiUserPrefix { get; }
+    string ApiIntegrationInProgress { get; }
+    string SqliteDisabledDesktop { get; }
+    string NextStepConnectApi { get; }
+    string BankAccountsTitle { get; }
+    string BankAccountsUnavailableText { get; }
+    string BankAccountDefaultLabel { get; }
+    string NewBankAccountButton { get; }
+    string BankAccountDetailsTitle { get; }
+    string PiggyBankTitle { get; }
+    string AvailableBalanceLabel { get; }
+    string SavingNameLabel { get; }
+    string GoalAmountLabel { get; }
+    string GoalAmountHint { get; }
+    string InterestRateLabel { get; }
+    string SaveGoalButton { get; }
+    string SavingsAmountLabel { get; }
+    string SavingsAmountHint { get; }
+    string AddToSavingsButton { get; }
+    string GoalProgressLabel { get; }
+    string SavedAmountPrefix { get; }
+    string RemainingAmountPrefix { get; }
+    string SavingItemsTitle { get; }
+    string SavingItemNameHint { get; }
+    string SavingItemAmountHint { get; }
+    string AddSavingItemButton { get; }
+    string SavingRateHistoryTitle { get; }
+    string SettingsTitle { get; }
+    string UsersTitle { get; }
+    string UserLogsTitle { get; }
+    string UserAccessLabel { get; }
+    string GroupsTitle { get; }
+    string GroupNameHint { get; }
+    string AddGroupButton { get; }
+    string StatusLabel { get; }
+    string UserLabel { get; }
+    string RoleLabel { get; }
+    string ApiConnectionTitle { get; }
+    string RefreshProfileButton { get; }
+    string OpenAuthButton { get; }
+    string ConfigureServerButton { get; }
+    string ServerSettingsTitle { get; }
+    string SaveServerSettingsButton { get; }
+    string CancelButton { get; }
+    string LanguageLabel { get; }
+    string UkrainianLanguage { get; }
+    string EnglishLanguage { get; }
+    string CreateTransactionButton { get; }
+    string CreatePiggyBankButton { get; }
+    string ConnectedStatus { get; }
+    string DisconnectedStatus { get; }
+    string GuestLabel { get; }
+    string DefaultRole { get; }
+    string LoginPasswordRequired { get; }
+    string ConnectingToApi { get; }
+    string LoginSuccessPrefix { get; }
+    string ApiConnectionErrorPrefix { get; }
+    string RegisterRequired { get; }
+    string RegisteringToApi { get; }
+    string RegisterSuccessPrefix { get; }
+    string RegisterErrorPrefix { get; }
+    string ApiSessionClosed { get; }
+    string ApiLogoutErrorPrefix { get; }
+    string CreateTransactionDisabled { get; }
+    string CreatePiggyBankDisabled { get; }
+    string SaveGoalDisabled { get; }
+    string SavingsOperationsDisabled { get; }
+    string ApiAvailableLoginRequired { get; }
+    string SessionActivePrefix { get; }
+    string ApiUnavailablePrefix { get; }
+    string AuthorizationRequired { get; }
+    string ApiBaseUrlMissing { get; }
+    string ApiOnlyModeTitle { get; }
+    string TransactionsEndpointMissing { get; }
+    string UnauthorizedError { get; }
+    string ConflictError { get; }
+    string ValidationErrorPrefix { get; }
+    string RequestErrorPrefix { get; }
+    string TransactionsSectionTitle { get; }
+    string TransactionEditorTitle { get; }
+    string TransactionTypeLabel { get; }
+    string TransactionAmountLabel { get; }
+    string TransactionCurrencyLabel { get; }
+    string TransactionCategoryLabel { get; }
+    string TransactionDateLabel { get; }
+    string TransactionTimeLabel { get; }
+    string TransactionDescriptionLabel { get; }
+    string TransactionIncomeType { get; }
+    string TransactionExpenseType { get; }
+    string SaveTransactionButton { get; }
+    string UpdateTransactionButton { get; }
+    string CancelEditTransactionButton { get; }
+    string EditTransactionButton { get; }
+    string DeleteTransactionButton { get; }
+    string NewTransactionButton { get; }
+    string NoTransactionsText { get; }
+    string TransactionSavedText { get; }
+    string TransactionUpdatedText { get; }
+    string TransactionDeletedText { get; }
+    string TransactionFormValidationText { get; }
+    string AllTransactionsLink { get; }
+    string TransactionDetailsTitle { get; }
+    string NoCategoryText { get; }
+    string TransactionDateHint { get; }
+    string TransactionTimeHint { get; }
+    string TransactionAmountHint { get; }
+    string TransactionCurrencyHint { get; }
+    string TransactionDescriptionHint { get; }
+    string TransactionBreakdownTitle { get; }
+    string TransactionTimelineTitle { get; }
+    string ChartNoDataText { get; }
+    string CategoryGroceries { get; }
+    string CategoryTransport { get; }
+    string CategoryHousing { get; }
+    string CategoryEntertainment { get; }
+    string CategoryHealth { get; }
+    string CategoryShopping { get; }
+    string CategoryEducation { get; }
+    string CategoryCafe { get; }
+    string CategoryOtherExpense { get; }
+    string CategorySalary { get; }
+    string CategoryFreelance { get; }
+    string CategoryGift { get; }
+    string CategoryInvestment { get; }
+    string CategoryRefund { get; }
+    string CategoryOtherIncome { get; }
+    string OnboardingTitle { get; }
+    string OnboardingSubtitle { get; }
+    string OnboardingAccountNameLabel { get; }
+    string OnboardingCurrencyLabel { get; }
+    string OnboardingCategoriesTitle { get; }
+    string OnboardingAddCategoryTitle { get; }
+    string OnboardingCategoryNameHint { get; }
+    string OnboardingAddCategoryButton { get; }
+    string OnboardingStartButton { get; }
+    string OnboardingCategoryNameRequired { get; }
+    string OnboardingAccountNameRequired { get; }
+    string OnboardingCategorySelectionRequired { get; }
+    string ScheduledPaymentsTitle { get; }
+    string ScheduledPaymentNameLabel { get; }
+    string ScheduledPaymentRepeatLabel { get; }
+    string ScheduledPaymentCustomRepeatHint { get; }
+    string AddScheduledPaymentButton { get; }
+    string ConfirmScheduledPaymentButton { get; }
+    string ScheduledPaymentPendingStatus { get; }
+    string ScheduledPaymentPaidStatus { get; }
+}
+
+public sealed class LocalizedText : ILocalizedText
+{
+    private readonly IReadOnlyDictionary<string, string> _values;
+
+    private LocalizedText(IReadOnlyDictionary<string, string> values)
+    {
+        _values = values;
+    }
+
+    public static LocalizedText Load(string languageCode)
+    {
+        var fileName = languageCode.Equals("en", StringComparison.OrdinalIgnoreCase)
+            ? "Strings.en.resx"
+            : "Strings.ua.resx";
+
+        var filePath = Path.Combine(AppContext.BaseDirectory, "Assets", "Localization", fileName);
+        var document = XDocument.Load(filePath);
+        var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var element in document.Root?.Elements("data") ?? [])
+        {
+            var key = element.Attribute("name")?.Value;
+            var value = element.Element("value")?.Value ?? string.Empty;
+
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                values[key] = value;
+            }
+        }
+
+        return new LocalizedText(values);
+    }
+
+    private string Get(string key) => _values.TryGetValue(key, out var value) ? value : key;
+
+    public string WelcomeText => Get(nameof(WelcomeText));
+    public string ExitButton => Get(nameof(ExitButton));
+    public string Greeting => Get(nameof(Greeting));
+    public string Total => Get(nameof(Total));
+    public string Income => Get(nameof(Income));
+    public string Expenses => Get(nameof(Expenses));
+    public string ExpensesByCategory => Get(nameof(ExpensesByCategory));
+    public string IncomeAndExpenses => Get(nameof(IncomeAndExpenses));
+    public string LatestExpenses => Get(nameof(LatestExpenses));
+    public string AuthSubtitle => Get(nameof(AuthSubtitle));
+    public string LoginTitle => Get(nameof(LoginTitle));
+    public string ApiUrlLabel => Get(nameof(ApiUrlLabel));
+    public string ServerHostLabel => Get(nameof(ServerHostLabel));
+    public string ServerPortLabel => Get(nameof(ServerPortLabel));
+    public string LoginOrEmailLabel => Get(nameof(LoginOrEmailLabel));
+    public string PasswordLabel => Get(nameof(PasswordLabel));
+    public string LoginButton => Get(nameof(LoginButton));
+    public string RegisterTitle => Get(nameof(RegisterTitle));
+    public string UsernameLabel => Get(nameof(UsernameLabel));
+    public string EmailLabel => Get(nameof(EmailLabel));
+    public string FullNameLabel => Get(nameof(FullNameLabel));
+    public string RegisterButton => Get(nameof(RegisterButton));
+    public string NotRegisteredPrompt => Get(nameof(NotRegisteredPrompt));
+    public string SwitchToRegisterLink => Get(nameof(SwitchToRegisterLink));
+    public string AlreadyRegisteredPrompt => Get(nameof(AlreadyRegisteredPrompt));
+    public string SwitchToLoginLink => Get(nameof(SwitchToLoginLink));
+    public string ApiUserPrefix => Get(nameof(ApiUserPrefix));
+    public string ApiIntegrationInProgress => Get(nameof(ApiIntegrationInProgress));
+    public string SqliteDisabledDesktop => Get(nameof(SqliteDisabledDesktop));
+    public string NextStepConnectApi => Get(nameof(NextStepConnectApi));
+    public string BankAccountsTitle => Get(nameof(BankAccountsTitle));
+    public string BankAccountsUnavailableText => Get(nameof(BankAccountsUnavailableText));
+    public string BankAccountDefaultLabel => Get(nameof(BankAccountDefaultLabel));
+    public string NewBankAccountButton => Get(nameof(NewBankAccountButton));
+    public string BankAccountDetailsTitle => Get(nameof(BankAccountDetailsTitle));
+    public string PiggyBankTitle => Get(nameof(PiggyBankTitle));
+    public string AvailableBalanceLabel => Get(nameof(AvailableBalanceLabel));
+    public string SavingNameLabel => Get(nameof(SavingNameLabel));
+    public string GoalAmountLabel => Get(nameof(GoalAmountLabel));
+    public string GoalAmountHint => Get(nameof(GoalAmountHint));
+    public string InterestRateLabel => Get(nameof(InterestRateLabel));
+    public string SaveGoalButton => Get(nameof(SaveGoalButton));
+    public string SavingsAmountLabel => Get(nameof(SavingsAmountLabel));
+    public string SavingsAmountHint => Get(nameof(SavingsAmountHint));
+    public string AddToSavingsButton => Get(nameof(AddToSavingsButton));
+    public string GoalProgressLabel => Get(nameof(GoalProgressLabel));
+    public string SavedAmountPrefix => Get(nameof(SavedAmountPrefix));
+    public string RemainingAmountPrefix => Get(nameof(RemainingAmountPrefix));
+    public string SavingItemsTitle => Get(nameof(SavingItemsTitle));
+    public string SavingItemNameHint => Get(nameof(SavingItemNameHint));
+    public string SavingItemAmountHint => Get(nameof(SavingItemAmountHint));
+    public string AddSavingItemButton => Get(nameof(AddSavingItemButton));
+    public string SavingRateHistoryTitle => Get(nameof(SavingRateHistoryTitle));
+    public string SettingsTitle => Get(nameof(SettingsTitle));
+    public string UsersTitle => Get(nameof(UsersTitle));
+    public string UserLogsTitle => Get(nameof(UserLogsTitle));
+    public string UserAccessLabel => Get(nameof(UserAccessLabel));
+    public string GroupsTitle => Get(nameof(GroupsTitle));
+    public string GroupNameHint => Get(nameof(GroupNameHint));
+    public string AddGroupButton => Get(nameof(AddGroupButton));
+    public string StatusLabel => Get(nameof(StatusLabel));
+    public string UserLabel => Get(nameof(UserLabel));
+    public string RoleLabel => Get(nameof(RoleLabel));
+    public string ApiConnectionTitle => Get(nameof(ApiConnectionTitle));
+    public string RefreshProfileButton => Get(nameof(RefreshProfileButton));
+    public string OpenAuthButton => Get(nameof(OpenAuthButton));
+    public string ConfigureServerButton => Get(nameof(ConfigureServerButton));
+    public string ServerSettingsTitle => Get(nameof(ServerSettingsTitle));
+    public string SaveServerSettingsButton => Get(nameof(SaveServerSettingsButton));
+    public string CancelButton => Get(nameof(CancelButton));
+    public string LanguageLabel => Get(nameof(LanguageLabel));
+    public string UkrainianLanguage => Get(nameof(UkrainianLanguage));
+    public string EnglishLanguage => Get(nameof(EnglishLanguage));
+    public string CreateTransactionButton => Get(nameof(CreateTransactionButton));
+    public string CreatePiggyBankButton => Get(nameof(CreatePiggyBankButton));
+    public string ConnectedStatus => Get(nameof(ConnectedStatus));
+    public string DisconnectedStatus => Get(nameof(DisconnectedStatus));
+    public string GuestLabel => Get(nameof(GuestLabel));
+    public string DefaultRole => Get(nameof(DefaultRole));
+    public string LoginPasswordRequired => Get(nameof(LoginPasswordRequired));
+    public string ConnectingToApi => Get(nameof(ConnectingToApi));
+    public string LoginSuccessPrefix => Get(nameof(LoginSuccessPrefix));
+    public string ApiConnectionErrorPrefix => Get(nameof(ApiConnectionErrorPrefix));
+    public string RegisterRequired => Get(nameof(RegisterRequired));
+    public string RegisteringToApi => Get(nameof(RegisteringToApi));
+    public string RegisterSuccessPrefix => Get(nameof(RegisterSuccessPrefix));
+    public string RegisterErrorPrefix => Get(nameof(RegisterErrorPrefix));
+    public string ApiSessionClosed => Get(nameof(ApiSessionClosed));
+    public string ApiLogoutErrorPrefix => Get(nameof(ApiLogoutErrorPrefix));
+    public string CreateTransactionDisabled => Get(nameof(CreateTransactionDisabled));
+    public string CreatePiggyBankDisabled => Get(nameof(CreatePiggyBankDisabled));
+    public string SaveGoalDisabled => Get(nameof(SaveGoalDisabled));
+    public string SavingsOperationsDisabled => Get(nameof(SavingsOperationsDisabled));
+    public string ApiAvailableLoginRequired => Get(nameof(ApiAvailableLoginRequired));
+    public string SessionActivePrefix => Get(nameof(SessionActivePrefix));
+    public string ApiUnavailablePrefix => Get(nameof(ApiUnavailablePrefix));
+    public string AuthorizationRequired => Get(nameof(AuthorizationRequired));
+    public string ApiBaseUrlMissing => Get(nameof(ApiBaseUrlMissing));
+    public string ApiOnlyModeTitle => Get(nameof(ApiOnlyModeTitle));
+    public string TransactionsEndpointMissing => Get(nameof(TransactionsEndpointMissing));
+    public string UnauthorizedError => Get(nameof(UnauthorizedError));
+    public string ConflictError => Get(nameof(ConflictError));
+    public string ValidationErrorPrefix => Get(nameof(ValidationErrorPrefix));
+    public string RequestErrorPrefix => Get(nameof(RequestErrorPrefix));
+    public string TransactionsSectionTitle => Get(nameof(TransactionsSectionTitle));
+    public string TransactionEditorTitle => Get(nameof(TransactionEditorTitle));
+    public string TransactionTypeLabel => Get(nameof(TransactionTypeLabel));
+    public string TransactionAmountLabel => Get(nameof(TransactionAmountLabel));
+    public string TransactionCurrencyLabel => Get(nameof(TransactionCurrencyLabel));
+    public string TransactionCategoryLabel => Get(nameof(TransactionCategoryLabel));
+    public string TransactionDateLabel => Get(nameof(TransactionDateLabel));
+    public string TransactionTimeLabel => Get(nameof(TransactionTimeLabel));
+    public string TransactionDescriptionLabel => Get(nameof(TransactionDescriptionLabel));
+    public string TransactionIncomeType => Get(nameof(TransactionIncomeType));
+    public string TransactionExpenseType => Get(nameof(TransactionExpenseType));
+    public string SaveTransactionButton => Get(nameof(SaveTransactionButton));
+    public string UpdateTransactionButton => Get(nameof(UpdateTransactionButton));
+    public string CancelEditTransactionButton => Get(nameof(CancelEditTransactionButton));
+    public string EditTransactionButton => Get(nameof(EditTransactionButton));
+    public string DeleteTransactionButton => Get(nameof(DeleteTransactionButton));
+    public string NewTransactionButton => Get(nameof(NewTransactionButton));
+    public string NoTransactionsText => Get(nameof(NoTransactionsText));
+    public string TransactionSavedText => Get(nameof(TransactionSavedText));
+    public string TransactionUpdatedText => Get(nameof(TransactionUpdatedText));
+    public string TransactionDeletedText => Get(nameof(TransactionDeletedText));
+    public string TransactionFormValidationText => Get(nameof(TransactionFormValidationText));
+    public string AllTransactionsLink => Get(nameof(AllTransactionsLink));
+    public string TransactionDetailsTitle => Get(nameof(TransactionDetailsTitle));
+    public string NoCategoryText => Get(nameof(NoCategoryText));
+    public string TransactionDateHint => Get(nameof(TransactionDateHint));
+    public string TransactionTimeHint => Get(nameof(TransactionTimeHint));
+    public string TransactionAmountHint => Get(nameof(TransactionAmountHint));
+    public string TransactionCurrencyHint => Get(nameof(TransactionCurrencyHint));
+    public string TransactionDescriptionHint => Get(nameof(TransactionDescriptionHint));
+    public string TransactionBreakdownTitle => Get(nameof(TransactionBreakdownTitle));
+    public string TransactionTimelineTitle => Get(nameof(TransactionTimelineTitle));
+    public string ChartNoDataText => Get(nameof(ChartNoDataText));
+    public string CategoryGroceries => Get(nameof(CategoryGroceries));
+    public string CategoryTransport => Get(nameof(CategoryTransport));
+    public string CategoryHousing => Get(nameof(CategoryHousing));
+    public string CategoryEntertainment => Get(nameof(CategoryEntertainment));
+    public string CategoryHealth => Get(nameof(CategoryHealth));
+    public string CategoryShopping => Get(nameof(CategoryShopping));
+    public string CategoryEducation => Get(nameof(CategoryEducation));
+    public string CategoryCafe => Get(nameof(CategoryCafe));
+    public string CategoryOtherExpense => Get(nameof(CategoryOtherExpense));
+    public string CategorySalary => Get(nameof(CategorySalary));
+    public string CategoryFreelance => Get(nameof(CategoryFreelance));
+    public string CategoryGift => Get(nameof(CategoryGift));
+    public string CategoryInvestment => Get(nameof(CategoryInvestment));
+    public string CategoryRefund => Get(nameof(CategoryRefund));
+    public string CategoryOtherIncome => Get(nameof(CategoryOtherIncome));
+    public string OnboardingTitle => Get(nameof(OnboardingTitle));
+    public string OnboardingSubtitle => Get(nameof(OnboardingSubtitle));
+    public string OnboardingAccountNameLabel => Get(nameof(OnboardingAccountNameLabel));
+    public string OnboardingCurrencyLabel => Get(nameof(OnboardingCurrencyLabel));
+    public string OnboardingCategoriesTitle => Get(nameof(OnboardingCategoriesTitle));
+    public string OnboardingAddCategoryTitle => Get(nameof(OnboardingAddCategoryTitle));
+    public string OnboardingCategoryNameHint => Get(nameof(OnboardingCategoryNameHint));
+    public string OnboardingAddCategoryButton => Get(nameof(OnboardingAddCategoryButton));
+    public string OnboardingStartButton => Get(nameof(OnboardingStartButton));
+    public string OnboardingCategoryNameRequired => Get(nameof(OnboardingCategoryNameRequired));
+    public string OnboardingAccountNameRequired => Get(nameof(OnboardingAccountNameRequired));
+    public string OnboardingCategorySelectionRequired => Get(nameof(OnboardingCategorySelectionRequired));
+    public string ScheduledPaymentsTitle => Get(nameof(ScheduledPaymentsTitle));
+    public string ScheduledPaymentNameLabel => Get(nameof(ScheduledPaymentNameLabel));
+    public string ScheduledPaymentRepeatLabel => Get(nameof(ScheduledPaymentRepeatLabel));
+    public string ScheduledPaymentCustomRepeatHint => Get(nameof(ScheduledPaymentCustomRepeatHint));
+    public string AddScheduledPaymentButton => Get(nameof(AddScheduledPaymentButton));
+    public string ConfirmScheduledPaymentButton => Get(nameof(ConfirmScheduledPaymentButton));
+    public string ScheduledPaymentPendingStatus => Get(nameof(ScheduledPaymentPendingStatus));
+    public string ScheduledPaymentPaidStatus => Get(nameof(ScheduledPaymentPaidStatus));
+}
