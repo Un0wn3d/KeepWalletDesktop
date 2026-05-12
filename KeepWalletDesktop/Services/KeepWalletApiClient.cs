@@ -277,6 +277,17 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty category response.");
     }
 
+    public async Task<ApiCategoryDto> UpdateCategoryAsync(
+        int categoryId,
+        UpdateCategoryRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Patch, $"/api/categories/{categoryId}", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiCategoryDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty category response.");
+    }
+
     public async Task<IReadOnlyList<UserCategoryPreferenceDto>> GetUserCategoriesAsync(CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Get, "/api/user-categories", cancellationToken);

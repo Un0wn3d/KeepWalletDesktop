@@ -17,6 +17,7 @@ public sealed record TransactionItemViewModel(
     string Currency,
     string? CategoryCode,
     string CategoryDisplay,
+    string? CategoryIconKey,
     string? Description,
     DateTimeOffset TransactionDate,
     string TypeDisplay)
@@ -24,10 +25,21 @@ public sealed record TransactionItemViewModel(
     private const string DateTimeDisplayFormat = "dd.MM.yyyy HH:mm";
 
     public bool IsIncome => Type == "income";
-    public string AmountDisplay => $"{(IsIncome ? "+" : "-")}{Amount.ToString("#,##0.00", CultureInfo.InvariantCulture)}{(Currency == "UAH" ? "₴" : $" {Currency}")}";
+    public string AmountDisplay => $"{(IsIncome ? "+" : "-")}{FormatAmount(Amount)}{(Currency == "UAH" ? " ₴" : $" {Currency}")}";
     public string TransactionDateDisplay => TransactionDate.ToString(DateTimeDisplayFormat);
     public string TransactionDateShortDisplay => TransactionDate.ToString("dd.MM");
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
+    public string CategoryInitial => string.IsNullOrWhiteSpace(CategoryDisplay) ? "?" : CategoryDisplay.Trim()[0].ToString().ToUpperInvariant();
+    public string CategoryIcon => CategoryIconCatalog.GetGlyph(CategoryIconKey ?? CategoryCode, Type);
+    public IBrush CategoryAnchorBrush => IsIncome
+        ? new SolidColorBrush(Color.FromRgb(209, 250, 229))
+        : new SolidColorBrush(Color.FromRgb(243, 244, 246));
+
+    private static string FormatAmount(decimal amount) =>
+        decimal.Truncate(amount) == amount
+            ? amount.ToString("#,##0", CultureInfo.InvariantCulture)
+            : amount.ToString("#,##0.##", CultureInfo.InvariantCulture);
+
 }
 
 public sealed record SavingOptionViewModel(

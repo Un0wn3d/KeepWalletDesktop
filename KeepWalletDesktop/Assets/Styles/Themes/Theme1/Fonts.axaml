@@ -1,0 +1,10 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <FontFamily x:Key="Font.Interface">avares://Avalonia.Fonts.Inter/Assets#Inter</FontFamily>
+  <FontFamily x:Key="Phosphor">/Assets/Fonts/Phosphor.ttf#Phosphor</FontFamily>
+  <FontFamily x:Key="Phosphor-Bold">/Assets/Fonts/Phosphor.ttf#Phosphor-Bold</FontFamily>
+  <FontFamily x:Key="Phosphor-Duotone">/Assets/Fonts/Phosphor.ttf#Phosphor-Duotone</FontFamily>
+  <FontFamily x:Key="Phosphor-Fill">/Assets/Fonts/Phosphor.ttf#Phosphor-Fill</FontFamily>
+  <FontFamily x:Key="Phosphor-Light">/Assets/Fonts/Phosphor.ttf#Phosphor-Light</FontFamily>
+  <FontFamily x:Key="Phosphor-Thin">/Assets/Fonts/Phosphor.ttf#Phosphor-Thin</FontFamily>
+</ResourceDictionary>

@@ -41,7 +41,7 @@
                   Width="860"
                   MaxHeight="640">
                 <Border Classes="dialog-card">
-                    <Grid RowDefinitions="Auto, *" RowSpacing="12">
+                    <Grid RowDefinitions="Auto, *" RowSpacing="16">
                         <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
                             <TextBlock Text="{Binding Texts.TransactionBreakdownTitle}"
                                        FontSize="24"
@@ -52,7 +52,7 @@
                                     Command="{Binding OpenCategoriesCommand}" />
                             <Button Grid.Column="2"
                                     Content="{Binding Texts.SaveServerSettingsButton}"
-                                    Classes="secondary-button"
+                                    Classes="primary-button"
                                     Command="{Binding SaveCategoryDetailsCommand}" />
                         </Grid>
 
@@ -67,10 +67,10 @@
                                     <DataTemplate x:DataType="vm:CategoryDetailItemViewModel">
                                         <Border Classes="list-item-card"
                                                 Width="250"
-                                                Margin="0,0,10,10"
+                                                Margin="0,0,16,16"
                                                 BorderThickness="1"
                                                 BorderBrush="{DynamicResource Color.BorderSoft}">
-                                            <StackPanel Spacing="2">
+                                            <StackPanel Spacing="12">
                                                 <Grid ColumnDefinitions="14, *"
                                                       ColumnSpacing="8"
                                                       MinHeight="35">
@@ -86,23 +86,17 @@
                                                                TextWrapping="Wrap" />
                                                 </Grid>
 
-                                                <Grid Height="170" Margin="0,0,0,0">
-                                                    <lvc:PieChart Series="{Binding GaugeSeries}"
-                                                                  Width="158"
-                                                                  Height="158"
-                                                                  HorizontalAlignment="Center"
-                                                                  VerticalAlignment="Center"
-                                                                  InitialRotation="-225"
-                                                                  MaxAngle="270"
-                                                                  MinValue="0"
-                                                                  Margin="0,18,0,0"
-                                                                  LegendPosition="Hidden"
-                                                                  TooltipPosition="Hidden" />
+                                                <ProgressBar Minimum="0"
+                                                             Maximum="100"
+                                                             Value="{Binding UsagePercent}"
+                                                             Height="8"
+                                                             CornerRadius="4" />
+                                                <Grid ColumnDefinitions="*, Auto">
                                                     <TextBlock Text="{Binding UsageDisplay}"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"
-                                                               FontSize="20"
-                                                               FontWeight="Bold" />
+                                                               Classes="muted" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding RemainingDisplay}"
+                                                               Classes="amount-text" />
                                                 </Grid>
 
                                                 <Grid ColumnDefinitions="Auto, Auto, *"

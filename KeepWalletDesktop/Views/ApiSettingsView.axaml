@@ -60,6 +60,22 @@
                             </ComboBox>
                         </StackPanel>
                     </Border>
+                    <Border Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Theme"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <ComboBox Width="220"
+                                      ItemsSource="{Binding ThemeOptions}"
+                                      SelectedItem="{Binding SelectedTheme}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
                     <Border Classes="panel-card" IsVisible="{Binding IsCurrentUserAdmin}">
                         <StackPanel Spacing="8">
                             <TextBlock Text="{Binding AdminUsersCountDisplay}"

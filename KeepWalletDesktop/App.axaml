@@ -21,14 +21,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="avares://KeepWalletDesktop/Assets/Styles/Colors.axaml"/>
+                <ResourceInclude Source="avares://KeepWalletDesktop/Assets/Styles/Themes/Theme1/Theme.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-        <FontFamily x:Key="Phosphor">/Assets/Fonts/Phosphor.ttf#Phosphor</FontFamily>
-        <FontFamily x:Key="Phosphor-Bold">/Assets/Fonts/Phosphor.ttf#Phosphor-Bold</FontFamily>
-        <FontFamily x:Key="Phosphor-Duotone">/Assets/Fonts/Phosphor.ttf#Phosphor-Duotone</FontFamily>
-        <FontFamily x:Key="Phosphor-Fill">/Assets/Fonts/Phosphor.ttf#Phosphor-Fill</FontFamily>
-        <FontFamily x:Key="Phosphor-Light">/Assets/Fonts/Phosphor.ttf#Phosphor-Light</FontFamily>
-        <FontFamily x:Key="Phosphor-Thin">/Assets/Fonts/Phosphor.ttf#Phosphor-Thin</FontFamily>
     </Application.Resources>
 </Application>

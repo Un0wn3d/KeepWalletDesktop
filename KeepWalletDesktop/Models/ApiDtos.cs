@@ -97,7 +97,8 @@ public sealed record ApiTransactionDto(
 public sealed record ApiCategoryDto(
     int Id,
     string Name,
-    string Type);
+    string Type,
+    string IconKey);
 
 public sealed record ApiBudgetDto(
     int Id,
@@ -118,12 +119,18 @@ public sealed record UpsertBudgetRequestDto(
 
 public sealed record CreateCategoryRequestDto(
     string Name,
-    string Type);
+    string Type,
+    string? IconKey = null);
+
+public sealed record UpdateCategoryRequestDto(
+    string? Name = null,
+    string? IconKey = null);
 
 public sealed record UserCategoryPreferenceDto(
     int Id,
     string Name,
     string Type,
+    string IconKey,
     bool IsSelected);
 
 public sealed record UpdateUserCategoryPreferencesRequestDto(

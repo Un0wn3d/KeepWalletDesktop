@@ -1,0 +1,36 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="Brush.AppBackground" Color="{DynamicResource AppColor.Background}" />
+  <SolidColorBrush x:Key="Brush.Card" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Brush.CardAlt" Color="{DynamicResource AppColor.CardAlt}" />
+  <SolidColorBrush x:Key="Brush.TextPrimary" Color="{DynamicResource AppColor.TextPrimary}" />
+  <SolidColorBrush x:Key="Brush.TextSecondary" Color="{DynamicResource AppColor.TextSecondary}" />
+  <SolidColorBrush x:Key="Brush.Border" Color="{DynamicResource AppColor.Border}" />
+  <SolidColorBrush x:Key="Brush.Accent" Color="{DynamicResource AppColor.Accent}" />
+  <SolidColorBrush x:Key="Brush.AccentSoft" Color="{DynamicResource AppColor.AccentSoft}" />
+  <SolidColorBrush x:Key="Brush.Income" Color="{DynamicResource AppColor.Income}" />
+  <SolidColorBrush x:Key="Brush.Expense" Color="{DynamicResource AppColor.Expense}" />
+  <SolidColorBrush x:Key="Brush.Danger" Color="{DynamicResource AppColor.Danger}" />
+  <SolidColorBrush x:Key="Brush.Overlay" Color="{DynamicResource AppColor.Overlay}" />
+  <SolidColorBrush x:Key="Brush.Sidebar" Color="{DynamicResource AppColor.Sidebar}" />
+
+  <SolidColorBrush x:Key="Color.LeftPanel" Color="{DynamicResource AppColor.Sidebar}" />
+  <SolidColorBrush x:Key="Color.Background" Color="{DynamicResource AppColor.Background}" />
+  <SolidColorBrush x:Key="Color.Surface" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Color.SurfaceAlt" Color="{DynamicResource AppColor.CardAlt}" />
+  <SolidColorBrush x:Key="Color.SurfaceStrong" Color="{DynamicResource AppColor.AccentSoft}" />
+  <SolidColorBrush x:Key="Color.SurfaceOverlay" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Color.BorderSoft" Color="{DynamicResource AppColor.Border}" />
+  <SolidColorBrush x:Key="Color.Text1" Color="{DynamicResource AppColor.TextPrimary}" />
+  <SolidColorBrush x:Key="Color.Text2" Color="{DynamicResource AppColor.TextPrimary}" />
+  <SolidColorBrush x:Key="Color.TextMuted" Color="{DynamicResource AppColor.TextSecondary}" />
+  <SolidColorBrush x:Key="Color.Accent" Color="{DynamicResource AppColor.Accent}" />
+  <SolidColorBrush x:Key="Color.AccentSoft" Color="{DynamicResource AppColor.AccentSoft}" />
+  <SolidColorBrush x:Key="Color.Success" Color="{DynamicResource AppColor.Income}" />
+  <SolidColorBrush x:Key="Color.SuccessPanel" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Color.Danger" Color="{DynamicResource AppColor.Danger}" />
+  <SolidColorBrush x:Key="Color.DangerPanel" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Color.InfoPanel" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Color.AquaPanel" Color="{DynamicResource AppColor.Card}" />
+  <SolidColorBrush x:Key="Color.Overlay" Color="{DynamicResource AppColor.Overlay}" />
+</ResourceDictionary>
