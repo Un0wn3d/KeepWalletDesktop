@@ -1,0 +1,273 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{DynamicResource Brush.AppBackground}" />
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Interface}" />
+    <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+  </Style>
+
+  <Style Selector="UserControl">
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Interface}" />
+    <Setter Property="Foreground" Value="{DynamicResource Brush.TextPrimary}" />
+  </Style>
+
+  <Style Selector="TextBlock.page-title">
+    <Setter Property="FontSize" Value="28" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="TextBlock.section-title">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="TextBlock.card-title">
+    <Setter Property="FontSize" Value="18" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="TextBlock.muted">
+    <Setter Property="Foreground" Value="{DynamicResource Color.TextMuted}" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="Regular" />
+  </Style>
+
+  <Style Selector="TextBlock.amount-text">
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+
+  <Style Selector="TextBlock.status-text">
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="TextAlignment" Value="Center" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Success}" />
+  </Style>
+
+  <Style Selector="TextBlock.message-text">
+    <Setter Property="TextWrapping" Value="Wrap" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Success}" />
+  </Style>
+
+  <Style Selector="Border.auth-card">
+    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPadding}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Card}" />
+  </Style>
+
+  <Style Selector="Border.dialog-card">
+    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPadding}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="CalendarDatePicker.transaction-calendar">
+    <Setter Property="Height" Value="38" />
+    <Setter Property="Padding" Value="12,0" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+  </Style>
+
+  <Style Selector="CalendarDatePicker.transaction-calendar:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
+  <Style Selector="CalendarDatePicker.transaction-calendar:focus">
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
+  <Style Selector="Calendar">
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+  </Style>
+
+  <Style Selector="CalendarDayButton">
+    <Setter Property="MinWidth" Value="34" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="Margin" Value="2" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="CalendarDayButton:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Color.AccentSoft}" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="CalendarDayButton:selected">
+    <Setter Property="Background" Value="{DynamicResource Color.Accent}" />
+    <Setter Property="Foreground" Value="White" />
+  </Style>
+
+  <Style Selector="CalendarButton">
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="CalendarButton:pointerover">
+    <Setter Property="Background" Value="{DynamicResource Color.AccentSoft}" />
+  </Style>
+
+  <Style Selector="Border.panel-card">
+    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPaddingCompact}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Card}" />
+  </Style>
+
+  <Style Selector="Border.panel-card.alt">
+    <Setter Property="Background" Value="{DynamicResource Color.SurfaceAlt}" />
+  </Style>
+
+  <Style Selector="Border.panel-card.strong">
+    <Setter Property="Background" Value="{DynamicResource Color.SurfaceStrong}" />
+  </Style>
+
+  <Style Selector="Border.metric-card">
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPaddingCompact}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Card}" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+  </Style>
+
+  <Style Selector="Border.metric-card.total">
+    <Setter Property="Background" Value="{DynamicResource Color.InfoPanel}" />
+  </Style>
+
+  <Style Selector="Border.metric-card.income">
+    <Setter Property="Background" Value="{DynamicResource Color.SuccessPanel}" />
+  </Style>
+
+  <Style Selector="Border.metric-card.expense">
+    <Setter Property="Background" Value="{DynamicResource Color.DangerPanel}" />
+  </Style>
+
+  <Style Selector="Border.expenses-card">
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPaddingCompact}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Card}" />
+  </Style>
+
+  <Style Selector="Border.list-item-card">
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Padding" Value="0,12" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+
+  <Style Selector="Button">
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Base}" />
+    <Setter Property="FontFamily" Value="{DynamicResource Font.Interface}" />
+  </Style>
+
+  <Style Selector="Button.link-button">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
+  <Style Selector="Button.fab-button">
+    <Setter Property="Width" Value="64" />
+    <Setter Property="Height" Value="64" />
+    <Setter Property="CornerRadius" Value="32" />
+    <Setter Property="Background" Value="{DynamicResource Color.Accent}" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="FontSize" Value="32" />
+    <Setter Property="FontWeight" Value="Bold" />
+  </Style>
+
+  <Style Selector="Border.fab-menu">
+    <Setter Property="Padding" Value="10" />
+    <Setter Property="Background" Value="{DynamicResource Color.SurfaceOverlay}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Floating}" />
+  </Style>
+
+  <Style Selector="Border.sidebar-shell">
+    <Setter Property="Width" Value="77" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="15" />
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="Margin" Value="10" />
+    <Setter Property="Background" Value="{DynamicResource Color.LeftPanel}" />
+  </Style>
+
+  <Style Selector="Label.nav-icon">
+    <Setter Property="FontFamily" Value="{DynamicResource Phosphor-Fill}" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Accent}" />
+    <Setter Property="FontSize" Value="25" />
+  </Style>
+
+  <Style Selector="Button.primary-button">
+    <Setter Property="Background" Value="{DynamicResource Color.Accent}" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="16,10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style Selector="Button.secondary-button">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="16,10" />
+  </Style>
+
+  <Style Selector="Button.danger-button">
+    <Setter Property="Background" Value="{DynamicResource Color.Danger}" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Danger}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="16,10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style Selector="TextBlock.form-label">
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.TextMuted}" />
+  </Style>
+
+  <Style Selector="TextBox.auth-input">
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Base}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+  </Style>
+
+  <Style Selector="ComboBox">
+    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Base}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+  </Style>
+</Styles>

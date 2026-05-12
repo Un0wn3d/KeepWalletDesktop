@@ -34,6 +34,9 @@
                 <Button Click="btn_ScheduledPayments">
                     <Label Classes="nav-icon" Content="&#xE10A;"></Label>
                 </Button>
+                <Button Click="btn_Categories">
+                    <Label Classes="nav-icon" Content="&#xE6F8;"></Label>
+                </Button>
             </StackPanel>
 
             <!-- Buttons -->

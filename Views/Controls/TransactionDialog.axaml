@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"             x:Class="KeepWalletDesktop.Views.Controls.TransactionDialog"
+             x:DataType="vm:MainViewModel">
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsTransactionDialogOpen}"
+                Background="{DynamicResource Color.Overlay}">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="460">
+                <Border Classes="dialog-card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="{Binding TransactionDialogTitle}"
+                                   HorizontalAlignment="Center"
+                                   FontSize="24"
+                                   FontWeight="Bold" />
+
+                        <TextBlock Text="{Binding Texts.TransactionDescriptionLabel}" Classes="form-label" />
+                        <TextBox Text="{Binding TransactionDescriptionInput}"
+                                 Watermark="{Binding Texts.TransactionDescriptionHint}"
+                                 Classes="auth-input" />
+
+                        <TextBlock Text="{Binding Texts.TransactionAmountLabel}" Classes="form-label" />
+                        <TextBox Text="{Binding TransactionAmountInput}"
+                                 Watermark="{Binding Texts.TransactionAmountHint}"
+                                 Classes="auth-input" />
+
+                        <TextBlock Text="{Binding Texts.TransactionTypeLabel}" Classes="form-label" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Button Content="{Binding Texts.TransactionExpenseType}"
+                                    Classes="secondary-button"
+                                    Command="{Binding SelectTransactionTypeCommand}"
+                                    CommandParameter="expense" />
+                            <Button Content="{Binding Texts.TransactionIncomeType}"
+                                    Classes="secondary-button"
+                                    Command="{Binding SelectTransactionTypeCommand}"
+                                    CommandParameter="income" />
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding Texts.TransactionCategoryLabel}" Classes="form-label" />
+                        <ComboBox ItemsSource="{Binding TransactionCategoryOptions}"
+                                  SelectedItem="{Binding SelectedTransactionCategory}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                    <TextBlock Text="{Binding DisplayName}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <Grid ColumnDefinitions="*, 120" ColumnSpacing="10">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Texts.TransactionDateLabel}" Classes="form-label" />
+                                <CalendarDatePicker SelectedDate="{Binding TransactionSelectedDate, Mode=TwoWay}"
+                                                    Watermark="{Binding Texts.TransactionDateHint}"
+                                                    Classes="transaction-calendar" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding Texts.TransactionTimeLabel}" Classes="form-label" />
+                                <TextBox Text="{Binding TransactionTimeInput}"
+                                         Watermark="{Binding Texts.TransactionTimeHint}"
+                                         Classes="auth-input" />
+                            </StackPanel>
+                        </Grid>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Spacing="8">
+                            <Button Content="{Binding Texts.DeleteTransactionButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding DeleteTransactionCommand}" />
+                            <Button Content="{Binding SaveTransactionButtonText}"
+                                    Classes="primary-button"
+                                    Command="{Binding SaveTransactionCommand}" />
+                            <Button Content="{Binding Texts.CancelButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding CloseTransactionDialogCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+</UserControl>

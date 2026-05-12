@@ -1,0 +1,104 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="640"
+             d:DesignHeight="320"
+             x:Class="KeepWalletDesktop.Views.Mdules.CategorySelectionModule"
+             x:DataType="vm:MainViewModel">
+    <Border Classes="panel-card alt">
+        <Border.Styles>
+            <Style Selector="CheckBox.category-chip">
+                <Setter Property="Padding" Value="10,7" />
+                <Setter Property="Margin" Value="0,0,8,8" />
+                <Setter Property="CornerRadius" Value="18" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style Selector="CheckBox.expense-chip">
+                <Setter Property="Background" Value="#FFF7ED" />
+                <Setter Property="BorderBrush" Value="#FB923C" />
+                <Setter Property="Foreground" Value="#9A3412" />
+            </Style>
+            <Style Selector="CheckBox.expense-chip:checked">
+                <Setter Property="Background" Value="#FED7AA" />
+                <Setter Property="BorderBrush" Value="#EA580C" />
+            </Style>
+            <Style Selector="CheckBox.income-chip">
+                <Setter Property="Background" Value="#ECFDF5" />
+                <Setter Property="BorderBrush" Value="#34D399" />
+                <Setter Property="Foreground" Value="#047857" />
+            </Style>
+            <Style Selector="CheckBox.income-chip:checked">
+                <Setter Property="Background" Value="#A7F3D0" />
+                <Setter Property="BorderBrush" Value="#059669" />
+            </Style>
+        </Border.Styles>
+        <StackPanel Spacing="10">
+            <TextBlock Text="{Binding Texts.OnboardingCategoriesTitle}"
+                       FontSize="18"
+                       FontWeight="SemiBold" />
+
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="{Binding Texts.TransactionExpenseType}"
+                               FontWeight="SemiBold"
+                               Classes="muted" />
+                    <ItemsControl ItemsSource="{Binding OnboardingExpenseCategories}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OnboardingCategoryOptionViewModel">
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          Classes="category-chip expense-chip">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding IconGlyph}"
+                                                   FontFamily="{DynamicResource Phosphor-Fill}"
+                                                   FontSize="16"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="8">
+                    <TextBlock Text="{Binding Texts.TransactionIncomeType}"
+                               FontWeight="SemiBold"
+                               Classes="muted" />
+                    <ItemsControl ItemsSource="{Binding OnboardingIncomeCategories}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:OnboardingCategoryOptionViewModel">
+                                <CheckBox IsChecked="{Binding IsSelected}"
+                                          Classes="category-chip income-chip">
+                                    <StackPanel Orientation="Horizontal" Spacing="6">
+                                        <TextBlock Text="{Binding IconGlyph}"
+                                                   FontFamily="{DynamicResource Phosphor-Fill}"
+                                                   FontSize="16"
+                                                   VerticalAlignment="Center" />
+                                        <TextBlock Text="{Binding Name}"
+                                                   FontWeight="SemiBold"
+                                                   TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Border>
+</UserControl>

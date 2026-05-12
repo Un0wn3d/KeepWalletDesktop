@@ -1,0 +1,83 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:mdules="clr-namespace:KeepWalletDesktop.Views.Mdules"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="KeepWalletDesktop.Views.Controls.OnboardingDialog"
+             x:DataType="vm:MainViewModel">
+    <Border IsVisible="{Binding IsOnboardingDialogOpen}"
+            Background="{DynamicResource Color.Overlay}">
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Width="680"
+              MaxHeight="640">
+            <Border Classes="dialog-card">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="14">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding Texts.OnboardingTitle}"
+                                       FontSize="26"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource Color.Text1}" />
+                            <TextBlock Text="{Binding Texts.OnboardingSubtitle}"
+                                       TextWrapping="Wrap"
+                                       Classes="muted" />
+                        </StackPanel>
+
+                        <Grid ColumnDefinitions="2*, *"
+                              ColumnSpacing="12"
+                              IsVisible="{Binding IsOnboardingAccountSetupVisible}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Texts.OnboardingAccountNameLabel}" Classes="form-label" />
+                                <TextBox Text="{Binding OnboardingAccountName}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="{Binding Texts.OnboardingCurrencyLabel}" Classes="form-label" />
+                                <ComboBox ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                          SelectedItem="{Binding OnboardingSelectedCurrency}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <mdules:CategorySelectionModule />
+
+                        <Border Classes="panel-card">
+                            <Grid RowDefinitions="Auto, Auto" RowSpacing="8">
+                                <TextBlock Text="{Binding Texts.OnboardingAddCategoryTitle}" FontSize="18" FontWeight="SemiBold" />
+                                <Grid Grid.Row="1" ColumnDefinitions="*, Auto, Auto, Auto" ColumnSpacing="8">
+                                    <TextBox Text="{Binding OnboardingNewCategoryName}"
+                                             Watermark="{Binding Texts.OnboardingCategoryNameHint}" />
+                                    <Button Grid.Column="1"
+                                            Content="{Binding Texts.TransactionExpenseType}"
+                                            Classes="secondary-button"
+                                            Command="{Binding SelectOnboardingCategoryTypeCommand}"
+                                            CommandParameter="expense" />
+                                    <Button Grid.Column="2"
+                                            Content="{Binding Texts.TransactionIncomeType}"
+                                            Classes="secondary-button"
+                                            Command="{Binding SelectOnboardingCategoryTypeCommand}"
+                                            CommandParameter="income" />
+                                    <Button Grid.Column="3"
+                                            Content="{Binding Texts.OnboardingAddCategoryButton}"
+                                            Classes="primary-button"
+                                            Command="{Binding AddOnboardingCategoryCommand}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+
+                        <TextBlock Text="{Binding OnboardingStatusMessage}"
+                                   Classes="message-text" />
+
+                        <Button Content="{Binding Texts.OnboardingStartButton}"
+                                HorizontalAlignment="Right"
+                                Classes="primary-button"
+                                Command="{Binding FinishOnboardingCommand}" />
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

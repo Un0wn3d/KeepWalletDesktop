@@ -1,0 +1,119 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="KeepWalletDesktop.Views.ApiSettingsView"
+             x:DataType="vm:MainViewModel">
+<Border Grid.Column="1" Margin="10, 10, 10, 10" IsVisible="{Binding IsSettingsPage}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{Binding Texts.SettingsTitle}"
+                               Classes="page-title" />
+                    <Border Classes="panel-card alt">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="KeepWalletAPI"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource Color.Text1}" />
+                            <TextBlock Text="{Binding StatusDisplay}" />
+                            <TextBlock Text="{Binding UserDisplay}" />
+                            <TextBlock Text="{Binding EmailDisplay}" IsVisible="{Binding IsApiAuthorized}" />
+                            <TextBlock Text="{Binding RoleDisplay}" IsVisible="{Binding IsApiAuthorized}" />
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding Texts.ApiConnectionTitle}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <TextBlock Text="{Binding Texts.ApiUrlLabel}" />
+                            <TextBox Text="{Binding ApiBaseUrl}" />
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Content="{Binding Texts.RefreshProfileButton}"
+                                        Command="{Binding RefreshApiProfileCommand}" />
+                                <Button Content="{Binding Texts.ExitButton}"
+                                        Command="{Binding LogoutFromApiCommand}" />
+                                <Button Content="{Binding Texts.OpenAuthButton}"
+                                        Command="{Binding OpenAuthCommand}" />
+                            </StackPanel>
+                            <TextBlock Text="{Binding ApiStatusMessage}"
+                                       Classes="message-text" />
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding Texts.LanguageLabel}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <ComboBox Width="220"
+                                      ItemsSource="{Binding LanguageOptions}"
+                                      SelectedItem="{Binding SelectedLanguage}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:LanguageOptionViewModel">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="panel-card" IsVisible="{Binding IsCurrentUserAdmin}">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding AdminUsersCountDisplay}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <Grid ColumnDefinitions="2*, 3*, 2*, *, Auto, *" ColumnSpacing="10" Margin="0,0,0,4">
+                                <TextBlock Text="{Binding Texts.UsernameLabel}" Classes="muted" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="1" Text="{Binding Texts.EmailLabel}" Classes="muted" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="2" Text="{Binding Texts.FullNameLabel}" Classes="muted" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="3" Text="{Binding Texts.RoleLabel}" Classes="muted" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="4" Text="{Binding Texts.UserAccessLabel}" Classes="muted" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="5" Text="{Binding Texts.TransactionDateLabel}" Classes="muted" FontWeight="SemiBold" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding AdminUsers}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:UserListItemViewModel">
+                                        <Grid ColumnDefinitions="2*, 3*, 2*, *, Auto, *" ColumnSpacing="10" Margin="0,4">
+                                            <TextBlock Text="{Binding Username}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Email}" Classes="muted" />
+                                            <TextBlock Grid.Column="2" Text="{Binding FullName}" />
+                                            <TextBlock Grid.Column="3" Text="{Binding RoleName}" />
+                                            <CheckBox Grid.Column="4"
+                                                      IsChecked="{Binding IsActive, Mode=OneWay}"
+                                                      Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleUserAccessCommand}"
+                                                      CommandParameter="{Binding .}" />
+                                            <TextBlock Grid.Column="5" Text="{Binding CreatedAtDisplay}" Classes="muted" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    <Border Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding Texts.UserLogsTitle}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <ItemsControl ItemsSource="{Binding UserLogs}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:AuditLogItemViewModel">
+                                        <Border Classes="list-item-card">
+                                            <Grid ColumnDefinitions="120, 120, *, 120" ColumnSpacing="10">
+                                                <TextBlock Text="{Binding CreatedAtDisplay}" Classes="muted" />
+                                                <TextBlock Grid.Column="1" Text="{Binding Username}" />
+                                                <TextBlock Grid.Column="2" Text="{Binding Details}" TextWrapping="Wrap" />
+                                                <TextBlock Grid.Column="3" Text="{Binding Device}" Classes="muted" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+</UserControl>

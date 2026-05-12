@@ -1,0 +1,134 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:views="clr-namespace:KeepWalletDesktop.Views"
+             xmlns:controls="clr-namespace:KeepWalletDesktop.Views.Controls"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="KeepWalletDesktop.Views.AppShellView"
+             x:DataType="vm:MainViewModel"
+             Focusable="True"
+             KeyDown="AppShell_OnKeyDown">
+    <Grid ColumnDefinitions="Auto, *" MinWidth="500">
+        <controls:LeftPanel Grid.Column="0"
+                            IsVisible="{Binding CanOpenAppPages}" />
+
+        <views:HomeView Grid.Column="1" />
+        <views:BankAccountsView Grid.Column="1" />
+        <views:SavingsView Grid.Column="1" />
+        <views:GroupsView Grid.Column="1" />
+        <views:ScheduledPaymentsView Grid.Column="1" />
+        <views:ApiSettingsView Grid.Column="1" />
+
+        <controls:FloatingActionMenu Grid.Column="1"
+                                     IsVisible="{Binding CanOpenAppPages}"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Bottom"
+                                     Margin="0,0,24,24" />
+
+        <controls:AllTransactionsDialog Grid.ColumnSpan="2" />
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsCategoryDetailsOpen}"
+                Background="{DynamicResource Color.Overlay}"
+                PointerPressed="CategoryDetailsOverlay_OnPointerPressed">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="860"
+                  MaxHeight="640">
+                <Border Classes="dialog-card">
+                    <Grid RowDefinitions="Auto, *" RowSpacing="12">
+                        <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
+                            <TextBlock Text="{Binding Texts.TransactionBreakdownTitle}"
+                                       FontSize="24"
+                                       FontWeight="Bold" />
+                            <Button Grid.Column="1"
+                                    Content="{Binding Texts.OnboardingCategoriesTitle}"
+                                    Classes="secondary-button"
+                                    Command="{Binding OpenCategorySettingsCommand}" />
+                            <Button Grid.Column="2"
+                                    Content="{Binding Texts.SaveServerSettingsButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding SaveCategoryDetailsCommand}" />
+                        </Grid>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding CategoryDetails}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryDetailItemViewModel">
+                                        <Border Classes="list-item-card"
+                                                Width="250"
+                                                Margin="0,0,10,10"
+                                                BorderThickness="1"
+                                                BorderBrush="{DynamicResource Color.BorderSoft}">
+                                            <StackPanel Spacing="2">
+                                                <Grid ColumnDefinitions="14, *"
+                                                      ColumnSpacing="8"
+                                                      MinHeight="35">
+                                                    <Border Width="10"
+                                                            Height="10"
+                                                            CornerRadius="5"
+                                                            Background="{Binding ColorBrush}"
+                                                            VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding Name}"
+                                                               FontSize="18"
+                                                               FontWeight="SemiBold"
+                                                               TextWrapping="Wrap" />
+                                                </Grid>
+
+                                                <Grid Height="170" Margin="0,0,0,0">
+                                                    <lvc:PieChart Series="{Binding GaugeSeries}"
+                                                                  Width="158"
+                                                                  Height="158"
+                                                                  HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  InitialRotation="-225"
+                                                                  MaxAngle="270"
+                                                                  MinValue="0"
+                                                                  Margin="0,18,0,0"
+                                                                  LegendPosition="Hidden"
+                                                                  TooltipPosition="Hidden" />
+                                                    <TextBlock Text="{Binding UsageDisplay}"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="20"
+                                                               FontWeight="Bold" />
+                                                </Grid>
+
+                                                <Grid ColumnDefinitions="Auto, Auto, *"
+                                                      ColumnSpacing="4"
+                                                      HorizontalAlignment="Center">
+                                                    <TextBlock Text="{Binding AmountDisplay}"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center" />
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="/"
+                                                               Classes="muted"
+                                                               VerticalAlignment="Center" />
+                                                    <TextBox Grid.Column="2"
+                                                             Text="{Binding LimitInput, UpdateSourceTrigger=PropertyChanged}"
+                                                             MinWidth="90" />
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+        </Border>
+        <controls:TransactionDialog Grid.ColumnSpan="2" />
+        <controls:BankAccountDialog Grid.ColumnSpan="2" />
+    </Grid>
+</UserControl>

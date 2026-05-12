@@ -22,6 +22,7 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         SerilogConfig.Initialize();
+        ThemeManager.Apply(UserSettingsStore.Load().ThemeName);
         
         Log.Information("App is started!");
         

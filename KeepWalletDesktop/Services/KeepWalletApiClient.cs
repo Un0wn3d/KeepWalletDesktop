@@ -1,20 +1,24 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
 using KeepWalletDesktop.Models;
+using Serilog;
 
 namespace KeepWalletDesktop.Services;
 
 public sealed class KeepWalletApiClient : IDisposable
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly ILogger ApiLog = Log.ForContext<KeepWalletApiClient>();
 
     private readonly CookieContainer _cookies = new();
     private readonly HttpClient _httpClient;
@@ -40,8 +44,10 @@ public sealed class KeepWalletApiClient : IDisposable
 
     public async Task<AuthResponseDto> LoginAsync(string login, string password, CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync(
-            "/api/auth/login",
+        const string path = "/api/auth/login";
+        using var response = await SendJsonAsync(
+            HttpMethod.Post,
+            path,
             new LoginRequestDto(login, password),
             cancellationToken);
 
@@ -61,8 +67,10 @@ public sealed class KeepWalletApiClient : IDisposable
         string? fullName,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync(
-            "/api/auth/register",
+        const string path = "/api/auth/register";
+        using var response = await SendJsonAsync(
+            HttpMethod.Post,
+            path,
             new RegisterRequestDto(username, email, password, fullName),
             cancellationToken);
 
@@ -77,7 +85,7 @@ public sealed class KeepWalletApiClient : IDisposable
 
     public async Task LogoutAsync(CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.PostAsync("/api/auth/logout", content: null, cancellationToken);
+        using var response = await SendAsync(HttpMethod.Post, "/api/auth/logout", cancellationToken);
         response.EnsureSuccessStatusCode();
         ClearSession();
     }
@@ -189,7 +197,7 @@ public sealed class KeepWalletApiClient : IDisposable
 
     public async Task<bool> TryRefreshAsync(CancellationToken cancellationToken = default)
     {
-        using var response = await _httpClient.PostAsync("/api/auth/refresh", content: null, cancellationToken);
+        using var response = await SendAsync(HttpMethod.Post, "/api/auth/refresh", cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
@@ -269,6 +277,17 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty category response.");
     }
 
+    public async Task<ApiCategoryDto> UpdateCategoryAsync(
+        int categoryId,
+        UpdateCategoryRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Patch, $"/api/categories/{categoryId}", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiCategoryDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty category response.");
+    }
+
     public async Task<IReadOnlyList<UserCategoryPreferenceDto>> GetUserCategoriesAsync(CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Get, "/api/user-categories", cancellationToken);
@@ -289,6 +308,23 @@ public sealed class KeepWalletApiClient : IDisposable
     {
         using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, "/api/user-categories", request, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task DeleteCategoryAsync(int categoryId, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedAsync(HttpMethod.Delete, $"/api/categories/{categoryId}", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task<ApiCategoryDto> MergeCategoryAsync(
+        int sourceCategoryId,
+        MergeCategoryRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Post, $"/api/categories/{sourceCategoryId}/merge", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiCategoryDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty category response.");
     }
 
     public async Task<ApiTransactionDto> CreateTransactionAsync(
@@ -494,10 +530,11 @@ public sealed class KeepWalletApiClient : IDisposable
     private async Task<HttpResponseMessage> SendAuthorizedAsync(
         HttpMethod method,
         string path,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [CallerMemberName] string operation = "")
     {
         using var request = CreateRequest(method, path);
-        var response = await _httpClient.SendAsync(request, cancellationToken);
+        var response = await SendRequestAsync(request, path, operation, attempt: 1, cancellationToken);
 
         if (response.StatusCode != HttpStatusCode.Unauthorized)
         {
@@ -506,14 +543,17 @@ public sealed class KeepWalletApiClient : IDisposable
 
         response.Dispose();
 
+        ApiLog.Information("API auth refresh required for {Operation}: {Method} {Path}", operation, method, path);
         var refreshed = await TryRefreshAsync(cancellationToken);
         if (!refreshed)
         {
+            ApiLog.Warning("API auth refresh failed for {Operation}: {Method} {Path}", operation, method, path);
             return new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
-        var retryRequest = CreateRequest(method, path);
-        return await _httpClient.SendAsync(retryRequest, cancellationToken);
+        ApiLog.Information("API auth refresh succeeded; retrying {Operation}: {Method} {Path}", operation, method, path);
+        using var retryRequest = CreateRequest(method, path);
+        return await SendRequestAsync(retryRequest, path, operation, attempt: 2, cancellationToken);
     }
 
     private HttpRequestMessage CreateRequest(HttpMethod method, string path)
@@ -531,11 +571,12 @@ public sealed class KeepWalletApiClient : IDisposable
         HttpMethod method,
         string path,
         TRequest payload,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [CallerMemberName] string operation = "")
     {
         using var request = CreateRequest(method, path);
         request.Content = JsonContent.Create(payload);
-        var response = await _httpClient.SendAsync(request, cancellationToken);
+        var response = await SendRequestAsync(request, path, operation, attempt: 1, cancellationToken);
 
         if (response.StatusCode != HttpStatusCode.Unauthorized)
         {
@@ -544,15 +585,108 @@ public sealed class KeepWalletApiClient : IDisposable
 
         response.Dispose();
 
+        ApiLog.Information("API auth refresh required for {Operation}: {Method} {Path}", operation, method, path);
         var refreshed = await TryRefreshAsync(cancellationToken);
         if (!refreshed)
         {
+            ApiLog.Warning("API auth refresh failed for {Operation}: {Method} {Path}", operation, method, path);
             return new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
-        var retryRequest = CreateRequest(method, path);
+        ApiLog.Information("API auth refresh succeeded; retrying {Operation}: {Method} {Path}", operation, method, path);
+        using var retryRequest = CreateRequest(method, path);
         retryRequest.Content = JsonContent.Create(payload);
-        return await _httpClient.SendAsync(retryRequest, cancellationToken);
+        return await SendRequestAsync(retryRequest, path, operation, attempt: 2, cancellationToken);
+    }
+
+    private async Task<HttpResponseMessage> SendAsync(
+        HttpMethod method,
+        string path,
+        CancellationToken cancellationToken,
+        [CallerMemberName] string operation = "")
+    {
+        using var request = new HttpRequestMessage(method, path);
+        return await SendRequestAsync(request, path, operation, attempt: 1, cancellationToken);
+    }
+
+    private async Task<HttpResponseMessage> SendJsonAsync<TRequest>(
+        HttpMethod method,
+        string path,
+        TRequest payload,
+        CancellationToken cancellationToken,
+        [CallerMemberName] string operation = "")
+    {
+        using var request = new HttpRequestMessage(method, path)
+        {
+            Content = JsonContent.Create(payload)
+        };
+
+        return await SendRequestAsync(request, path, operation, attempt: 1, cancellationToken);
+    }
+
+    private async Task<HttpResponseMessage> SendRequestAsync(
+        HttpRequestMessage request,
+        string path,
+        string operation,
+        int attempt,
+        CancellationToken cancellationToken)
+    {
+        var stopwatch = Stopwatch.StartNew();
+        var method = request.Method.Method;
+
+        ApiLog.Information(
+            "API start {Operation}: {Method} {Path} (base: {BaseUrl}, attempt: {Attempt})",
+            operation,
+            method,
+            path,
+            BaseUrl,
+            attempt);
+
+        try
+        {
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            stopwatch.Stop();
+
+            var level = response.IsSuccessStatusCode ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Warning;
+            ApiLog.Write(
+                level,
+                "API completed {Operation}: {Method} {Path} -> {StatusCode} {ReasonPhrase} in {ElapsedMs} ms (attempt: {Attempt})",
+                operation,
+                method,
+                path,
+                (int)response.StatusCode,
+                response.ReasonPhrase,
+                stopwatch.ElapsedMilliseconds,
+                attempt);
+
+            return response;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !cancellationToken.IsCancellationRequested)
+        {
+            stopwatch.Stop();
+            ApiLog.Error(
+                ex,
+                "API failed {Operation}: {Method} {Path} after {ElapsedMs} ms (attempt: {Attempt})",
+                operation,
+                method,
+                path,
+                stopwatch.ElapsedMilliseconds,
+                attempt);
+            throw;
+        }
+        catch (OperationCanceledException ex)
+        {
+            stopwatch.Stop();
+            ApiLog.Warning(
+                ex,
+                "API canceled {Operation}: {Method} {Path} after {ElapsedMs} ms (attempt: {Attempt})",
+                operation,
+                method,
+                path,
+                stopwatch.ElapsedMilliseconds,
+                attempt);
+            throw;
+        }
     }
 
     private static async Task EnsureSuccessAsync(HttpResponseMessage response, CancellationToken cancellationToken)
