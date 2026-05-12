@@ -129,6 +129,9 @@ public sealed record UserCategoryPreferenceDto(
 public sealed record UpdateUserCategoryPreferencesRequestDto(
     IReadOnlyList<int> SelectedCategoryIds);
 
+public sealed record MergeCategoryRequestDto(
+    int TargetCategoryId);
+
 public sealed record CreateSavingRequestDto(
     string Name,
     decimal? TargetAmount,

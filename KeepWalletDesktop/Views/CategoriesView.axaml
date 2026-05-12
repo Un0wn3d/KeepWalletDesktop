@@ -1,0 +1,134 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="900"
+             d:DesignHeight="650"
+             x:Class="KeepWalletDesktop.Views.CategoriesView"
+             x:DataType="vm:MainViewModel">
+    <Border Grid.Column="1" Margin="10" IsVisible="{Binding IsCategoriesPage}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                    <TextBlock Text="{Binding Texts.OnboardingCategoriesTitle}"
+                               Classes="page-title" />
+                    <Button Grid.Column="1"
+                            Content="{Binding Texts.SaveServerSettingsButton}"
+                            Classes="primary-button"
+                            Command="{Binding SaveCategoriesCommand}" />
+                </Grid>
+
+                <Border Classes="panel-card alt">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding Texts.OnboardingAddCategoryTitle}"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*, Auto, Auto, Auto" ColumnSpacing="8">
+                            <TextBox Text="{Binding CategoryNewName}"
+                                     Watermark="{Binding Texts.OnboardingCategoryNameHint}" />
+                            <Button Grid.Column="1"
+                                    Content="{Binding Texts.TransactionExpenseType}"
+                                    Classes="secondary-button"
+                                    Command="{Binding SelectCategoryTypeCommand}"
+                                    CommandParameter="expense" />
+                            <Button Grid.Column="2"
+                                    Content="{Binding Texts.TransactionIncomeType}"
+                                    Classes="secondary-button"
+                                    Command="{Binding SelectCategoryTypeCommand}"
+                                    CommandParameter="income" />
+                            <Button Grid.Column="3"
+                                    Content="{Binding Texts.OnboardingAddCategoryButton}"
+                                    Classes="primary-button"
+                                    Command="{Binding AddCategoryCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                    <Border Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding Texts.TransactionExpenseType}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <ItemsControl ItemsSource="{Binding ExpenseCategories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,4">
+                                            <CheckBox Content="{Binding Name}"
+                                                      IsChecked="{Binding IsSelected}" />
+                                            <Button Grid.Column="1"
+                                                    Content="{Binding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                    Classes="secondary-button"
+                                                    Command="{Binding $parent[UserControl].DataContext.DeleteCategoryCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1" Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="{Binding Texts.TransactionIncomeType}"
+                                       FontSize="18"
+                                       FontWeight="SemiBold" />
+                            <ItemsControl ItemsSource="{Binding IncomeCategories}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,4">
+                                            <CheckBox Content="{Binding Name}"
+                                                      IsChecked="{Binding IsSelected}" />
+                                            <Button Grid.Column="1"
+                                                    Content="{Binding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                    Classes="secondary-button"
+                                                    Command="{Binding $parent[UserControl].DataContext.DeleteCategoryCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Classes="panel-card alt">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Merge categories"
+                                   FontSize="18"
+                                   FontWeight="SemiBold" />
+                        <Grid ColumnDefinitions="*, *, Auto" ColumnSpacing="8">
+                            <ComboBox ItemsSource="{Binding Categories}"
+                                      SelectedItem="{Binding SelectedMergeSourceCategory}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="1"
+                                      ItemsSource="{Binding MergeTargetCategories}"
+                                      SelectedItem="{Binding SelectedMergeTargetCategory}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                        <TextBlock Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="2"
+                                    Content="Merge"
+                                    Classes="primary-button"
+                                    Command="{Binding MergeCategoriesCommand}" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="{Binding CategoryStatusMessage}"
+                           Classes="muted"
+                           TextWrapping="Wrap" />
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

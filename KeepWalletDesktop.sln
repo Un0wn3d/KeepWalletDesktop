@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepWalletDesktop", "KeepWalletDesktop\KeepWalletDesktop.csproj", "{930F1C58-9D44-43C6-90DE-C82B5A97E2BE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KeepWalletAPI", "..\KeepWalletAPI\KeepWalletAPI.csproj", "{2B679243-5308-4E91-BA5E-EF9EFA69742A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{930F1C58-9D44-43C6-90DE-C82B5A97E2BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{930F1C58-9D44-43C6-90DE-C82B5A97E2BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{930F1C58-9D44-43C6-90DE-C82B5A97E2BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B679243-5308-4E91-BA5E-EF9EFA69742A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B679243-5308-4E91-BA5E-EF9EFA69742A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B679243-5308-4E91-BA5E-EF9EFA69742A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B679243-5308-4E91-BA5E-EF9EFA69742A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

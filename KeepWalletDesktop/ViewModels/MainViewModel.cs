@@ -31,6 +31,7 @@ public partial class MainViewModel : ViewModelBase
     private const string PiggyBankPage = "PiggyBank";
     private const string GroupsPage = "Groups";
     private const string ScheduledPaymentsPage = "ScheduledPayments";
+    private const string CategoriesPage = "Categories";
     private const string SettingsPage = "Settings";
     private static readonly string[] ExpenseChartPalette =
     [
@@ -349,6 +350,24 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string onboardingStatusMessage = string.Empty;
 
+    [ObservableProperty]
+    private ObservableCollection<CategoryManagementItemViewModel> categories = [];
+
+    [ObservableProperty]
+    private string categoryNewName = string.Empty;
+
+    [ObservableProperty]
+    private string categoryNewType = "expense";
+
+    [ObservableProperty]
+    private CategoryManagementItemViewModel? selectedMergeSourceCategory;
+
+    [ObservableProperty]
+    private CategoryManagementItemViewModel? selectedMergeTargetCategory;
+
+    [ObservableProperty]
+    private string categoryStatusMessage = string.Empty;
+
     public MainViewModel()
     {
         var apiOptions = AppConfiguration.GetApiOptions();
@@ -371,6 +390,7 @@ public partial class MainViewModel : ViewModelBase
     public bool IsPiggyBankPage => CurrentPage == PiggyBankPage;
     public bool IsGroupsPage => CurrentPage == GroupsPage;
     public bool IsScheduledPaymentsPage => CurrentPage == ScheduledPaymentsPage;
+    public bool IsCategoriesPage => CurrentPage == CategoriesPage;
     public bool IsSettingsPage => CurrentPage == SettingsPage;
     public bool IsCurrentUserAdmin => string.Equals(CurrentUserRole, "admin", StringComparison.OrdinalIgnoreCase);
     public string ApiConnectionStatus => IsApiAuthorized ? Texts.ConnectedStatus : Texts.DisconnectedStatus;
@@ -435,6 +455,14 @@ public partial class MainViewModel : ViewModelBase
         OnboardingCategories.Where(c => string.Equals(c.Type, "expense", StringComparison.OrdinalIgnoreCase));
     public IEnumerable<OnboardingCategoryOptionViewModel> OnboardingIncomeCategories =>
         OnboardingCategories.Where(c => string.Equals(c.Type, "income", StringComparison.OrdinalIgnoreCase));
+    public IEnumerable<CategoryManagementItemViewModel> ExpenseCategories =>
+        Categories.Where(c => string.Equals(c.Type, "expense", StringComparison.OrdinalIgnoreCase));
+    public IEnumerable<CategoryManagementItemViewModel> IncomeCategories =>
+        Categories.Where(c => string.Equals(c.Type, "income", StringComparison.OrdinalIgnoreCase));
+    public IEnumerable<CategoryManagementItemViewModel> MergeTargetCategories =>
+        Categories.Where(c => SelectedMergeSourceCategory is null ||
+            (c.Id != SelectedMergeSourceCategory.Id &&
+             string.Equals(c.Type, SelectedMergeSourceCategory.Type, StringComparison.OrdinalIgnoreCase)));
 
     partial void OnCurrentPageChanged(string value)
     {
@@ -444,6 +472,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsPiggyBankPage));
         OnPropertyChanged(nameof(IsGroupsPage));
         OnPropertyChanged(nameof(IsScheduledPaymentsPage));
+        OnPropertyChanged(nameof(IsCategoriesPage));
         OnPropertyChanged(nameof(IsSettingsPage));
     }
 
@@ -581,6 +610,23 @@ public partial class MainViewModel : ViewModelBase
         RefreshOnboardingCategoryColumns();
     }
 
+    partial void OnCategoriesChanged(ObservableCollection<CategoryManagementItemViewModel> value)
+    {
+        RefreshCategoryManagementViews();
+    }
+
+    partial void OnSelectedMergeSourceCategoryChanged(CategoryManagementItemViewModel? value)
+    {
+        OnPropertyChanged(nameof(MergeTargetCategories));
+        if (SelectedMergeTargetCategory is not null &&
+            (value is null ||
+             SelectedMergeTargetCategory.Id == value.Id ||
+             !string.Equals(SelectedMergeTargetCategory.Type, value.Type, StringComparison.OrdinalIgnoreCase)))
+        {
+            SelectedMergeTargetCategory = MergeTargetCategories.FirstOrDefault();
+        }
+    }
+
     [RelayCommand]
     private void OpenHome()
     {
@@ -642,6 +688,18 @@ public partial class MainViewModel : ViewModelBase
 
         CurrentPage = ScheduledPaymentsPage;
         _ = LoadScheduledPaymentsAsync();
+    }
+
+    [RelayCommand]
+    private void OpenCategories()
+    {
+        if (!EnsureAuthorizedNavigation())
+        {
+            return;
+        }
+
+        CurrentPage = CategoriesPage;
+        _ = LoadCategoryManagementAsync();
     }
 
     [RelayCommand]
@@ -921,6 +979,171 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             OnboardingStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task AddCategoryAsync()
+    {
+        if (IsApiBusy)
+        {
+            return;
+        }
+
+        var name = CategoryNewName.Trim();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            CategoryStatusMessage = Texts.OnboardingCategoryNameRequired;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+
+            await _apiClient!.CreateCategoryAsync(new CreateCategoryRequestDto(
+                name,
+                string.Equals(CategoryNewType, "income", StringComparison.OrdinalIgnoreCase) ? "income" : "expense"));
+
+            CategoryNewName = string.Empty;
+            CategoryStatusMessage = string.Empty;
+            await LoadCategoryManagementAsync();
+            await LoadCategoriesAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            CategoryStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            CategoryStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void SelectCategoryType(string type)
+    {
+        CategoryNewType = string.Equals(type, "income", StringComparison.OrdinalIgnoreCase)
+            ? "income"
+            : "expense";
+    }
+
+    [RelayCommand]
+    private async Task SaveCategoriesAsync()
+    {
+        if (IsApiBusy)
+        {
+            return;
+        }
+
+        var selectedIds = Categories
+            .Where(c => c.IsSelected)
+            .Select(c => c.Id)
+            .Distinct()
+            .ToArray();
+
+        if (selectedIds.Length == 0)
+        {
+            CategoryStatusMessage = Texts.OnboardingCategorySelectionRequired;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.UpdateUserCategoriesAsync(new UpdateUserCategoryPreferencesRequestDto(selectedIds));
+            selectedCategoryIds = selectedIds.ToHashSet();
+            CategoryStatusMessage = string.Empty;
+            await LoadCategoriesAsync();
+            await LoadTransactionsAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            CategoryStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            CategoryStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteCategoryAsync(CategoryManagementItemViewModel? category)
+    {
+        if (IsApiBusy || category is null)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.DeleteCategoryAsync(category.Id);
+            CategoryStatusMessage = string.Empty;
+            await LoadCategoryManagementAsync();
+            await LoadCategoriesAsync();
+            await LoadTransactionsAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            CategoryStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            CategoryStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task MergeCategoriesAsync()
+    {
+        if (IsApiBusy || SelectedMergeSourceCategory is null || SelectedMergeTargetCategory is null)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.MergeCategoryAsync(
+                SelectedMergeSourceCategory.Id,
+                new MergeCategoryRequestDto(SelectedMergeTargetCategory.Id));
+
+            SelectedMergeSourceCategory = null;
+            SelectedMergeTargetCategory = null;
+            CategoryStatusMessage = string.Empty;
+            await LoadCategoryManagementAsync();
+            await LoadCategoriesAsync();
+            await LoadBudgetsAsync();
+            await LoadTransactionsAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            CategoryStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            CategoryStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -1270,6 +1493,7 @@ public partial class MainViewModel : ViewModelBase
         AdminUsers = [];
         UserLogs = [];
         ScheduledPayments = [];
+        Categories = [];
         BankAccounts = [];
         SelectedBankAccount = null;
         ResetBankAccountForm();
@@ -1298,6 +1522,7 @@ public partial class MainViewModel : ViewModelBase
         IsBankAccountDialogOpen = false;
         IsOnboardingDialogOpen = false;
         OnboardingStatusMessage = string.Empty;
+        CategoryStatusMessage = string.Empty;
         ResetTransactionForm();
         UpdateCharts();
         OnPropertyChanged(nameof(RemainingAmount));
@@ -1334,6 +1559,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(TransactionTypeDisplay));
         OnPropertyChanged(nameof(SaveTransactionButtonText));
         RefreshOnboardingCategoryTypeDisplays();
+        RefreshCategoryTypeDisplays();
         UpdateTransactionCategoryOptions(SelectedTransactionCategory?.Code);
         UpdateTransactionCategoryFilterOptions();
         RefreshTransactionItems();
@@ -1356,10 +1582,33 @@ public partial class MainViewModel : ViewModelBase
                 c.IsSelected)));
     }
 
+    private void RefreshCategoryTypeDisplays()
+    {
+        if (Categories.Count == 0)
+        {
+            return;
+        }
+
+        Categories = new ObservableCollection<CategoryManagementItemViewModel>(
+            Categories.Select(c => new CategoryManagementItemViewModel(
+                c.Id,
+                c.Name,
+                c.Type,
+                GetOnboardingCategoryTypeDisplay(c.Type),
+                c.IsSelected)));
+    }
+
     private void RefreshOnboardingCategoryColumns()
     {
         OnPropertyChanged(nameof(OnboardingExpenseCategories));
         OnPropertyChanged(nameof(OnboardingIncomeCategories));
+    }
+
+    private void RefreshCategoryManagementViews()
+    {
+        OnPropertyChanged(nameof(ExpenseCategories));
+        OnPropertyChanged(nameof(IncomeCategories));
+        OnPropertyChanged(nameof(MergeTargetCategories));
     }
 
     private string GetOnboardingCategoryTypeDisplay(string type) =>
@@ -1382,6 +1631,33 @@ public partial class MainViewModel : ViewModelBase
         UpdateTransactionCategoryOptions(SelectedTransactionCategory?.Code);
         UpdateScheduledPaymentCategoryOptions(SelectedScheduledPaymentCategory?.Code);
         RefreshTransactionItems();
+    }
+
+    private async Task LoadCategoryManagementAsync()
+    {
+        try
+        {
+            EnsureApiClient();
+            var categories = await _apiClient!.GetUserCategoriesAsync();
+            Categories = new ObservableCollection<CategoryManagementItemViewModel>(
+                categories.Select(c => new CategoryManagementItemViewModel(
+                    c.Id,
+                    c.Name,
+                    c.Type,
+                    GetOnboardingCategoryTypeDisplay(c.Type),
+                    c.IsSelected)));
+            SelectedMergeSourceCategory = Categories.FirstOrDefault();
+            SelectedMergeTargetCategory = MergeTargetCategories.FirstOrDefault();
+            CategoryStatusMessage = string.Empty;
+        }
+        catch (HttpRequestException ex)
+        {
+            CategoryStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            CategoryStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
     }
 
     private async Task LoadUserCategoryPreferencesAsync()
@@ -1908,14 +2184,14 @@ public partial class MainViewModel : ViewModelBase
             : BuildCategoryOptions("expense")
                 .Select((c, index) => CreateCategoryDetail(c.Code, c.DisplayName, "expense", index));
 
-        CategoryDetails = new ObservableCollection<CategoryDetailItemViewModel>(categoryDetails);
         CategoryDetails = new ObservableCollection<CategoryDetailItemViewModel>(
-            CategoryDetails
+            categoryDetails
                 .OrderBy(c => c.RiskSortRank)
                 .ThenBy(c => c.RiskSortRank == 1 ? c.RemainingAmount : 0)
                 .ThenByDescending(c => c.RiskSortRank == 2 ? c.Amount : 0)
                 .ThenByDescending(c => c.RiskSortRank is 0 or 1 ? c.Limit : 0)
                 .ThenBy(c => c.Name));
+        OnPropertyChanged(nameof(CategoryDetails));
     }
 
     private CategoryDetailItemViewModel CreateCategoryDetail(string categoryCode, string name, string type, int index)

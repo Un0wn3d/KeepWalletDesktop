@@ -22,6 +22,7 @@
         <views:SavingsView Grid.Column="1" />
         <views:GroupsView Grid.Column="1" />
         <views:ScheduledPaymentsView Grid.Column="1" />
+        <views:CategoriesView Grid.Column="1" />
         <views:ApiSettingsView Grid.Column="1" />
 
         <controls:FloatingActionMenu Grid.Column="1"
@@ -48,7 +49,7 @@
                             <Button Grid.Column="1"
                                     Content="{Binding Texts.OnboardingCategoriesTitle}"
                                     Classes="secondary-button"
-                                    Command="{Binding OpenCategorySettingsCommand}" />
+                                    Command="{Binding OpenCategoriesCommand}" />
                             <Button Grid.Column="2"
                                     Content="{Binding Texts.SaveServerSettingsButton}"
                                     Classes="secondary-button"

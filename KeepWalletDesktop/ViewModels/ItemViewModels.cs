@@ -119,8 +119,10 @@ public partial class CategoryDetailItemViewModel : ObservableObject
     public string SpentLimitDisplay => $"{Amount:N2} / {Limit:N2}";
     public string RemainingDisplay => $"{Math.Max(0, Limit - Amount):N2}";
     public decimal RemainingAmount => Limit - Amount;
-    public int RiskSortRank => Amount <= 0
-        ? 4
+    public int RiskSortRank => Amount <= 0 && Limit > 0
+        ? 3
+        : Amount <= 0
+            ? 4
         : UsagePercent > 100
             ? 0
             : UsagePercent >= 80

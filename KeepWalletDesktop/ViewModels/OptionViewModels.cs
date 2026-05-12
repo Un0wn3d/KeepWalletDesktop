@@ -52,3 +52,23 @@ public partial class OnboardingCategoryOptionViewModel : ObservableObject
     [ObservableProperty]
     private bool isSelected;
 }
+
+public partial class CategoryManagementItemViewModel : ObservableObject
+{
+    public CategoryManagementItemViewModel(int id, string name, string type, string typeDisplay, bool isSelected)
+    {
+        Id = id;
+        Name = name;
+        Type = type;
+        TypeDisplay = typeDisplay;
+        this.isSelected = isSelected;
+    }
+
+    public int Id { get; }
+    public string Name { get; }
+    public string Type { get; }
+    public string TypeDisplay { get; }
+
+    [ObservableProperty]
+    private bool isSelected;
+}

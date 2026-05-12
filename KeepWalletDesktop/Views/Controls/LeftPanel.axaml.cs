@@ -52,6 +52,14 @@ public partial class LeftPanel : UserControl
         }
     }
 
+    private void btn_Categories(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.OpenCategoriesCommand.Execute(null);
+        }
+    }
+
     private void btn_Settings(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel vm)
