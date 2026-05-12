@@ -14,14 +14,9 @@
 
     <ItemGroup>
       <AvaloniaXaml Remove="bin\**" />
-      <AvaloniaXaml Remove="KeepWalletDesktop\**" />
       <Compile Remove="bin\**" />
-      <Compile Remove="KeepWalletDesktop\**" />
       <EmbeddedResource Remove="bin\**" />
-      <EmbeddedResource Remove="KeepWalletDesktop\**" />
       <None Remove="bin\**" />
-      <None Remove="KeepWalletDesktop\**" />
-      <AvaloniaResource Remove="KeepWalletDesktop\**" />
       <Compile Update="Views\Controls\FloatingActionMenu.axaml.cs">
         <DependentUpon>FloatingActionMenu.axaml</DependentUpon>
       </Compile>
@@ -44,6 +39,7 @@
         <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="10.0.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.1" />
         <PackageReference Include="MySqlConnector" Version="2.5.0" />
+        <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
         <PackageReference Include="Serilog" Version="4.3.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
         <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />

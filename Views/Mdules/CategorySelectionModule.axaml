@@ -17,22 +17,22 @@
                 <Setter Property="BorderThickness" Value="1" />
             </Style>
             <Style Selector="CheckBox.expense-chip">
-                <Setter Property="Background" Value="#FFF7ED" />
-                <Setter Property="BorderBrush" Value="#FB923C" />
-                <Setter Property="Foreground" Value="#9A3412" />
+                <Setter Property="Background" Value="{DynamicResource Color.DangerPanel}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Color.Danger}" />
+                <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
             </Style>
             <Style Selector="CheckBox.expense-chip:checked">
-                <Setter Property="Background" Value="#FED7AA" />
-                <Setter Property="BorderBrush" Value="#EA580C" />
+                <Setter Property="Background" Value="{DynamicResource Color.Danger}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Color.Danger}" />
             </Style>
             <Style Selector="CheckBox.income-chip">
-                <Setter Property="Background" Value="#ECFDF5" />
-                <Setter Property="BorderBrush" Value="#34D399" />
-                <Setter Property="Foreground" Value="#047857" />
+                <Setter Property="Background" Value="{DynamicResource Color.SuccessPanel}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Color.Success}" />
+                <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
             </Style>
             <Style Selector="CheckBox.income-chip:checked">
-                <Setter Property="Background" Value="#A7F3D0" />
-                <Setter Property="BorderBrush" Value="#059669" />
+                <Setter Property="Background" Value="{DynamicResource Color.Success}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource Color.Success}" />
             </Style>
         </Border.Styles>
         <StackPanel Spacing="10">

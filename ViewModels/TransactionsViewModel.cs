@@ -196,6 +196,7 @@ public partial class MainViewModel
                     GetAccountCurrency(t.AccountId),
                     t.CategoryId.ToString(CultureInfo.InvariantCulture),
                     GetCategoryDisplayName(t.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                    GetCategoryIconKey(t.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     t.Description,
                     t.TransactionDate.ToLocalTime(),
                     GetTransactionType(t.CategoryId) == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType)));

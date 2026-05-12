@@ -16,7 +16,7 @@ namespace KeepWalletDesktop.Services
                     "logs/log-.log", 
                     rollingInterval: RollingInterval.Day, 
                     retainedFileCountLimit: 7,
-                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
 #if DEBUG
                 .WriteTo.File(
                     path: "logs/debug-.log",
