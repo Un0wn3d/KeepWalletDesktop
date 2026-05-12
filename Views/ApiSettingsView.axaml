@@ -99,7 +99,7 @@
                                             <TextBlock Grid.Column="3" Text="{Binding RoleName}" />
                                             <CheckBox Grid.Column="4"
                                                       IsChecked="{Binding IsActive, Mode=OneWay}"
-                                                      Command="{Binding $parent[UserControl].DataContext.ToggleUserAccessCommand}"
+                                                      Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleUserAccessCommand}"
                                                       CommandParameter="{Binding .}" />
                                             <TextBlock Grid.Column="5" Text="{Binding CreatedAtDisplay}" Classes="muted" />
                                         </Grid>

@@ -89,10 +89,10 @@
                                                    FontWeight="Bold"
                                                    VerticalAlignment="Center" />
                                         <Button Grid.Column="3"
-                                                Content="{Binding $parent[UserControl].DataContext.Texts.ConfirmScheduledPaymentButton}"
+                                                Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.ConfirmScheduledPaymentButton}"
                                                 Classes="primary-button"
                                                 IsEnabled="{Binding IsActive}"
-                                                Command="{Binding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}"
+                                                Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}"
                                                 CommandParameter="{Binding .}" />
                                     </Grid>
                                 </Border>

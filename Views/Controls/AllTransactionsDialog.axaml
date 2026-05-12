@@ -103,7 +103,7 @@
                                                 Padding="0"
                                                 HorizontalAlignment="Stretch"
                                                 HorizontalContentAlignment="Stretch"
-                                                Command="{Binding $parent[UserControl].DataContext.EditTransactionCommand}"
+                                                Command="{ReflectionBinding $parent[UserControl].DataContext.EditTransactionCommand}"
                                                 CommandParameter="{Binding .}">
                                             <Border Classes="list-item-card">
                                                 <Grid ColumnDefinitions="72, 5*, 2*, 2*"

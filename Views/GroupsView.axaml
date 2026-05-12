@@ -101,7 +101,7 @@
                                         <Button Grid.Column="3"
                                                 Content="Remove"
                                                 Classes="secondary-button"
-                                                Command="{Binding $parent[UserControl].DataContext.RemoveGroupMemberCommand}"
+                                                Command="{ReflectionBinding $parent[UserControl].DataContext.RemoveGroupMemberCommand}"
                                                 CommandParameter="{Binding .}" />
                                     </Grid>
                                 </DataTemplate>

@@ -33,7 +33,7 @@
                                                     Padding="0"
                                                     HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Stretch"
-                                                    Command="{Binding $parent[UserControl].DataContext.SelectBankAccountCommand}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.SelectBankAccountCommand}"
                                                     CommandParameter="{Binding .}">
                                                 <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
                                                     <StackPanel>
@@ -51,9 +51,9 @@
                                                 </Grid>
                                             </Button>
                                             <Button Grid.Column="1"
-                                                    Content="{Binding $parent[UserControl].DataContext.Texts.EditTransactionButton}"
+                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.EditTransactionButton}"
                                                     Classes="secondary-button"
-                                                    Command="{Binding $parent[UserControl].DataContext.EditBankAccountCommand}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.EditBankAccountCommand}"
                                                     CommandParameter="{Binding .}" />
                                         </Grid>
                                     </DataTemplate>

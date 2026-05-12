@@ -79,9 +79,9 @@
                                                 <TextBlock Text="{Binding TypeDisplay}" Classes="muted" />
                                             </StackPanel>
                                             <ComboBox Grid.Column="2"
-                                                      ItemsSource="{Binding $parent[UserControl].DataContext.CategoryIconOptions}"
+                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.CategoryIconOptions}"
                                                       SelectedValue="{Binding SelectedIconKey}"
-                                                      SelectedValueBinding="{Binding Key}">
+                                                      SelectedValueBinding="{ReflectionBinding Key}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -94,9 +94,9 @@
                                             <ToggleSwitch Grid.Column="3"
                                                           IsChecked="{Binding IsSelected}" />
                                             <Button Grid.Column="4"
-                                                    Content="{Binding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
                                                     Classes="danger-button"
-                                                    Command="{Binding $parent[UserControl].DataContext.DeleteCategoryCommand}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
                                                     CommandParameter="{Binding .}" />
                                         </Grid>
                                     </DataTemplate>
@@ -124,9 +124,9 @@
                                                 <TextBlock Text="{Binding TypeDisplay}" Classes="muted" />
                                             </StackPanel>
                                             <ComboBox Grid.Column="2"
-                                                      ItemsSource="{Binding $parent[UserControl].DataContext.CategoryIconOptions}"
+                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.CategoryIconOptions}"
                                                       SelectedValue="{Binding SelectedIconKey}"
-                                                      SelectedValueBinding="{Binding Key}">
+                                                      SelectedValueBinding="{ReflectionBinding Key}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -139,9 +139,9 @@
                                             <ToggleSwitch Grid.Column="3"
                                                           IsChecked="{Binding IsSelected}" />
                                             <Button Grid.Column="4"
-                                                    Content="{Binding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
                                                     Classes="danger-button"
-                                                    Command="{Binding $parent[UserControl].DataContext.DeleteCategoryCommand}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
                                                     CommandParameter="{Binding .}" />
                                         </Grid>
                                     </DataTemplate>

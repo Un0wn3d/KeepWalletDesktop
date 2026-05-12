@@ -35,7 +35,7 @@
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:SavingOptionViewModel">
-                                            <Button Command="{Binding $parent[UserControl].DataContext.SelectSavingCommand}"
+                                            <Button Command="{ReflectionBinding $parent[UserControl].DataContext.SelectSavingCommand}"
                                                     CommandParameter="{Binding .}"
                                                     Background="Transparent"
                                                     BorderThickness="0"
@@ -143,11 +143,11 @@
                                                     VerticalAlignment="Center">
                                             <Button Content="Up"
                                                     Classes="secondary-button"
-                                                    Command="{Binding $parent[UserControl].DataContext.MoveSavingItemUpCommand}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemUpCommand}"
                                                     CommandParameter="{Binding .}" />
                                             <Button Content="Down"
                                                     Classes="secondary-button"
-                                                    Command="{Binding $parent[UserControl].DataContext.MoveSavingItemDownCommand}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemDownCommand}"
                                                     CommandParameter="{Binding .}" />
                                         </StackPanel>
                                         <StackPanel Grid.Column="1"
@@ -165,7 +165,7 @@
                                         <TextBlock Grid.Column="3" Text="{Binding AmountDisplay}" VerticalAlignment="Center" />
                                         <CheckBox Grid.Column="4"
                                                   IsChecked="{Binding IsPaid, Mode=OneWay}"
-                                                  Command="{Binding $parent[UserControl].DataContext.ToggleSavingItemCommand}"
+                                                  Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleSavingItemCommand}"
                                                   CommandParameter="{Binding .}" />
                                     </Grid>
                                 </Border>
