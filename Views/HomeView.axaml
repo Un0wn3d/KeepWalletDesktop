@@ -16,12 +16,9 @@
                         <Grid ColumnDefinitions="*, *, *" ColumnSpacing="16">
                             <Border Grid.Column="0" Classes="metric-card total">
                                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                                    <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.AccentSoft}">
-                                        <TextBlock Text="Σ" Foreground="{DynamicResource Color.Accent}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Foreground="{DynamicResource Color.TextMuted}" Text="{Binding Texts.Total}" FontSize="12" />
-                                        <TextBlock Foreground="{DynamicResource Color.Text1}"
+                                        <TextBlock Foreground="White" Text="{Binding Texts.Total}" FontSize="12" />
+                                        <TextBlock Foreground="White"
                                                Text="{Binding Money}"
                                                Classes="amount-text"
                                                FontSize="36"
@@ -31,12 +28,9 @@
                             </Border>
                             <Border Grid.Column="1" Classes="metric-card income">
                                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                                    <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SuccessPanel}">
-                                        <TextBlock Text="↑" Foreground="{DynamicResource Color.Success}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Foreground="{DynamicResource Color.TextMuted}" Text="{Binding Texts.Income}" FontSize="12" />
-                                        <TextBlock Foreground="{DynamicResource Color.Text1}"
+                                        <TextBlock Foreground="White" Text="{Binding Texts.Income}" FontSize="12" />
+                                        <TextBlock Foreground="White"
                                                Text="{Binding Income}"
                                                Classes="amount-text"
                                                FontSize="36"
@@ -46,12 +40,9 @@
                             </Border>
                             <Border Grid.Column="2" Classes="metric-card expense">
                                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
-                                    <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.DangerPanel}">
-                                        <TextBlock Text="↓" Foreground="{DynamicResource Color.Danger}" FontSize="22" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
                                     <StackPanel Grid.Column="1">
-                                        <TextBlock Foreground="{DynamicResource Color.TextMuted}" Text="{Binding Texts.Expenses}" FontSize="12" />
-                                        <TextBlock Foreground="{DynamicResource Color.Text1}"
+                                        <TextBlock Foreground="White" Text="{Binding Texts.Expenses}" FontSize="12" />
+                                        <TextBlock Foreground="White"
                                                Text="{Binding Expense}"
                                                Classes="amount-text"
                                                FontSize="36"
@@ -83,7 +74,7 @@
                                                    Classes="section-title" />
                                         <Grid Grid.Row="1" ColumnDefinitions="*, 220" ColumnSpacing="10">
                                             <lvc:PieChart Grid.Column="0"
-                                                          Background="{DynamicResource Color.Surface}"
+                                                          Background="{DynamicResource Color.SurfaceAlt}"
                                                           LegendPosition="Hidden"
                                                           Series="{Binding Series}" />
                                             <ItemsControl Grid.Column="1"
@@ -125,7 +116,7 @@
                                                Text="{Binding TransactionTimelineTitle}"
                                                Classes="section-title" />
                                     <Grid Grid.Row="1">
-                                        <lvc:CartesianChart Background="Transparent"
+                                        <lvc:CartesianChart Background="{DynamicResource Color.SurfaceAlt}"
                                                             Series="{Binding Chart}"
                                                             XAxes="{Binding TransactionTimelineXAxes}"
                                                             YAxes="{Binding TransactionTimelineYAxes}"
@@ -141,7 +132,7 @@
                     </Border>
 
                     <Border Grid.Row="2" Classes="expenses-card">
-                            <Grid RowDefinitions="Auto, Auto, Auto, *">
+                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, *">
                                 <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,16">
                                     <TextBlock Grid.Column="0"
                                                Text="{Binding Texts.TransactionsSectionTitle}"
@@ -152,30 +143,61 @@
                                             Command="{Binding OpenAllTransactionsCommand}" />
                                 </Grid>
 
-                                <TextBlock Grid.Row="1"
+                                <Border Grid.Row="1"
+                                        Background="{DynamicResource Color.SurfaceOverlay}"
+                                        CornerRadius="8"
+                                        Padding="12"
+                                        Margin="0,0,0,10"
+                                        IsVisible="{Binding HasSharedTransactions}">
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Поділилися транзакціями"
+                                                   Classes="muted"
+                                                   FontWeight="SemiBold" />
+                                        <ItemsControl ItemsSource="{Binding SharedTransactions}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:TransactionItemViewModel">
+                                                    <Grid ColumnDefinitions="*, Auto"
+                                                          ColumnSpacing="12"
+                                                          Margin="0,2">
+                                                        <TextBlock Text="{Binding DescriptionDisplay}"
+                                                                   FontWeight="SemiBold"
+                                                                   TextWrapping="Wrap" />
+                                                        <TextBlock Grid.Column="1"
+                                                                   Text="{Binding SharedDisplay}"
+                                                                   Classes="muted" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Grid.Row="2"
                                            Text="{Binding Texts.NoTransactionsText}"
                                            IsVisible="{Binding HasNoTransactions}"
                                            Margin="0,0,0,8" />
 
-                                <Grid Grid.Row="2"
-                                      ColumnDefinitions="*, 180, Auto"
+                                <Grid Grid.Row="3"
+                                      ColumnDefinitions="52, 5*, 2*, 2*"
                                       ColumnSpacing="12"
-                                      Margin="0,0,0,8"
+                                      Margin="8,0,8,2"
                                       IsVisible="{Binding HasTransactions}">
-                                    <TextBlock Text="{Binding Texts.TransactionDescriptionLabel}"
-                                               Classes="muted"
-                                               FontWeight="SemiBold" />
+                                    <TextBlock />
                                     <TextBlock Grid.Column="1"
-                                               Text="{Binding Texts.TransactionCategoryLabel}"
+                                               Text="{Binding Texts.TransactionDescriptionLabel}"
                                                Classes="muted"
                                                FontWeight="SemiBold" />
                                     <TextBlock Grid.Column="2"
+                                               Text="{Binding Texts.TransactionCategoryLabel}"
+                                               Classes="muted"
+                                               FontWeight="SemiBold" />
+                                    <TextBlock Grid.Column="3"
                                                Text="{Binding Texts.TransactionAmountLabel}"
                                                Classes="muted"
                                                FontWeight="SemiBold" />
                                 </Grid>
 
-                                <ItemsControl Grid.Row="3" ItemsSource="{Binding VisibleTransactions}" Background="Transparent">
+                                <ItemsControl Grid.Row="4" ItemsSource="{Binding VisibleTransactions}" Background="{DynamicResource Color.AquaPanel}">
                                     <ItemsControl.Styles>
                                         <Style Selector="Button.transaction-row-button">
                                             <Setter Property="Background" Value="Transparent" />
@@ -209,7 +231,7 @@
                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.EditTransactionCommand}"
                                                     CommandParameter="{Binding .}">
                                                 <Border Classes="list-item-card">
-                                                    <Grid ColumnDefinitions="Auto, *, 180, Auto"
+                                                    <Grid ColumnDefinitions="52, 5*, 2*, 2*"
                                                           ColumnSpacing="12"
                                                           VerticalAlignment="Center">
                                                         <Border Width="40"
@@ -234,19 +256,24 @@
                                                         </StackPanel>
                                                         <Border Grid.Column="2"
                                                                 Background="{DynamicResource Color.SurfaceAlt}"
-                                                                CornerRadius="16"
+                                                                CornerRadius="20"
                                                                 Padding="12,6"
-                                                                VerticalAlignment="Center">
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Stretch">
                                                             <TextBlock Text="{Binding CategoryDisplay}"
                                                                        TextWrapping="Wrap"
-                                                                       HorizontalAlignment="Center"
                                                                        VerticalAlignment="Center" />
                                                         </Border>
-                                                        <TextBlock Grid.Column="3"
-                                                                   Text="{Binding AmountDisplay}"
-                                                                   VerticalAlignment="Center"
-                                                                   HorizontalAlignment="Right"
-                                                                   Classes="amount-text" />
+                                                        <Grid Grid.Column="3" VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding AmountDisplay}"
+                                                                       Foreground="{DynamicResource Color.Success}"
+                                                                       FontWeight="Bold"
+                                                                       IsVisible="{Binding IsIncome}" />
+                                                            <TextBlock Text="{Binding AmountDisplay}"
+                                                                       Foreground="{DynamicResource Color.Danger}"
+                                                                       FontWeight="Bold"
+                                                                       IsVisible="{Binding !IsIncome}" />
+                                                        </Grid>
                                                     </Grid>
                                                 </Border>
                                             </Button>

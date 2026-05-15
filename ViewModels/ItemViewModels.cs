@@ -12,6 +12,9 @@ namespace KeepWalletDesktop.ViewModels;
 public sealed record TransactionItemViewModel(
     int Id,
     Guid AccountId,
+    Guid? GroupId,
+    string? GroupName,
+    string? SharedBy,
     string Type,
     decimal Amount,
     string Currency,
@@ -25,6 +28,10 @@ public sealed record TransactionItemViewModel(
     private const string DateTimeDisplayFormat = "dd.MM.yyyy HH:mm";
 
     public bool IsIncome => Type == "income";
+    public bool IsShared => GroupId.HasValue;
+    public string SharedDisplay => IsShared
+        ? $"{GroupName ?? "Group"} - {SharedBy ?? "-"}"
+        : string.Empty;
     public string AmountDisplay => $"{(IsIncome ? "+" : "-")}{FormatAmount(Amount)}{(Currency == "UAH" ? " ₴" : $" {Currency}")}";
     public string TransactionDateDisplay => TransactionDate.ToString(DateTimeDisplayFormat);
     public string TransactionDateShortDisplay => TransactionDate.ToString("dd.MM");

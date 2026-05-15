@@ -255,6 +255,12 @@ public partial class MainViewModel : ViewModelBase
     private GroupItemViewModel? selectedAccessGroup;
 
     [ObservableProperty]
+    private bool isTransactionSharedInput;
+
+    [ObservableProperty]
+    private GroupItemViewModel? selectedTransactionShareGroup;
+
+    [ObservableProperty]
     private string groupMemberLoginInput = string.Empty;
 
     [ObservableProperty]
@@ -298,6 +304,12 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private bool isBankAccountDefaultInput;
+
+    [ObservableProperty]
+    private bool isBankAccountSharedInput;
+
+    [ObservableProperty]
+    private GroupItemViewModel? selectedBankAccountShareGroup;
 
     [ObservableProperty]
     private string bankAccountStatusMessage = string.Empty;
@@ -429,6 +441,8 @@ public partial class MainViewModel : ViewModelBase
     public bool HasNoBankAccounts => !HasBankAccounts;
     public bool HasTransactions => LatestExpenses.Count > 0;
     public bool HasNoTransactions => !HasTransactions;
+    public IEnumerable<TransactionItemViewModel> SharedTransactions => AllTransactions.Where(t => t.IsShared).Take(5);
+    public bool HasSharedTransactions => AllTransactions.Any(t => t.IsShared);
     public bool HasAllTransactions => LatestExpenses.Count > 0;
     public bool HasExpenseTransactions => LatestExpenses.Any(t => !t.IsIncome);
     public bool HasNoExpenseTransactions => !HasExpenseTransactions;
@@ -536,6 +550,8 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsCurrentUserAdmin));
         OnPropertyChanged(nameof(HasTransactions));
         OnPropertyChanged(nameof(HasNoTransactions));
+        OnPropertyChanged(nameof(SharedTransactions));
+        OnPropertyChanged(nameof(HasSharedTransactions));
         OnPropertyChanged(nameof(HasAllTransactions));
         OnPropertyChanged(nameof(HasExpenseTransactions));
         OnPropertyChanged(nameof(HasNoExpenseTransactions));
@@ -831,6 +847,7 @@ public partial class MainViewModel : ViewModelBase
             ApiStatusMessage = $"{Texts.LoginSuccessPrefix}: {auth.Username}.";
             await LoadCategoriesAsync();
             await LoadUserCategoryPreferencesAsync();
+            await LoadGroupsAsync();
             await LoadTransactionsAsync();
         }
         catch (HttpRequestException ex)
@@ -1878,6 +1895,8 @@ public partial class MainViewModel : ViewModelBase
         TransactionAmountInput = string.Empty;
         TransactionCurrencyInput = "UAH";
         TransactionDescriptionInput = string.Empty;
+        IsTransactionSharedInput = false;
+        SelectedTransactionShareGroup = null;
         var now = DateTimeOffset.Now;
         TransactionDateInput = now.ToString(DateDisplayFormat);
         TransactionSelectedDate = now.DateTime;
@@ -1892,6 +1911,8 @@ public partial class MainViewModel : ViewModelBase
         BankAccountCurrencyInput = "UAH";
         BankAccountBalanceInput = "0";
         IsBankAccountDefaultInput = false;
+        IsBankAccountSharedInput = false;
+        SelectedBankAccountShareGroup = null;
         BankAccountStatusMessage = string.Empty;
     }
 

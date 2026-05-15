@@ -90,6 +90,10 @@ public partial class MainViewModel
     private void BeginCreateBankAccount()
     {
         ResetBankAccountForm();
+        if (Groups.Count == 0)
+        {
+            _ = LoadGroupsAsync();
+        }
         BankAccountStatusMessage = string.Empty;
         IsBankAccountDialogOpen = true;
     }
@@ -120,6 +124,14 @@ public partial class MainViewModel
         BankAccountCurrencyInput = account.Currency;
         BankAccountBalanceInput = account.Balance.ToString("0.##", CultureInfo.InvariantCulture);
         IsBankAccountDefaultInput = account.IsDefault;
+        IsBankAccountSharedInput = account.GroupId.HasValue;
+        SelectedBankAccountShareGroup = account.GroupId.HasValue
+            ? Groups.FirstOrDefault(g => g.Id == account.GroupId.Value)
+            : null;
+        if (account.GroupId.HasValue && SelectedBankAccountShareGroup is null)
+        {
+            _ = LoadGroupsAsync();
+        }
         BankAccountStatusMessage = string.Empty;
         IsBankAccountDialogOpen = true;
     }
@@ -142,7 +154,8 @@ public partial class MainViewModel
         if (string.IsNullOrWhiteSpace(BankAccountNameInput) ||
             string.IsNullOrWhiteSpace(BankAccountCurrencyInput) ||
             !decimal.TryParse(BankAccountBalanceInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var balance) ||
-            balance < 0)
+            balance < 0 ||
+            (IsBankAccountSharedInput && SelectedBankAccountShareGroup is null))
         {
             BankAccountStatusMessage = Texts.TransactionFormValidationText;
             return;
@@ -155,12 +168,13 @@ public partial class MainViewModel
 
             var name = BankAccountNameInput.Trim();
             var currency = BankAccountCurrencyInput.Trim().ToUpperInvariant();
+            var groupId = IsBankAccountSharedInput ? SelectedBankAccountShareGroup?.Id : null;
             var account = EditingBankAccountId.HasValue
                 ? await _apiClient!.UpdateBankAccountAsync(
                     EditingBankAccountId.Value,
-                    new UpdateBankAccountRequestDto(name, currency, balance, IsBankAccountDefaultInput))
+                    new UpdateBankAccountRequestDto(name, currency, balance, IsBankAccountDefaultInput, groupId))
                 : await _apiClient!.CreateBankAccountAsync(
-                    new CreateBankAccountRequestDto(name, currency, balance, IsBankAccountDefaultInput));
+                    new CreateBankAccountRequestDto(name, currency, balance, IsBankAccountDefaultInput, groupId));
 
             if (account.IsDefault)
             {

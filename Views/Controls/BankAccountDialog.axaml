@@ -32,6 +32,18 @@
                         <CheckBox Content="{Binding Texts.BankAccountDefaultLabel}"
                                   IsChecked="{Binding IsBankAccountDefaultInput}" />
 
+                        <CheckBox Content="Поділитися акаунтом"
+                                  IsChecked="{Binding IsBankAccountSharedInput}" />
+                        <ComboBox ItemsSource="{Binding Groups}"
+                                  SelectedItem="{Binding SelectedBankAccountShareGroup}"
+                                  IsVisible="{Binding IsBankAccountSharedInput}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:GroupItemViewModel">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
                         <TextBlock Text="{Binding BankAccountStatusMessage}"
                                    Classes="message-text" />
 

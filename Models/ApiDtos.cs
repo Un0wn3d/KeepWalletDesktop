@@ -71,6 +71,7 @@ public sealed record ApiLogDto(
 
 public sealed record CreateTransactionRequestDto(
     Guid AccountId,
+    Guid? GroupId,
     int CategoryId,
     int? RecurringPaymentId,
     decimal Amount,
@@ -79,6 +80,7 @@ public sealed record CreateTransactionRequestDto(
 
 public sealed record UpdateTransactionRequestDto(
     Guid AccountId,
+    Guid? GroupId,
     int CategoryId,
     int? RecurringPaymentId,
     decimal Amount,
@@ -88,6 +90,9 @@ public sealed record UpdateTransactionRequestDto(
 public sealed record ApiTransactionDto(
     int Id,
     Guid AccountId,
+    Guid? GroupId,
+    string? GroupName,
+    string? SharedBy,
     int CategoryId,
     int? RecurringPaymentId,
     decimal Amount,
@@ -201,13 +206,15 @@ public sealed record CreateBankAccountRequestDto(
     string Name,
     string Currency,
     decimal Balance,
-    bool IsDefault);
+    bool IsDefault,
+    Guid? GroupId = null);
 
 public sealed record UpdateBankAccountRequestDto(
     string Name,
     string Currency,
     decimal Balance,
-    bool IsDefault);
+    bool IsDefault,
+    Guid? GroupId = null);
 
 public sealed record ApiBankAccountDto(
     Guid Id,

@@ -35,7 +35,8 @@ public partial class MainViewModel
         if (!decimal.TryParse(TransactionAmountInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var amount) ||
             amount <= 0 ||
             SelectedTransactionCategory is null ||
-            !TryBuildTransactionDateTime(TransactionSelectedDate, TransactionTimeInput, out var transactionDate))
+            !TryBuildTransactionDateTime(TransactionSelectedDate, TransactionTimeInput, out var transactionDate) ||
+            (IsTransactionSharedInput && SelectedTransactionShareGroup is null))
         {
             ApiStatusMessage = Texts.TransactionFormValidationText;
             return;
@@ -52,6 +53,7 @@ public partial class MainViewModel
 
             var accountId = SelectedBankAccount?.Id ?? await EnsureDefaultAccountAsync();
             var categoryId = GetCategoryId(SelectedTransactionCategory.Code);
+            var groupId = IsTransactionSharedInput ? SelectedTransactionShareGroup?.Id : null;
 
             if (EditingTransactionId.HasValue)
             {
@@ -59,6 +61,7 @@ public partial class MainViewModel
                     EditingTransactionId.Value,
                     new UpdateTransactionRequestDto(
                         accountId,
+                        groupId,
                         categoryId,
                         null,
                         amount,
@@ -72,6 +75,7 @@ public partial class MainViewModel
                 await _apiClient!.CreateTransactionAsync(
                     new CreateTransactionRequestDto(
                         accountId,
+                        groupId,
                         categoryId,
                         null,
                         amount,
@@ -105,6 +109,10 @@ public partial class MainViewModel
     {
         IsTransactionDialogOpen = false;
         ResetTransactionForm();
+        if (Groups.Count == 0)
+        {
+            _ = LoadGroupsAsync();
+        }
         ApiStatusMessage = string.Empty;
     }
 
@@ -123,6 +131,14 @@ public partial class MainViewModel
         TransactionCurrencyInput = transaction.Currency;
         UpdateTransactionCategoryOptions(transaction.CategoryCode);
         TransactionDescriptionInput = transaction.Description ?? string.Empty;
+        IsTransactionSharedInput = transaction.GroupId.HasValue;
+        SelectedTransactionShareGroup = transaction.GroupId.HasValue
+            ? Groups.FirstOrDefault(g => g.Id == transaction.GroupId.Value)
+            : null;
+        if (transaction.GroupId.HasValue && SelectedTransactionShareGroup is null)
+        {
+            _ = LoadGroupsAsync();
+        }
         var localDate = transaction.TransactionDate.ToLocalTime();
         TransactionDateInput = localDate.ToString(DateDisplayFormat);
         TransactionSelectedDate = localDate.DateTime;
@@ -191,6 +207,9 @@ public partial class MainViewModel
                 transactions.Select(t => new TransactionItemViewModel(
                     t.Id,
                     t.AccountId,
+                    t.GroupId,
+                    t.GroupName,
+                    t.SharedBy,
                     GetTransactionType(t.CategoryId),
                     t.Amount,
                     GetAccountCurrency(t.AccountId),
@@ -226,6 +245,8 @@ public partial class MainViewModel
             OnPropertyChanged(nameof(Expense));
             OnPropertyChanged(nameof(HasTransactions));
             OnPropertyChanged(nameof(HasNoTransactions));
+            OnPropertyChanged(nameof(SharedTransactions));
+            OnPropertyChanged(nameof(HasSharedTransactions));
             OnPropertyChanged(nameof(HasAllTransactions));
             OnPropertyChanged(nameof(HasExpenseTransactions));
             OnPropertyChanged(nameof(HasNoExpenseTransactions));

@@ -57,6 +57,18 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
+                        <CheckBox Content="Поділитися транзакцією"
+                                  IsChecked="{Binding IsTransactionSharedInput}" />
+                        <ComboBox ItemsSource="{Binding Groups}"
+                                  SelectedItem="{Binding SelectedTransactionShareGroup}"
+                                  IsVisible="{Binding IsTransactionSharedInput}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:GroupItemViewModel">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
                         <Grid ColumnDefinitions="*, 120" ColumnSpacing="10">
                             <StackPanel>
                                 <TextBlock Text="{Binding Texts.TransactionDateLabel}" Classes="form-label" />

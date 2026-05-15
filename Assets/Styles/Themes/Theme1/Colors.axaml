@@ -4,7 +4,7 @@
   <Color x:Key="AppColor.Card">#FFFFFF</Color>
   <Color x:Key="AppColor.CardAlt">#F3F4F6</Color>
   <Color x:Key="AppColor.TextPrimary">#1F2937</Color>
-  <Color x:Key="AppColor.TextSecondary">#6B7280</Color>
+  <Color x:Key="AppColor.TextSecondary">#E1E1E1</Color>
   <Color x:Key="AppColor.Border">#E5E7EB</Color>
   <Color x:Key="AppColor.Accent">#0078D4</Color>
   <Color x:Key="AppColor.AccentSoft">#EAF4FF</Color>

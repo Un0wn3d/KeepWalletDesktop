@@ -70,7 +70,7 @@
                                                 Margin="0,0,16,16"
                                                 BorderThickness="1"
                                                 BorderBrush="{DynamicResource Color.BorderSoft}">
-                                            <StackPanel Spacing="12">
+                                            <StackPanel Spacing="2">
                                                 <Grid ColumnDefinitions="14, *"
                                                       ColumnSpacing="8"
                                                       MinHeight="35">
@@ -86,17 +86,23 @@
                                                                TextWrapping="Wrap" />
                                                 </Grid>
 
-                                                <ProgressBar Minimum="0"
-                                                             Maximum="100"
-                                                             Value="{Binding UsagePercent}"
-                                                             Height="8"
-                                                             CornerRadius="4" />
-                                                <Grid ColumnDefinitions="*, Auto">
+                                                <Grid Height="170" Margin="0,0,0,0">
+                                                    <lvc:PieChart Series="{Binding GaugeSeries}"
+                                                                  Width="158"
+                                                                  Height="158"
+                                                                  HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  InitialRotation="-225"
+                                                                  MaxAngle="270"
+                                                                  MinValue="0"
+                                                                  Margin="0,18,0,0"
+                                                                  LegendPosition="Hidden"
+                                                                  TooltipPosition="Hidden" />
                                                     <TextBlock Text="{Binding UsageDisplay}"
-                                                               Classes="muted" />
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding RemainingDisplay}"
-                                                               Classes="amount-text" />
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"
+                                                               FontSize="20"
+                                                               FontWeight="Bold" />
                                                 </Grid>
 
                                                 <Grid ColumnDefinitions="Auto, Auto, *"

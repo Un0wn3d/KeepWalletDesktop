@@ -141,8 +141,8 @@
   </Style>
 
   <Style Selector="Border.metric-card">
-    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPaddingCompact}" />
+    <Setter Property="CornerRadius" Value="15" />
+    <Setter Property="Padding" Value="10" />
     <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Card}" />
@@ -162,21 +162,16 @@
   </Style>
 
   <Style Selector="Border.expenses-card">
-    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource Radius.Card}" />
-    <Setter Property="Padding" Value="{DynamicResource Spacing.CardPaddingCompact}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
-    <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="BoxShadow" Value="{DynamicResource Shadow.Card}" />
+    <Setter Property="Background" Value="{DynamicResource Color.AquaPanel}" />
+    <Setter Property="CornerRadius" Value="15" />
+    <Setter Property="Padding" Value="10" />
   </Style>
 
   <Style Selector="Border.list-item-card">
-    <Setter Property="Margin" Value="0" />
-    <Setter Property="Padding" Value="0,12" />
-    <Setter Property="Background" Value="Transparent" />
-    <Setter Property="CornerRadius" Value="0" />
-    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
-    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Margin" Value="0,6" />
+    <Setter Property="Padding" Value="8" />
+    <Setter Property="Background" Value="{DynamicResource Color.SurfaceOverlay}" />
+    <Setter Property="CornerRadius" Value="8" />
   </Style>
 
   <Style Selector="Button">
