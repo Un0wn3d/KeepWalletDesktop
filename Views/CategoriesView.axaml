@@ -35,7 +35,8 @@
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <TextBlock Text="{Binding Glyph}" />
+                                            <TextBlock Text="{Binding Glyph}"
+                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
                                             <TextBlock Text="{Binding DisplayName}" />
                                         </StackPanel>
                                     </DataTemplate>
@@ -71,6 +72,7 @@
                                         <Grid ColumnDefinitions="Auto, *, 160, Auto, Auto" ColumnSpacing="12" Margin="0,4">
                                             <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SurfaceAlt}">
                                                 <TextBlock Text="{Binding IconGlyph}"
+                                                           FontFamily="{DynamicResource Phosphor-Fill}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center" />
                                             </Border>
@@ -85,7 +87,8 @@
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <TextBlock Text="{Binding Glyph}" />
+                                                            <TextBlock Text="{Binding Glyph}"
+                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
                                                             <TextBlock Text="{Binding DisplayName}" />
                                                         </StackPanel>
                                                     </DataTemplate>
@@ -116,6 +119,7 @@
                                         <Grid ColumnDefinitions="Auto, *, 160, Auto, Auto" ColumnSpacing="12" Margin="0,4">
                                             <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SuccessPanel}">
                                                 <TextBlock Text="{Binding IconGlyph}"
+                                                           FontFamily="{DynamicResource Phosphor-Fill}"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center" />
                                             </Border>
@@ -130,7 +134,8 @@
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
                                                         <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <TextBlock Text="{Binding Glyph}" />
+                                                            <TextBlock Text="{Binding Glyph}"
+                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
                                                             <TextBlock Text="{Binding DisplayName}" />
                                                         </StackPanel>
                                                     </DataTemplate>

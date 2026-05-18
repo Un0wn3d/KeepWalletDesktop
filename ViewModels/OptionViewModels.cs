@@ -88,17 +88,17 @@ public static class CategoryIconCatalog
 {
     public static IReadOnlyList<CategoryIconOptionViewModel> Options { get; } =
     [
-        new("groceries", "🛒", "Groceries"),
-        new("transport", "⌁", "Transport"),
-        new("home", "⌂", "Home"),
-        new("entertainment", "✦", "Entertainment"),
-        new("health", "+", "Health"),
-        new("shopping", "◈", "Shopping"),
-        new("education", "▣", "Education"),
-        new("cafe", "☕", "Cafe"),
-        new("income", "$", "Income"),
-        new("work", "⚙", "Work"),
-        new("other", "•", "Other")
+        new("groceries", "\uE41E", "Groceries"),
+        new("transport", "\uE112", "Transport"),
+        new("home", "\uE2C2", "Home"),
+        new("entertainment", "\uE26E", "Entertainment"),
+        new("health", "\uE2AC", "Health"),
+        new("shopping", "\uE416", "Shopping"),
+        new("education", "\uE62C", "Education"),
+        new("cafe", "\uE1C2", "Cafe"),
+        new("income", "\uE54C", "Income"),
+        new("work", "\uE0EE", "Work"),
+        new("other", "\uE478", "Other")
     ];
 
     public static string GetGlyph(string? iconKey, string? categoryType = null)
@@ -108,6 +108,6 @@ public static class CategoryIconCatalog
             : iconKey.Trim().ToLowerInvariant();
 
         return Options.FirstOrDefault(x => x.Key == key)?.Glyph
-            ?? (string.Equals(categoryType, "income", System.StringComparison.OrdinalIgnoreCase) ? "$" : "•");
+            ?? (string.Equals(categoryType, "income", System.StringComparison.OrdinalIgnoreCase) ? "\uE54C" : "\uE478");
     }
 }
