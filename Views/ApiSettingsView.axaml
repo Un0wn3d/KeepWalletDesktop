@@ -62,7 +62,7 @@
                     </Border>
                     <Border Classes="panel-card">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="Theme"
+                            <TextBlock Text="{Binding Texts.ThemeLabel}"
                                        FontSize="18"
                                        FontWeight="SemiBold" />
                             <ComboBox Width="220"

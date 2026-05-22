@@ -9,7 +9,7 @@
 
     <ItemGroup>
         <Folder Include="Models\" />
-        <AvaloniaResource Include="Assets\**" Exclude="Assets\Localization\*.resx" />
+        <AvaloniaResource Include="Assets\**" Exclude="Assets\Localization\*.resx;Assets\**\*.axaml" />
     </ItemGroup>
 
     <ItemGroup>
@@ -17,6 +17,10 @@
       <Compile Remove="bin\**" />
       <EmbeddedResource Remove="bin\**" />
       <None Remove="bin\**" />
+      <AvaloniaXaml Remove="obj\**" />
+      <Compile Remove="obj\**" />
+      <EmbeddedResource Remove="obj\**" />
+      <None Remove="obj\**" />
       <Compile Update="Views\Controls\FloatingActionMenu.axaml.cs">
         <DependentUpon>FloatingActionMenu.axaml</DependentUpon>
       </Compile>

@@ -44,6 +44,7 @@ public partial class MainViewModel
             Savings = new ObservableCollection<SavingOptionViewModel>(
                 savings.Select(s => new SavingOptionViewModel(
                     s.Id,
+                    s.GroupId,
                     s.Name,
                     $"{s.CurrentAmount:N2} UAH",
                     s.Id == activeSaving.Id)));

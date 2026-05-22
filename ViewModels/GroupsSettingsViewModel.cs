@@ -25,15 +25,20 @@ public partial class MainViewModel
         try
         {
             EnsureApiClient();
+            var selectedGroupId = SelectedAccessGroup?.Id;
             var groups = await _apiClient!.GetGroupsAsync();
             Groups = new ObservableCollection<GroupItemViewModel>(
-                groups.Select(g => new GroupItemViewModel(
-                    g.Id,
-                    g.Name,
-                    g.RoleName,
-                    g.MemberCount,
-                    g.CreatedAt.ToLocalTime().ToString(DateTimeDisplayFormat, CultureInfo.InvariantCulture))));
-            SelectedAccessGroup ??= Groups.FirstOrDefault();
+                groups
+                    .Select(g => new GroupItemViewModel(
+                        g.Id,
+                        g.Name,
+                        g.IconKey,
+                        g.RoleName,
+                        g.MemberCount,
+                        g.CreatedAt.ToLocalTime().ToString(DateTimeDisplayFormat, CultureInfo.InvariantCulture)))
+                    .OrderBy(g => g.RoleSortOrder)
+                    .ThenBy(g => g.Name));
+            SelectedAccessGroup = Groups.FirstOrDefault(g => g.Id == selectedGroupId) ?? Groups.FirstOrDefault();
             if (SelectedAccessGroup is not null)
             {
                 await LoadSelectedGroupMembersAsync();
@@ -51,7 +56,17 @@ public partial class MainViewModel
 
     partial void OnSelectedAccessGroupChanged(GroupItemViewModel? value)
     {
+        foreach (var group in Groups)
+        {
+            group.IsActive = value is not null && group.Id == value.Id;
+        }
+
+        SelectedGroupNameInput = value?.Name ?? string.Empty;
+        IsEditingSelectedGroupName = false;
         _ = LoadSelectedGroupMembersAsync();
+        OnPropertyChanged(nameof(SelectedGroupBankAccounts));
+        OnPropertyChanged(nameof(SelectedGroupTransactions));
+        OnPropertyChanged(nameof(SelectedGroupSavings));
     }
 
     partial void OnSelectedGroupUserChanged(UserListItemViewModel? value)
@@ -82,6 +97,7 @@ public partial class MainViewModel
                     m.FullName ?? "-",
                     m.RoleName,
                     m.JoinedAt.ToLocalTime().ToString(DateTimeDisplayFormat, CultureInfo.InvariantCulture))));
+            await LoadGroupUserOptionsAsync();
         }
         catch (HttpRequestException ex)
         {
@@ -93,13 +109,12 @@ public partial class MainViewModel
         }
     }
 
-    [RelayCommand]
-    private async Task SearchGroupUsersAsync()
+    private async Task LoadGroupUserOptionsAsync()
     {
         try
         {
             EnsureApiClient();
-            var users = await _apiClient!.SearchUsersAsync(GroupMemberLoginInput);
+            var users = await _apiClient!.SearchUsersAsync(string.Empty);
             var existingUserIds = SelectedGroupMembers.Select(m => m.UserId).ToHashSet();
             GroupUserSearchResults = new ObservableCollection<UserListItemViewModel>(
                 users
@@ -126,7 +141,7 @@ public partial class MainViewModel
     [RelayCommand]
     private async Task AddGroupMemberAsync()
     {
-        if (IsApiBusy || SelectedAccessGroup is null || string.IsNullOrWhiteSpace(GroupMemberLoginInput))
+        if (IsApiBusy || SelectedAccessGroup is null || SelectedGroupUser is null)
         {
             ApiStatusMessage = Texts.TransactionFormValidationText;
             return;
@@ -138,7 +153,7 @@ public partial class MainViewModel
             EnsureApiClient();
             await _apiClient!.AddGroupMemberAsync(
                 SelectedAccessGroup.Id,
-                new AddGroupMemberRequestDto(GroupMemberLoginInput.Trim(), SelectedGroupMemberRole));
+                new AddGroupMemberRequestDto(SelectedGroupUser.Email, SelectedGroupMemberRole));
             GroupMemberLoginInput = string.Empty;
             SelectedGroupUser = null;
             GroupUserSearchResults = [];
@@ -172,6 +187,133 @@ public partial class MainViewModel
             IsApiBusy = true;
             EnsureApiClient();
             await _apiClient!.RemoveGroupMemberAsync(SelectedAccessGroup.Id, member.UserId);
+            await LoadGroupsAsync();
+            await LoadSelectedGroupMembersAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task UpdateGroupMemberRoleAsync(GroupMemberItemViewModel? member)
+    {
+        if (IsApiBusy || SelectedAccessGroup is null || member is null || string.Equals(member.RoleName, "owner", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var nextRole = string.Equals(member.RoleName, "viewer", StringComparison.OrdinalIgnoreCase) ? "member" : "viewer";
+            await _apiClient!.UpdateGroupMemberRoleAsync(
+                SelectedAccessGroup.Id,
+                member.UserId,
+                new UpdateGroupMemberRoleRequestDto(nextRole));
+            await LoadGroupsAsync();
+            await LoadSelectedGroupMembersAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void EditGroupMemberRole(GroupMemberItemViewModel? member)
+    {
+        if (member is null || string.Equals(member.RoleName, "owner", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        member.SelectedRoleName = member.RoleName;
+        member.IsEditingRole = true;
+    }
+
+    [RelayCommand]
+    private async Task ApplyGroupMemberRoleAsync(GroupMemberItemViewModel? member)
+    {
+        if (IsApiBusy || SelectedAccessGroup is null || member is null)
+        {
+            return;
+        }
+
+        if (string.Equals(member.SelectedRoleName, member.RoleName, StringComparison.OrdinalIgnoreCase))
+        {
+            member.IsEditingRole = false;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            if (string.Equals(member.SelectedRoleName, "owner", StringComparison.OrdinalIgnoreCase))
+            {
+                await _apiClient!.TransferGroupOwnerAsync(
+                    SelectedAccessGroup.Id,
+                    new TransferGroupOwnerRequestDto(member.UserId));
+            }
+            else
+            {
+                await _apiClient!.UpdateGroupMemberRoleAsync(
+                    SelectedAccessGroup.Id,
+                    member.UserId,
+                    new UpdateGroupMemberRoleRequestDto(member.SelectedRoleName));
+            }
+
+            await LoadGroupsAsync();
+            await LoadSelectedGroupMembersAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task TransferGroupOwnerAsync(GroupMemberItemViewModel? member)
+    {
+        if (IsApiBusy || SelectedAccessGroup is null || member is null || string.Equals(member.RoleName, "owner", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.TransferGroupOwnerAsync(
+                SelectedAccessGroup.Id,
+                new TransferGroupOwnerRequestDto(member.UserId));
             await LoadGroupsAsync();
             await LoadSelectedGroupMembersAsync();
         }
@@ -268,10 +410,117 @@ public partial class MainViewModel
         {
             IsApiBusy = true;
             EnsureApiClient();
-            var createdGroup = await _apiClient!.CreateGroupAsync(new CreateGroupRequestDto(NewGroupNameInput.Trim()));
+            var createdGroup = await _apiClient!.CreateGroupAsync(new CreateGroupRequestDto(NewGroupNameInput.Trim(), NewGroupIconKey));
             NewGroupNameInput = string.Empty;
+            NewGroupIconKey = "other";
             await LoadGroupsAsync();
             SelectedAccessGroup = Groups.FirstOrDefault(g => g.Id == createdGroup.Id) ?? SelectedAccessGroup;
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task UpdateGroupAsync()
+    {
+        if (IsApiBusy || SelectedAccessGroup is null || string.IsNullOrWhiteSpace(SelectedGroupNameInput))
+        {
+            ApiStatusMessage = Texts.TransactionFormValidationText;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var updatedGroup = await _apiClient!.UpdateGroupAsync(
+                SelectedAccessGroup.Id,
+                new UpdateGroupRequestDto(SelectedGroupNameInput.Trim(), SelectedAccessGroup.SelectedIconKey));
+            await LoadGroupsAsync();
+            SelectedAccessGroup = Groups.FirstOrDefault(g => g.Id == updatedGroup.Id) ?? SelectedAccessGroup;
+            IsEditingSelectedGroupName = false;
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void SelectGroup(GroupItemViewModel? group)
+    {
+        if (group is not null)
+        {
+            SelectedAccessGroup = group;
+        }
+    }
+
+    [RelayCommand]
+    private void EditSelectedGroupName()
+    {
+        if (SelectedAccessGroup is not null)
+        {
+            IsEditingSelectedGroupName = true;
+        }
+    }
+
+    [RelayCommand]
+    private async Task FinishSelectedGroupNameEditAsync()
+    {
+        if (!IsEditingSelectedGroupName)
+        {
+            return;
+        }
+
+        if (SelectedAccessGroup is null || string.Equals(SelectedGroupNameInput.Trim(), SelectedAccessGroup.Name, StringComparison.Ordinal))
+        {
+            IsEditingSelectedGroupName = false;
+            return;
+        }
+
+        await UpdateGroupAsync();
+    }
+
+    [RelayCommand]
+    private async Task DeleteGroupAsync(GroupItemViewModel? group)
+    {
+        group ??= SelectedAccessGroup;
+        if (IsApiBusy || group is null || !string.Equals(group.RoleName, "owner", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.DeleteGroupAsync(group.Id);
+            if (SelectedAccessGroup?.Id == group.Id)
+            {
+                SelectedAccessGroup = null;
+                SelectedGroupMembers = [];
+            }
+
+            await LoadGroupsAsync();
+            SelectedAccessGroup ??= Groups.FirstOrDefault();
         }
         catch (HttpRequestException ex)
         {

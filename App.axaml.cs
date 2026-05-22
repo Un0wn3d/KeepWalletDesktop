@@ -1,5 +1,7 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
@@ -7,6 +9,7 @@ using KeepWalletDesktop.Services;
 using KeepWalletDesktop.ViewModels;
 using KeepWalletDesktop.Views;
 using Serilog;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -17,11 +20,14 @@ public partial class App : Application
     public override void Initialize()
     {
         AvaloniaXamlLoader.Load(this);
+        CalendarDayButton.DataContextProperty.Changed.AddClassHandler<CalendarDayButton>((button, _) =>
+            UpdateTodayClass(button));
     }
 
     public override void OnFrameworkInitializationCompleted()
     {
         SerilogConfig.Initialize();
+        ButtonClickLogger.Initialize();
         ThemeManager.Apply(UserSettingsStore.Load().ThemeName);
         
         Log.Information("App is started!");
@@ -65,5 +71,25 @@ public partial class App : Application
         // {
         //     Log.Error(ex, "Database error");
         // }
+    }
+
+    private static void UpdateTodayClass(CalendarDayButton button)
+    {
+        var today = DateTime.Today;
+        var isToday = button.DataContext switch
+        {
+            DateTime dt => dt.Date == today,
+            DateTimeOffset dto => dto.Date == today,
+            _ => false
+        };
+
+        if (isToday)
+        {
+            button.Classes.Add("today");
+        }
+        else
+        {
+            button.Classes.Remove("today");
+        }
     }
 }

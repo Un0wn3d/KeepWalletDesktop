@@ -67,6 +67,21 @@ public interface ILocalizedText
     string GroupsTitle { get; }
     string GroupNameHint { get; }
     string AddGroupButton { get; }
+    string AddGroupButtonPlus { get; }
+    string GroupAccessTitle { get; }
+    string GroupMemberSearchHint { get; }
+    string GroupMembersTitle { get; }
+    string SearchButton { get; }
+    string AddUserButton { get; }
+    string RemoveButton { get; }
+    string DeleteGroupButton { get; }
+    string ChangeRoleButton { get; }
+    string TransferOwnerButton { get; }
+    string ShareAccountButton { get; }
+    string ShareSavingsButton { get; }
+    string GroupAccessAccountsTitle { get; }
+    string GroupAccessTransactionsTitle { get; }
+    string GroupAccessSavingsTitle { get; }
     string StatusLabel { get; }
     string UserLabel { get; }
     string RoleLabel { get; }
@@ -120,6 +135,7 @@ public interface ILocalizedText
     string TransactionDateLabel { get; }
     string TransactionTimeLabel { get; }
     string TransactionDescriptionLabel { get; }
+    string TransactionShareLabel { get; }
     string TransactionIncomeType { get; }
     string TransactionExpenseType { get; }
     string SaveTransactionButton { get; }
@@ -175,10 +191,22 @@ public interface ILocalizedText
     string ScheduledPaymentNameLabel { get; }
     string ScheduledPaymentRepeatLabel { get; }
     string ScheduledPaymentCustomRepeatHint { get; }
+    string ScheduledRepeatOnce { get; }
+    string ScheduledRepeatDaily { get; }
+    string ScheduledRepeatWeekly { get; }
+    string ScheduledRepeatMonthly { get; }
+    string ScheduledRepeatYearly { get; }
+    string ScheduledRepeatCustom { get; }
     string AddScheduledPaymentButton { get; }
     string ConfirmScheduledPaymentButton { get; }
     string ScheduledPaymentPendingStatus { get; }
     string ScheduledPaymentPaidStatus { get; }
+    string ThemeLabel { get; }
+    string Theme1Name { get; }
+    string Theme2Name { get; }
+    string MergeCategoriesTitle { get; }
+    string MergeCategoriesButton { get; }
+    string IconSearchHint { get; }
 }
 
 public sealed class LocalizedText : ILocalizedText
@@ -276,6 +304,21 @@ public sealed class LocalizedText : ILocalizedText
     public string GroupsTitle => Get(nameof(GroupsTitle));
     public string GroupNameHint => Get(nameof(GroupNameHint));
     public string AddGroupButton => Get(nameof(AddGroupButton));
+    public string AddGroupButtonPlus => Get(nameof(AddGroupButtonPlus));
+    public string GroupAccessTitle => Get(nameof(GroupAccessTitle));
+    public string GroupMemberSearchHint => Get(nameof(GroupMemberSearchHint));
+    public string GroupMembersTitle => Get(nameof(GroupMembersTitle));
+    public string SearchButton => Get(nameof(SearchButton));
+    public string AddUserButton => Get(nameof(AddUserButton));
+    public string RemoveButton => Get(nameof(RemoveButton));
+    public string DeleteGroupButton => Get(nameof(DeleteGroupButton));
+    public string ChangeRoleButton => Get(nameof(ChangeRoleButton));
+    public string TransferOwnerButton => Get(nameof(TransferOwnerButton));
+    public string ShareAccountButton => Get(nameof(ShareAccountButton));
+    public string ShareSavingsButton => Get(nameof(ShareSavingsButton));
+    public string GroupAccessAccountsTitle => Get(nameof(GroupAccessAccountsTitle));
+    public string GroupAccessTransactionsTitle => Get(nameof(GroupAccessTransactionsTitle));
+    public string GroupAccessSavingsTitle => Get(nameof(GroupAccessSavingsTitle));
     public string StatusLabel => Get(nameof(StatusLabel));
     public string UserLabel => Get(nameof(UserLabel));
     public string RoleLabel => Get(nameof(RoleLabel));
@@ -329,6 +372,7 @@ public sealed class LocalizedText : ILocalizedText
     public string TransactionDateLabel => Get(nameof(TransactionDateLabel));
     public string TransactionTimeLabel => Get(nameof(TransactionTimeLabel));
     public string TransactionDescriptionLabel => Get(nameof(TransactionDescriptionLabel));
+    public string TransactionShareLabel => Get(nameof(TransactionShareLabel));
     public string TransactionIncomeType => Get(nameof(TransactionIncomeType));
     public string TransactionExpenseType => Get(nameof(TransactionExpenseType));
     public string SaveTransactionButton => Get(nameof(SaveTransactionButton));
@@ -384,8 +428,20 @@ public sealed class LocalizedText : ILocalizedText
     public string ScheduledPaymentNameLabel => Get(nameof(ScheduledPaymentNameLabel));
     public string ScheduledPaymentRepeatLabel => Get(nameof(ScheduledPaymentRepeatLabel));
     public string ScheduledPaymentCustomRepeatHint => Get(nameof(ScheduledPaymentCustomRepeatHint));
+    public string ScheduledRepeatOnce => Get(nameof(ScheduledRepeatOnce));
+    public string ScheduledRepeatDaily => Get(nameof(ScheduledRepeatDaily));
+    public string ScheduledRepeatWeekly => Get(nameof(ScheduledRepeatWeekly));
+    public string ScheduledRepeatMonthly => Get(nameof(ScheduledRepeatMonthly));
+    public string ScheduledRepeatYearly => Get(nameof(ScheduledRepeatYearly));
+    public string ScheduledRepeatCustom => Get(nameof(ScheduledRepeatCustom));
     public string AddScheduledPaymentButton => Get(nameof(AddScheduledPaymentButton));
     public string ConfirmScheduledPaymentButton => Get(nameof(ConfirmScheduledPaymentButton));
     public string ScheduledPaymentPendingStatus => Get(nameof(ScheduledPaymentPendingStatus));
     public string ScheduledPaymentPaidStatus => Get(nameof(ScheduledPaymentPaidStatus));
+    public string ThemeLabel => Get(nameof(ThemeLabel));
+    public string Theme1Name => Get(nameof(Theme1Name));
+    public string Theme2Name => Get(nameof(Theme2Name));
+    public string MergeCategoriesTitle => Get(nameof(MergeCategoriesTitle));
+    public string MergeCategoriesButton => Get(nameof(MergeCategoriesButton));
+    public string IconSearchHint => Get(nameof(IconSearchHint));
 }

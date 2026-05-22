@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -38,6 +39,8 @@ public sealed record TransactionItemViewModel(
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
     public string CategoryInitial => string.IsNullOrWhiteSpace(CategoryDisplay) ? "?" : CategoryDisplay.Trim()[0].ToString().ToUpperInvariant();
     public string CategoryIcon => CategoryIconCatalog.GetGlyph(CategoryIconKey ?? CategoryCode, Type);
+    public Bitmap? CategoryIconSampleImage => CategoryIconCatalog.GetSampleImage(CategoryIconKey ?? CategoryCode);
+    public bool HasCategoryIconSampleImage => CategoryIconSampleImage is not null;
     public IBrush CategoryAnchorBrush => IsIncome
         ? new SolidColorBrush(Color.FromRgb(209, 250, 229))
         : new SolidColorBrush(Color.FromRgb(243, 244, 246));
@@ -51,6 +54,7 @@ public sealed record TransactionItemViewModel(
 
 public sealed record SavingOptionViewModel(
     int Id,
+    Guid? GroupId,
     string Name,
     string AmountDisplay,
     bool IsSelected);
@@ -226,20 +230,83 @@ public sealed record ShareGroupOptionViewModel(
     Guid? GroupId,
     string Name);
 
-public sealed record GroupItemViewModel(
-    Guid Id,
-    string Name,
-    string RoleName,
-    int MemberCount,
-    string CreatedAtDisplay);
+public partial class GroupItemViewModel : ObservableObject
+{
+    public GroupItemViewModel(Guid id, string name, string iconKey, string roleName, int memberCount, string createdAtDisplay)
+    {
+        Id = id;
+        Name = name;
+        selectedIconKey = iconKey;
+        RoleName = roleName;
+        MemberCount = memberCount;
+        CreatedAtDisplay = createdAtDisplay;
+    }
 
-public sealed record GroupMemberItemViewModel(
-    Guid GroupId,
-    Guid UserId,
-    string Username,
-    string FullName,
-    string RoleName,
-    string JoinedAtDisplay);
+    public Guid Id { get; }
+    public string Name { get; }
+    public string RoleName { get; }
+    public int MemberCount { get; }
+    public string CreatedAtDisplay { get; }
+    public int RoleSortOrder => RoleName.ToLowerInvariant() switch
+    {
+        "owner" => 0,
+        "member" => 1,
+        "viewer" => 2,
+        _ => 3
+    };
+    public bool IsOwnerRole => string.Equals(RoleName, "owner", StringComparison.OrdinalIgnoreCase);
+    public bool IsMemberRole => string.Equals(RoleName, "member", StringComparison.OrdinalIgnoreCase);
+    public bool IsViewerRole => string.Equals(RoleName, "viewer", StringComparison.OrdinalIgnoreCase);
+    public string IconGlyph => CategoryIconCatalog.GetGlyph(SelectedIconKey, "expense");
+    public Bitmap? IconSampleImage => CategoryIconCatalog.GetSampleImage(SelectedIconKey);
+    public bool HasIconSampleImage => IconSampleImage is not null;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IconGlyph))]
+    [NotifyPropertyChangedFor(nameof(IconSampleImage))]
+    [NotifyPropertyChangedFor(nameof(HasIconSampleImage))]
+    private string selectedIconKey;
+
+    [ObservableProperty]
+    private bool isActive;
+
+    public void RefreshIconGlyph()
+    {
+        OnPropertyChanged(nameof(IconGlyph));
+        OnPropertyChanged(nameof(IconSampleImage));
+        OnPropertyChanged(nameof(HasIconSampleImage));
+    }
+}
+
+public partial class GroupMemberItemViewModel : ObservableObject
+{
+    public GroupMemberItemViewModel(Guid groupId, Guid userId, string username, string fullName, string roleName, string joinedAtDisplay)
+    {
+        GroupId = groupId;
+        UserId = userId;
+        Username = username;
+        FullName = fullName;
+        this.roleName = roleName;
+        selectedRoleName = roleName;
+        JoinedAtDisplay = joinedAtDisplay;
+    }
+
+    public Guid GroupId { get; }
+    public Guid UserId { get; }
+    public string Username { get; }
+    public string FullName { get; }
+    public string JoinedAtDisplay { get; }
+    public string DisplayName => string.IsNullOrWhiteSpace(FullName) || FullName == "-" ? Username : $"{FullName} - {Username}";
+
+    [ObservableProperty]
+    private string roleName;
+
+    [ObservableProperty]
+    private string selectedRoleName;
+
+    [ObservableProperty]
+    private bool isEditingRole;
+}
 
 public sealed record UserListItemViewModel(
     Guid Id,
@@ -248,7 +315,12 @@ public sealed record UserListItemViewModel(
     string FullName,
     string RoleName,
     bool IsActive,
-    string CreatedAtDisplay);
+    string CreatedAtDisplay)
+{
+    public string DisplayName => string.IsNullOrWhiteSpace(FullName) || FullName == "-"
+        ? Username
+        : $"{FullName} - {Username}";
+}
 
 public sealed record AuditLogItemViewModel(
     long Id,

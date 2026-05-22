@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="520"
+             d:DesignHeight="52"
+             x:Class="KeepWalletDesktop.Views.Mdules.DateSortModule">
+    <Border Classes="panel-card alt"
+            Padding="10"
+            HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="&lt;&lt;"
+                    MinWidth="48"
+                    Click="PreviousButton_Click" />
+
+            <Button x:Name="PeriodButton"
+                    MinWidth="180"
+                    Content="Останній місяць">
+                <Button.Flyout>
+                    <Flyout Placement="Bottom">
+                        <Border Padding="14"
+                                MinWidth="520"
+                                Background="{DynamicResource Color.SurfaceAlt}">
+                            <Grid ColumnDefinitions="*, 220" ColumnSpacing="18">
+                                <StackPanel Spacing="10">
+                                    <TextBlock Text="Діапазон"
+                                               FontWeight="SemiBold" />
+                                    <Grid ColumnDefinitions="Auto, *"
+                                          RowDefinitions="Auto, Auto"
+                                          ColumnSpacing="8"
+                                          RowSpacing="8">
+                                        <TextBlock Text="З"
+                                                   VerticalAlignment="Center"
+                                                   Classes="muted" />
+                                        <CalendarDatePicker x:Name="FromDatePicker"
+                                                            Grid.Column="1"
+                                                            SelectedDateChanged="DatePicker_SelectedDateChanged" />
+
+                                        <TextBlock Grid.Row="1"
+                                                   Text="По"
+                                                   VerticalAlignment="Center"
+                                                   Classes="muted" />
+                                        <CalendarDatePicker x:Name="ToDatePicker"
+                                                            Grid.Row="1"
+                                                            Grid.Column="1"
+                                                            SelectedDateChanged="DatePicker_SelectedDateChanged" />
+                                    </Grid>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="1" Spacing="6">
+                                    <Button Content="Остання година"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastHourButton_Click" />
+                                    <Button Content="Останні 2 години"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastTwoHoursButton_Click" />
+                                    <Button Content="Останні 3 години"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastThreeHoursButton_Click" />
+                                    <Button Content="Останні 6 годин"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastSixHoursButton_Click" />
+                                    <Button Content="Останні 12 годин"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastTwelveHoursButton_Click" />
+                                    <Button Content="Останній день"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastDayButton_Click" />
+                                    <Button Content="Останній тиждень"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastWeekButton_Click" />
+                                    <Button Content="Останній місяць"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastMonthButton_Click" />
+                                    <Button Content="Останні пів року"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastHalfYearButton_Click" />
+                                    <Button Content="Останній рік"
+                                            HorizontalAlignment="Stretch"
+                                            Click="LastYearButton_Click" />
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </Flyout>
+                </Button.Flyout>
+            </Button>
+
+            <Button Content="&gt;&gt;"
+                    MinWidth="48"
+                    Click="NextButton_Click" />
+        </StackPanel>
+    </Border>
+</UserControl>

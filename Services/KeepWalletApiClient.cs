@@ -154,6 +154,20 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty group response.");
     }
 
+    public async Task<ApiGroupDto> UpdateGroupAsync(Guid groupId, UpdateGroupRequestDto request, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Patch, $"/api/groups/{groupId}", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiGroupDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty group response.");
+    }
+
+    public async Task DeleteGroupAsync(Guid groupId, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedAsync(HttpMethod.Delete, $"/api/groups/{groupId}", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ApiGroupMemberDto>> GetGroupMembersAsync(Guid groupId, CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Get, $"/api/groups/{groupId}/members", cancellationToken);
@@ -170,6 +184,25 @@ public sealed class KeepWalletApiClient : IDisposable
     public async Task RemoveGroupMemberAsync(Guid groupId, Guid userId, CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Delete, $"/api/groups/{groupId}/members/{userId}", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task UpdateGroupMemberRoleAsync(
+        Guid groupId,
+        Guid userId,
+        UpdateGroupMemberRoleRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Patch, $"/api/groups/{groupId}/members/{userId}", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task TransferGroupOwnerAsync(
+        Guid groupId,
+        TransferGroupOwnerRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Post, $"/api/groups/{groupId}/transfer-owner", request, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
     }
 

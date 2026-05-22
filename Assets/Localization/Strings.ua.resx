@@ -300,6 +300,9 @@
   <data name="TransactionDescriptionLabel" xml:space="preserve">
     <value>Опис</value>
   </data>
+  <data name="TransactionShareLabel" xml:space="preserve">
+    <value>Поділитися транзакцією</value>
+  </data>
   <data name="TransactionIncomeType" xml:space="preserve">
     <value>Дохід</value>
   </data>
@@ -367,7 +370,7 @@
     <value>Витрати по категоріям</value>
   </data>
   <data name="TransactionTimelineTitle" xml:space="preserve">
-    <value>Динаміка за останні 7 днів</value>
+    <value>Динаміка за обраний період</value>
   </data>
   <data name="ChartNoDataText" xml:space="preserve">
     <value>Додайте транзакції, щоб побачити графіки.</value>
@@ -513,7 +516,88 @@
   <data name="AddGroupButton" xml:space="preserve">
     <value>Додати групу</value>
   </data>
+  <data name="AddGroupButtonPlus" xml:space="preserve">
+    <value>+ Додати групу</value>
+  </data>
+  <data name="GroupAccessTitle" xml:space="preserve">
+    <value>Доступ до групи</value>
+  </data>
+  <data name="GroupMemberSearchHint" xml:space="preserve">
+    <value>Пошук за username, email або ім'ям</value>
+  </data>
+  <data name="GroupMembersTitle" xml:space="preserve">
+    <value>Учасники</value>
+  </data>
+  <data name="SearchButton" xml:space="preserve">
+    <value>Пошук</value>
+  </data>
+  <data name="AddUserButton" xml:space="preserve">
+    <value>Додати користувача</value>
+  </data>
+  <data name="RemoveButton" xml:space="preserve">
+    <value>Видалити</value>
+  </data>
+  <data name="DeleteGroupButton" xml:space="preserve">
+    <value>Видалити групу</value>
+  </data>
+  <data name="ChangeRoleButton" xml:space="preserve">
+    <value>Змінити роль</value>
+  </data>
+  <data name="TransferOwnerButton" xml:space="preserve">
+    <value>Зробити власником</value>
+  </data>
+  <data name="ShareAccountButton" xml:space="preserve">
+    <value>Надати доступ до рахунку</value>
+  </data>
+  <data name="ShareSavingsButton" xml:space="preserve">
+    <value>Надати доступ до скарбнички</value>
+  </data>
+  <data name="GroupAccessAccountsTitle" xml:space="preserve">
+    <value>Акаунти</value>
+  </data>
+  <data name="GroupAccessTransactionsTitle" xml:space="preserve">
+    <value>Транзакції</value>
+  </data>
+  <data name="GroupAccessSavingsTitle" xml:space="preserve">
+    <value>Скарбнички</value>
+  </data>
   <data name="UserAccessLabel" xml:space="preserve">
     <value>Вхід дозволено</value>
+  </data>
+  <data name="ScheduledRepeatOnce" xml:space="preserve">
+    <value>Один раз</value>
+  </data>
+  <data name="ScheduledRepeatDaily" xml:space="preserve">
+    <value>Щодня</value>
+  </data>
+  <data name="ScheduledRepeatWeekly" xml:space="preserve">
+    <value>Щотижня</value>
+  </data>
+  <data name="ScheduledRepeatMonthly" xml:space="preserve">
+    <value>Щомісяця</value>
+  </data>
+  <data name="ScheduledRepeatYearly" xml:space="preserve">
+    <value>Щороку</value>
+  </data>
+  <data name="ScheduledRepeatCustom" xml:space="preserve">
+    <value>Власний інтервал</value>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Тема</value>
+  </data>
+  <data name="Theme1Name" xml:space="preserve">
+    <value>Тема 1</value>
+  </data>
+  <data name="Theme2Name" xml:space="preserve">
+    <value>Тема 2</value>
+  </data>
+  <data name="MergeCategoriesTitle" xml:space="preserve">
+    <value>Об'єднання категорій</value>
+  </data>
+  <data name="MergeCategoriesButton" xml:space="preserve">
+    <value>Об'єднати</value>
+  </data>
+  <data name="IconSearchHint" xml:space="preserve">
+    <value>Пошук емодзі</value>
   </data>
 </root>

@@ -3,6 +3,8 @@ using CommunityToolkit.Mvvm.Input;
 using KeepWalletDesktop.Models;
 using KeepWalletDesktop.Services;
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -59,9 +61,12 @@ public partial class MainViewModel : ViewModelBase
     private KeepWalletApiClient? _apiClient;
     private IReadOnlyList<ApiCategoryDto> apiCategories = [];
     private IReadOnlySet<int>? selectedCategoryIds;
+    private IReadOnlyList<TransactionItemViewModel> homeTransactionSource = [];
     private IReadOnlyList<TransactionItemViewModel> filteredTransactionSource = [];
     private readonly Dictionary<string, decimal> categoryLimits = new(StringComparer.OrdinalIgnoreCase);
     private int filteredTransactionTakeCount = AllTransactionsPageSize;
+    private DateTimeOffset homeDateRangeFrom = DateTimeOffset.Now.AddMonths(-1);
+    private DateTimeOffset homeDateRangeTo = DateTimeOffset.Now;
 
     [ObservableProperty]
     private ILocalizedText texts = LocalizedText.Load("ua");
@@ -145,7 +150,22 @@ public partial class MainViewModel : ViewModelBase
     private string transactionDateInput = DateTimeOffset.Now.ToString(DateTimeDisplayFormat);
 
     [ObservableProperty]
-    private DateTime? transactionSelectedDate = DateTime.Now;
+    private DateTimeOffset? transactionSelectedDate = DateTimeOffset.Now;
+
+    [ObservableProperty]
+    private DateTime? transactionDate = DateTime.Now;
+
+    [ObservableProperty]
+    private int transactionSelectedDay = DateTime.Now.Day;
+
+    [ObservableProperty]
+    private int transactionSelectedMonth = DateTime.Now.Month;
+
+    [ObservableProperty]
+    private int transactionSelectedYear = DateTime.Now.Year;
+
+    [ObservableProperty]
+    private TimeSpan? transactionSelectedTime = DateTime.Now.TimeOfDay;
 
     [ObservableProperty]
     private string transactionTimeInput = DateTimeOffset.Now.ToString("HH:mm");
@@ -252,7 +272,19 @@ public partial class MainViewModel : ViewModelBase
     private string newGroupNameInput = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(NewGroupIconGlyph))]
+    [NotifyPropertyChangedFor(nameof(NewGroupIconSampleImage))]
+    [NotifyPropertyChangedFor(nameof(HasNewGroupIconSampleImage))]
+    private string newGroupIconKey = "other";
+
+    [ObservableProperty]
     private GroupItemViewModel? selectedAccessGroup;
+
+    [ObservableProperty]
+    private string selectedGroupNameInput = string.Empty;
+
+    [ObservableProperty]
+    private bool isEditingSelectedGroupName;
 
     [ObservableProperty]
     private bool isTransactionSharedInput;
@@ -330,15 +362,15 @@ public partial class MainViewModel : ViewModelBase
     private string scheduledPaymentFrequencyInput = "once";
 
     [ObservableProperty]
-    private ObservableCollection<string> scheduledRepeatOptions = ["once", "daily", "weekly", "monthly", "yearly", "custom"];
+    private ObservableCollection<CategoryOptionViewModel> scheduledRepeatOptions = [];
 
     [ObservableProperty]
-    private string selectedScheduledRepeatOption = "once";
+    private CategoryOptionViewModel? selectedScheduledRepeatOption;
 
     [ObservableProperty]
     private string scheduledPaymentCustomRepeatInput = string.Empty;
 
-    public bool IsCustomScheduledRepeat => string.Equals(SelectedScheduledRepeatOption, "custom", StringComparison.OrdinalIgnoreCase);
+    public bool IsCustomScheduledRepeat => string.Equals(SelectedScheduledRepeatOption?.Code, "custom", StringComparison.OrdinalIgnoreCase);
 
     [ObservableProperty]
     private string scheduledPaymentType = "expense";
@@ -389,6 +421,9 @@ public partial class MainViewModel : ViewModelBase
     private string categoryNewType = "expense";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CategoryNewIconGlyph))]
+    [NotifyPropertyChangedFor(nameof(CategoryNewIconSampleImage))]
+    [NotifyPropertyChangedFor(nameof(HasCategoryNewIconSampleImage))]
     private string categoryNewIconKey = "other";
 
     [ObservableProperty]
@@ -408,11 +443,32 @@ public partial class MainViewModel : ViewModelBase
             ? apiOptions.BaseUrl
             : userSettings.ApiBaseUrl;
         ApiLogin = userSettings.LastLogin;
-        InitializeThemes(userSettings.ThemeName);
-        LoadServerSettingsFromBaseUrl();
         InitializeLanguages();
+        InitializeThemes(userSettings.ThemeName);
+        InitializeScheduledRepeatOptions();
+        LoadServerSettingsFromBaseUrl();
         ResetAuthorizedUser();
         LoadApiOnlyPlaceholders();
+        _ = CategoryIconCatalog.PreloadAsync().ContinueWith(_ =>
+            Dispatcher.UIThread.Post(() =>
+            {
+                OnPropertyChanged(nameof(CategoryIconOptions));
+                OnPropertyChanged(nameof(CategoryNewIconGlyph));
+                OnPropertyChanged(nameof(CategoryNewIconSampleImage));
+                OnPropertyChanged(nameof(HasCategoryNewIconSampleImage));
+                OnPropertyChanged(nameof(NewGroupIconGlyph));
+                OnPropertyChanged(nameof(NewGroupIconSampleImage));
+                OnPropertyChanged(nameof(HasNewGroupIconSampleImage));
+                foreach (var category in Categories)
+                {
+                    category.RefreshIconGlyph();
+                }
+
+                foreach (var group in Groups)
+                {
+                    group.RefreshIconGlyph();
+                }
+            }));
         _ = LoadCategoriesAsync();
         _ = RestoreApiSessionAsync();
     }
@@ -444,6 +500,23 @@ public partial class MainViewModel : ViewModelBase
     public IEnumerable<TransactionItemViewModel> SharedTransactions => AllTransactions.Where(t => t.IsShared).Take(5);
     public bool HasSharedTransactions => AllTransactions.Any(t => t.IsShared);
     public bool HasAllTransactions => LatestExpenses.Count > 0;
+    public IEnumerable<BankAccountItemViewModel> SelectedGroupBankAccounts =>
+        SelectedAccessGroup is null ? [] : BankAccounts.Where(a => a.GroupId == SelectedAccessGroup.Id);
+    public IEnumerable<TransactionItemViewModel> SelectedGroupTransactions =>
+        SelectedAccessGroup is null ? [] : AllTransactions.Where(t => t.GroupId == SelectedAccessGroup.Id);
+    public IEnumerable<SavingOptionViewModel> SelectedGroupSavings =>
+        SelectedAccessGroup is null ? [] : Savings.Where(s => s.GroupId == SelectedAccessGroup.Id);
+    public double TransactionCategoryPillWidth
+    {
+        get
+        {
+            var longest = FilteredTransactions.Concat(VisibleTransactions)
+                .Select(t => t.CategoryDisplay?.Length ?? 0)
+                .DefaultIfEmpty(12)
+                .Max();
+            return Math.Clamp((longest * 8) + 28, 120, 260);
+        }
+    }
     public bool HasExpenseTransactions => LatestExpenses.Any(t => !t.IsIncome);
     public bool HasNoExpenseTransactions => !HasExpenseTransactions;
     public double RemainingAmount => Math.Max(0, GoalAmount - SavedAmount);
@@ -464,7 +537,7 @@ public partial class MainViewModel : ViewModelBase
     public string TransactionDialogTitle => IsEditingTransaction ? Texts.TransactionDetailsTitle : Texts.NewTransactionButton;
     public string SaveTransactionButtonText => IsEditingTransaction ? Texts.UpdateTransactionButton : Texts.SaveTransactionButton;
     public string TransactionTypeDisplay => TransactionType == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType;
-    public string TransactionTimelineTitle => "Динаміка за цей місяць";
+    public string TransactionTimelineTitle => Texts.TransactionTimelineTitle;
 
     public double ProgressPercent
     {
@@ -485,8 +558,12 @@ public partial class MainViewModel : ViewModelBase
     public Axis[] TransactionTimelineYAxes { get; private set; } = [];
     public ObservableCollection<CategoryLegendItemViewModel> ExpenseCategoryLegend { get; private set; } = [];
     public ObservableCollection<CategoryDetailItemViewModel> CategoryDetails { get; private set; } = [];
-    public ObservableCollection<string> GroupMemberRoles { get; } = ["member", "viewer"];
+    public ObservableCollection<string> GroupMemberCreateRoles { get; } = ["member", "viewer"];
+    public ObservableCollection<string> GroupMemberRoles { get; } = ["owner", "member", "viewer"];
     public ObservableCollection<string> TransactionTypeFilterOptions { get; } = ["all", "income", "expense"];
+    public ObservableCollection<int> TransactionDayOptions { get; } = new(Enumerable.Range(1, 31));
+    public ObservableCollection<int> TransactionMonthOptions { get; } = new(Enumerable.Range(1, 12));
+    public ObservableCollection<int> TransactionYearOptions { get; } = new(Enumerable.Range(2000, 151));
     public IEnumerable<OnboardingCategoryOptionViewModel> OnboardingExpenseCategories =>
         OnboardingCategories.Where(c => string.Equals(c.Type, "expense", StringComparison.OrdinalIgnoreCase));
     public IEnumerable<OnboardingCategoryOptionViewModel> OnboardingIncomeCategories =>
@@ -500,6 +577,24 @@ public partial class MainViewModel : ViewModelBase
             (c.Id != SelectedMergeSourceCategory.Id &&
              string.Equals(c.Type, SelectedMergeSourceCategory.Type, StringComparison.OrdinalIgnoreCase)));
     public IReadOnlyList<CategoryIconOptionViewModel> CategoryIconOptions => CategoryIconCatalog.Options;
+    public string CategoryNewIconGlyph => CategoryIconCatalog.GetGlyph(CategoryNewIconKey, CategoryNewType);
+    public Bitmap? CategoryNewIconSampleImage => CategoryIconCatalog.GetSampleImage(CategoryNewIconKey);
+    public bool HasCategoryNewIconSampleImage => CategoryNewIconSampleImage is not null;
+    public string NewGroupIconGlyph => CategoryIconCatalog.GetGlyph(NewGroupIconKey, "expense");
+    public Bitmap? NewGroupIconSampleImage => CategoryIconCatalog.GetSampleImage(NewGroupIconKey);
+    public bool HasNewGroupIconSampleImage => NewGroupIconSampleImage is not null;
+
+    public void ApplyHomeDateRange(DateTimeOffset from, DateTimeOffset to)
+    {
+        if (from > to)
+        {
+            (from, to) = (to, from);
+        }
+
+        homeDateRangeFrom = from;
+        homeDateRangeTo = to;
+        RefreshHomeTransactionsFromDateRange();
+    }
 
     partial void OnCurrentPageChanged(string value)
     {
@@ -530,6 +625,28 @@ public partial class MainViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(HasBankAccounts));
         OnPropertyChanged(nameof(HasNoBankAccounts));
+        OnPropertyChanged(nameof(SelectedGroupBankAccounts));
+    }
+
+    partial void OnAllTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
+    {
+        OnPropertyChanged(nameof(SelectedGroupTransactions));
+        OnPropertyChanged(nameof(TransactionCategoryPillWidth));
+    }
+
+    partial void OnSavingsChanged(ObservableCollection<SavingOptionViewModel> value)
+    {
+        OnPropertyChanged(nameof(SelectedGroupSavings));
+    }
+
+    partial void OnVisibleTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
+    {
+        OnPropertyChanged(nameof(TransactionCategoryPillWidth));
+    }
+
+    partial void OnFilteredTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
+    {
+        OnPropertyChanged(nameof(TransactionCategoryPillWidth));
     }
 
     partial void OnEditingBankAccountIdChanged(Guid? value)
@@ -568,6 +685,13 @@ public partial class MainViewModel : ViewModelBase
     partial void OnIsCategorySettingsModeChanged(bool value)
     {
         OnPropertyChanged(nameof(IsOnboardingAccountSetupVisible));
+    }
+
+    partial void OnCategoryNewTypeChanged(string value)
+    {
+        OnPropertyChanged(nameof(CategoryNewIconGlyph));
+        OnPropertyChanged(nameof(CategoryNewIconSampleImage));
+        OnPropertyChanged(nameof(HasCategoryNewIconSampleImage));
     }
 
     partial void OnEditingTransactionIdChanged(int? value)
@@ -619,18 +743,37 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsCurrentUserAdmin));
     }
 
-    partial void OnSelectedScheduledRepeatOptionChanged(string value)
+    partial void OnSelectedScheduledRepeatOptionChanged(CategoryOptionViewModel? value)
     {
         OnPropertyChanged(nameof(IsCustomScheduledRepeat));
     }
 
-    partial void OnTransactionSelectedDateChanged(DateTime? value)
+    partial void OnTransactionSelectedDateChanged(DateTimeOffset? value)
     {
         if (value.HasValue)
         {
+            TransactionDate = value.Value.LocalDateTime;
             TransactionDateInput = value.Value.ToString(DateDisplayFormat, CultureInfo.InvariantCulture);
+            TransactionSelectedDay = value.Value.Day;
+            TransactionSelectedMonth = value.Value.Month;
+            TransactionSelectedYear = value.Value.Year;
         }
     }
+
+    partial void OnTransactionDateChanged(DateTime? value)
+    {
+        if (!value.HasValue)
+        {
+            return;
+        }
+
+        var offset = TransactionSelectedDate?.Offset ?? DateTimeOffset.Now.Offset;
+        TransactionSelectedDate = new DateTimeOffset(value.Value, offset);
+    }
+
+    partial void OnTransactionSelectedDayChanged(int value) => UpdateTransactionSelectedDateFromParts();
+    partial void OnTransactionSelectedMonthChanged(int value) => UpdateTransactionSelectedDateFromParts();
+    partial void OnTransactionSelectedYearChanged(int value) => UpdateTransactionSelectedDateFromParts();
 
     partial void OnSelectedLanguageChanged(LanguageOptionViewModel? value)
     {
@@ -641,6 +784,8 @@ public partial class MainViewModel : ViewModelBase
 
         Texts = LocalizedText.Load(value.Code);
         UpdateLanguageOptionTitles();
+        UpdateThemeOptionTitles();
+        UpdateScheduledRepeatOptionTitles();
         RefreshLocalizedProperties();
     }
 
@@ -715,6 +860,7 @@ public partial class MainViewModel : ViewModelBase
         _ = LoadGroupsAsync();
         _ = LoadBankAccountsAsync();
         _ = LoadSavingsAsync();
+        _ = LoadTransactionsAsync();
     }
 
     [RelayCommand]
@@ -738,6 +884,8 @@ public partial class MainViewModel : ViewModelBase
         }
 
         CurrentPage = CategoriesPage;
+        IsCategoryDetailsOpen = false;
+        IsCategorySettingsMode = true;
         _ = LoadCategoryManagementAsync();
     }
 
@@ -1104,6 +1252,58 @@ public partial class MainViewModel : ViewModelBase
         catch (Exception ex)
         {
             CategoryStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void EditCategoryName(CategoryManagementItemViewModel? category)
+    {
+        if (category is null)
+        {
+            return;
+        }
+
+        category.NameInput = category.Name;
+        category.IsEditingName = true;
+    }
+
+    [RelayCommand]
+    private async Task FinishCategoryNameEditAsync(CategoryManagementItemViewModel? category)
+    {
+        if (category is null || !category.IsEditingName)
+        {
+            return;
+        }
+
+        var name = category.NameInput.Trim();
+        if (string.IsNullOrWhiteSpace(name) || string.Equals(name, category.Name, StringComparison.Ordinal))
+        {
+            category.NameInput = category.Name;
+            category.IsEditingName = false;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var updated = await _apiClient!.UpdateCategoryAsync(category.Id, new UpdateCategoryRequestDto(Name: name));
+            category.Name = updated.Name;
+            category.NameInput = updated.Name;
+            category.IsEditingName = false;
+            await LoadCategoriesAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -1584,6 +1784,7 @@ public partial class MainViewModel : ViewModelBase
         ScheduledPaymentType = "expense";
         AvailableBalance = 0;
         LatestExpenses = [];
+        homeTransactionSource = [];
         VisibleTransactions = [];
         AllTransactions = [];
         FilteredTransactions = [];
@@ -1868,13 +2069,28 @@ public partial class MainViewModel : ViewModelBase
     {
         ThemeOptions =
         [
-            new CategoryOptionViewModel(ThemeManager.Theme1, "Theme 1"),
-            new CategoryOptionViewModel(ThemeManager.Theme2, "Theme 2")
+            new CategoryOptionViewModel(ThemeManager.Theme1, Texts.Theme1Name),
+            new CategoryOptionViewModel(ThemeManager.Theme2, Texts.Theme2Name)
         ];
 
         var normalizedTheme = ThemeManager.NormalizeThemeName(selectedThemeName);
         SelectedTheme = ThemeOptions.FirstOrDefault(x => x.Code == normalizedTheme)
             ?? ThemeOptions.FirstOrDefault();
+    }
+
+    private void InitializeScheduledRepeatOptions()
+    {
+        ScheduledRepeatOptions =
+        [
+            new CategoryOptionViewModel("once", Texts.ScheduledRepeatOnce),
+            new CategoryOptionViewModel("daily", Texts.ScheduledRepeatDaily),
+            new CategoryOptionViewModel("weekly", Texts.ScheduledRepeatWeekly),
+            new CategoryOptionViewModel("monthly", Texts.ScheduledRepeatMonthly),
+            new CategoryOptionViewModel("yearly", Texts.ScheduledRepeatYearly),
+            new CategoryOptionViewModel("custom", Texts.ScheduledRepeatCustom)
+        ];
+
+        SelectedScheduledRepeatOption = ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "once");
     }
 
     private void UpdateLanguageOptionTitles()
@@ -1884,6 +2100,32 @@ public partial class MainViewModel : ViewModelBase
             option.DisplayName = option.Code == "ua"
                 ? Texts.UkrainianLanguage
                 : Texts.EnglishLanguage;
+        }
+    }
+
+    private void UpdateThemeOptionTitles()
+    {
+        foreach (var option in ThemeOptions)
+        {
+            option.DisplayName = option.Code == ThemeManager.Theme1
+                ? Texts.Theme1Name
+                : Texts.Theme2Name;
+        }
+    }
+
+    private void UpdateScheduledRepeatOptionTitles()
+    {
+        foreach (var option in ScheduledRepeatOptions)
+        {
+            option.DisplayName = option.Code switch
+            {
+                "daily" => Texts.ScheduledRepeatDaily,
+                "weekly" => Texts.ScheduledRepeatWeekly,
+                "monthly" => Texts.ScheduledRepeatMonthly,
+                "yearly" => Texts.ScheduledRepeatYearly,
+                "custom" => Texts.ScheduledRepeatCustom,
+                _ => Texts.ScheduledRepeatOnce
+            };
         }
     }
 
@@ -1899,9 +2141,35 @@ public partial class MainViewModel : ViewModelBase
         SelectedTransactionShareGroup = null;
         var now = DateTimeOffset.Now;
         TransactionDateInput = now.ToString(DateDisplayFormat);
-        TransactionSelectedDate = now.DateTime;
+        TransactionSelectedDate = now;
+        TransactionSelectedTime = now.TimeOfDay;
         TransactionTimeInput = now.ToString("HH:mm");
         UpdateTransactionCategoryOptions();
+    }
+
+    private void UpdateTransactionSelectedDateFromParts()
+    {
+        if (TransactionSelectedYear < 1 || TransactionSelectedMonth is < 1 or > 12)
+        {
+            return;
+        }
+
+        var clampedDay = Math.Min(Math.Max(TransactionSelectedDay, 1), DateTime.DaysInMonth(TransactionSelectedYear, TransactionSelectedMonth));
+        if (clampedDay != TransactionSelectedDay)
+        {
+            TransactionSelectedDay = clampedDay;
+            return;
+        }
+
+        var current = TransactionSelectedDate ?? DateTimeOffset.Now;
+        TransactionSelectedDate = new DateTimeOffset(
+            TransactionSelectedYear,
+            TransactionSelectedMonth,
+            clampedDay,
+            current.Hour,
+            current.Minute,
+            current.Second,
+            current.Offset);
     }
 
     private void ResetBankAccountForm()
@@ -1937,6 +2205,14 @@ public partial class MainViewModel : ViewModelBase
                 CategoryDisplay = GetCategoryDisplayName(t.CategoryCode),
                 CategoryIconKey = GetCategoryIconKey(t.CategoryCode)
             }));
+        homeTransactionSource = homeTransactionSource
+            .Select(t => t with
+            {
+                TypeDisplay = t.Type == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType,
+                CategoryDisplay = GetCategoryDisplayName(t.CategoryCode),
+                CategoryIconKey = GetCategoryIconKey(t.CategoryCode)
+            })
+            .ToArray();
         ApplyTransactionFilters();
         UpdateVisibleTransactions();
         UpdateCharts();
@@ -1973,6 +2249,7 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenCategoryDetailsAsync()
     {
+        IsCategorySettingsMode = false;
         await LoadTransactionsAsync();
         await LoadBudgetsAsync();
         UpdateCategoryDetails();
@@ -1982,15 +2259,16 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenCategorySettingsAsync()
     {
-        IsCategoryDetailsOpen = false;
+        IsCategoryDetailsOpen = true;
         IsCategorySettingsMode = true;
-        await PrepareOnboardingAsync();
+        await LoadCategoryManagementAsync();
     }
 
     [RelayCommand]
     private void CloseCategoryDetails()
     {
         IsCategoryDetailsOpen = false;
+        IsCategorySettingsMode = false;
     }
 
     [RelayCommand]
@@ -2155,9 +2433,14 @@ public partial class MainViewModel : ViewModelBase
 
         UpdateCategoryDetails();
 
-        var today = DateTime.Today;
-        var startDate = new DateTime(today.Year, today.Month, 1);
-        var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
+        var startDate = homeDateRangeFrom.ToLocalTime().Date;
+        var endDate = homeDateRangeTo.ToLocalTime().Date;
+        if (endDate < startDate)
+        {
+            endDate = startDate;
+        }
+
+        var dayCount = (endDate - startDate).Days + 1;
         var grouped = LatestExpenses
             .GroupBy(t => t.TransactionDate.ToLocalTime().Date)
             .ToDictionary(
@@ -2168,11 +2451,11 @@ public partial class MainViewModel : ViewModelBase
                     Expense = g.Where(t => !t.IsIncome).Sum(t => (double)t.Amount)
                 });
 
-        var labels = new List<string>(daysInMonth);
-        var incomeValues = new List<double>(daysInMonth);
-        var expenseValues = new List<double>(daysInMonth);
+        var labels = new List<string>(dayCount);
+        var incomeValues = new List<double>(dayCount);
+        var expenseValues = new List<double>(dayCount);
 
-        for (var day = 0; day < daysInMonth; day++)
+        for (var day = 0; day < dayCount; day++)
         {
             var date = startDate.AddDays(day);
             labels.Add(date.ToString("dd.MM", CultureInfo.InvariantCulture));
@@ -2216,8 +2499,8 @@ public partial class MainViewModel : ViewModelBase
             new Axis
             {
                 Labels = labels,
-                MinLimit = Math.Max(0, today.Day - 8),
-                MaxLimit = Math.Min(daysInMonth - 1, today.Day + 1)
+                MinLimit = 0,
+                MaxLimit = Math.Max(0, labels.Count - 1)
             }
         ];
 
@@ -2250,6 +2533,29 @@ public partial class MainViewModel : ViewModelBase
     private void UpdateVisibleTransactions()
     {
         VisibleTransactions = new ObservableCollection<TransactionItemViewModel>(LatestExpenses.Take(6));
+    }
+
+    private void RefreshHomeTransactionsFromDateRange()
+    {
+        LatestExpenses = new ObservableCollection<TransactionItemViewModel>(
+            homeTransactionSource
+                .Where(t => t.TransactionDate >= homeDateRangeFrom && t.TransactionDate <= homeDateRangeTo)
+                .OrderByDescending(t => t.TransactionDate));
+
+        AvailableBalance = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)t.Amount) -
+                           LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)t.Amount);
+
+        ApplyTransactionFilters();
+        UpdateVisibleTransactions();
+        UpdateCharts();
+        OnPropertyChanged(nameof(Money));
+        OnPropertyChanged(nameof(Income));
+        OnPropertyChanged(nameof(Expense));
+        OnPropertyChanged(nameof(HasTransactions));
+        OnPropertyChanged(nameof(HasNoTransactions));
+        OnPropertyChanged(nameof(HasAllTransactions));
+        OnPropertyChanged(nameof(HasExpenseTransactions));
+        OnPropertyChanged(nameof(HasNoExpenseTransactions));
     }
 
     private void UpdateTransactionCategoryFilterOptions()
@@ -2606,7 +2912,7 @@ public partial class MainViewModel : ViewModelBase
                DateOnly.TryParse(rawValue, CultureInfo.InvariantCulture, DateTimeStyles.None, out value);
     }
 
-    private static bool TryBuildTransactionDateTime(DateTime? selectedDate, string rawTime, out DateTimeOffset value)
+    private static bool TryBuildTransactionDateTime(DateTimeOffset? selectedDate, TimeSpan? selectedTime, out DateTimeOffset value)
     {
         if (!selectedDate.HasValue)
         {
@@ -2614,17 +2920,14 @@ public partial class MainViewModel : ViewModelBase
             return false;
         }
 
-        if (!TimeSpan.TryParseExact(
-                rawTime.Trim(),
-                ["h\\:mm", "hh\\:mm"],
-                CultureInfo.InvariantCulture,
-                out var time))
+        if (!selectedTime.HasValue)
         {
             value = default;
             return false;
         }
 
         var date = selectedDate.Value.Date;
+        var time = selectedTime.Value;
         value = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, DateTimeOffset.Now.Offset);
         return true;
     }

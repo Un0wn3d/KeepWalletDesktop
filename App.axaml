@@ -16,6 +16,7 @@
     <Application.Styles>
         <FluentTheme />
         <StyleInclude Source="avares://KeepWalletDesktop/Assets/Styles/AppTheme.axaml"/>
+        <StyleInclude Source="avares://KeepWalletDesktop/Assets/Styles/CalendarStyles.axaml"/>
     </Application.Styles>
 
     <Application.Resources>

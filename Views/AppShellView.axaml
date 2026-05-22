@@ -41,7 +41,9 @@
                   Width="860"
                   MaxHeight="640">
                 <Border Classes="dialog-card">
-                    <Grid RowDefinitions="Auto, *" RowSpacing="16">
+                    <Grid>
+                    <Grid RowDefinitions="Auto, *" RowSpacing="16"
+                          IsVisible="{Binding !IsCategorySettingsMode}">
                         <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
                             <TextBlock Text="{Binding Texts.TransactionBreakdownTitle}"
                                        FontSize="24"
@@ -49,7 +51,7 @@
                             <Button Grid.Column="1"
                                     Content="{Binding Texts.OnboardingCategoriesTitle}"
                                     Classes="secondary-button"
-                                    Command="{Binding OpenCategoriesCommand}" />
+                                    Command="{Binding OpenCategorySettingsCommand}" />
                             <Button Grid.Column="2"
                                     Content="{Binding Texts.SaveServerSettingsButton}"
                                     Classes="primary-button"
@@ -125,6 +127,200 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </ScrollViewer>
+                    </Grid>
+
+                    <Grid RowDefinitions="Auto, *"
+                          RowSpacing="16"
+                          IsVisible="{Binding IsCategorySettingsMode}">
+                        <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
+                            <TextBlock Text="{Binding Texts.OnboardingCategoriesTitle}"
+                                       FontSize="24"
+                                       FontWeight="Bold" />
+                            <Button Grid.Column="1"
+                                    Content="{Binding Texts.SaveServerSettingsButton}"
+                                    Classes="primary-button"
+                                    Command="{Binding SaveCategoriesCommand}" />
+                            <Button Grid.Column="2"
+                                    Content="{Binding Texts.CancelButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding CloseCategoryDetailsCommand}" />
+                        </Grid>
+
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <StackPanel Spacing="16">
+                                <Border Classes="panel-card alt">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="{Binding Texts.OnboardingAddCategoryTitle}"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <Grid ColumnDefinitions="*, 160, Auto, Auto, Auto" ColumnSpacing="8">
+                                            <TextBox Text="{Binding CategoryNewName}"
+                                                     Watermark="{Binding Texts.OnboardingCategoryNameHint}" />
+                                            <ComboBox Grid.Column="1"
+                                                      ItemsSource="{Binding CategoryIconOptions}"
+                                                      SelectedValue="{Binding CategoryNewIconKey}"
+                                                      SelectedValueBinding="{Binding Key}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
+                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                            <TextBlock Text="{Binding Glyph}"
+                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
+                                                            <TextBlock Text="{Binding DisplayName}" />
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                            <Button Grid.Column="2"
+                                                    Content="{Binding Texts.TransactionExpenseType}"
+                                                    Classes="secondary-button"
+                                                    Command="{Binding SelectCategoryTypeCommand}"
+                                                    CommandParameter="expense" />
+                                            <Button Grid.Column="3"
+                                                    Content="{Binding Texts.TransactionIncomeType}"
+                                                    Classes="secondary-button"
+                                                    Command="{Binding SelectCategoryTypeCommand}"
+                                                    CommandParameter="income" />
+                                            <Button Grid.Column="4"
+                                                    Content="{Binding Texts.OnboardingAddCategoryButton}"
+                                                    Classes="primary-button"
+                                                    Command="{Binding AddCategoryCommand}" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
+                                    <Border Classes="panel-card">
+                                        <StackPanel Spacing="12">
+                                            <TextBlock Text="{Binding Texts.TransactionExpenseType}"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold" />
+                                            <ItemsControl ItemsSource="{Binding ExpenseCategories}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                                        <Grid ColumnDefinitions="Auto, *, 140, Auto, Auto" ColumnSpacing="10" Margin="0,4">
+                                                            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SurfaceAlt}">
+                                                                <TextBlock Text="{Binding IconGlyph}"
+                                                                           FontFamily="{DynamicResource Phosphor-Fill}"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                                                                <TextBlock Text="{Binding TypeDisplay}" Classes="muted" />
+                                                            </StackPanel>
+                                                            <ComboBox Grid.Column="2"
+                                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.CategoryIconOptions}"
+                                                                      SelectedValue="{Binding SelectedIconKey}"
+                                                                      SelectedValueBinding="{ReflectionBinding Key}">
+                                                                <ComboBox.ItemTemplate>
+                                                                    <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
+                                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                                            <TextBlock Text="{Binding Glyph}"
+                                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
+                                                                            <TextBlock Text="{Binding DisplayName}" />
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ComboBox.ItemTemplate>
+                                                            </ComboBox>
+                                                            <ToggleSwitch Grid.Column="3"
+                                                                          IsChecked="{Binding IsSelected}" />
+                                                            <Button Grid.Column="4"
+                                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                                    Classes="danger-button"
+                                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
+                                                                    CommandParameter="{Binding .}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <Border Grid.Column="1" Classes="panel-card">
+                                        <StackPanel Spacing="12">
+                                            <TextBlock Text="{Binding Texts.TransactionIncomeType}"
+                                                       FontSize="18"
+                                                       FontWeight="SemiBold" />
+                                            <ItemsControl ItemsSource="{Binding IncomeCategories}">
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                                        <Grid ColumnDefinitions="Auto, *, 140, Auto, Auto" ColumnSpacing="10" Margin="0,4">
+                                                            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SuccessPanel}">
+                                                                <TextBlock Text="{Binding IconGlyph}"
+                                                                           FontFamily="{DynamicResource Phosphor-Fill}"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Name}" FontWeight="Medium" />
+                                                                <TextBlock Text="{Binding TypeDisplay}" Classes="muted" />
+                                                            </StackPanel>
+                                                            <ComboBox Grid.Column="2"
+                                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.CategoryIconOptions}"
+                                                                      SelectedValue="{Binding SelectedIconKey}"
+                                                                      SelectedValueBinding="{ReflectionBinding Key}">
+                                                                <ComboBox.ItemTemplate>
+                                                                    <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
+                                                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                                                            <TextBlock Text="{Binding Glyph}"
+                                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
+                                                                            <TextBlock Text="{Binding DisplayName}" />
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ComboBox.ItemTemplate>
+                                                            </ComboBox>
+                                                            <ToggleSwitch Grid.Column="3"
+                                                                          IsChecked="{Binding IsSelected}" />
+                                                            <Button Grid.Column="4"
+                                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                                    Classes="danger-button"
+                                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
+                                                                    CommandParameter="{Binding .}" />
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+
+                                <Border Classes="panel-card alt">
+                                    <StackPanel Spacing="12">
+                                        <TextBlock Text="{Binding Texts.MergeCategoriesTitle}"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold" />
+                                        <Grid ColumnDefinitions="*, *, Auto" ColumnSpacing="8">
+                                            <ComboBox ItemsSource="{Binding Categories}"
+                                                      SelectedItem="{Binding SelectedMergeSourceCategory}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                                        <TextBlock Text="{Binding Name}" />
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                            <ComboBox Grid.Column="1"
+                                                      ItemsSource="{Binding MergeTargetCategories}"
+                                                      SelectedItem="{Binding SelectedMergeTargetCategory}">
+                                                <ComboBox.ItemTemplate>
+                                                    <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
+                                                        <TextBlock Text="{Binding Name}" />
+                                                    </DataTemplate>
+                                                </ComboBox.ItemTemplate>
+                                            </ComboBox>
+                                            <Button Grid.Column="2"
+                                                    Content="{Binding Texts.MergeCategoriesButton}"
+                                                    Classes="primary-button"
+                                                    Command="{Binding MergeCategoriesCommand}" />
+                                        </Grid>
+                                    </StackPanel>
+                                </Border>
+
+                                <TextBlock Text="{Binding CategoryStatusMessage}"
+                                           Classes="muted"
+                                           TextWrapping="Wrap" />
+                            </StackPanel>
+                        </ScrollViewer>
+                    </Grid>
                     </Grid>
                 </Border>
             </Grid>

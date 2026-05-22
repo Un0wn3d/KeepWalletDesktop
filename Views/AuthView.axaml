@@ -23,9 +23,9 @@
                                FontSize="30"
                                FontWeight="Bold"
                                Foreground="{DynamicResource Color.Text1}" />
-                    <TextBlock Text="{Binding Texts.AuthSubtitle}"
+                    <!-- <TextBlock Text="{Binding Texts.AuthSubtitle}"
                                HorizontalAlignment="Center"
-                               TextAlignment="Center" />
+                               TextAlignment="Center" /> -->
                 </StackPanel>
 
                 <Border Grid.Row="1"

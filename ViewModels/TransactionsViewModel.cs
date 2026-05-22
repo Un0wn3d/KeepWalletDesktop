@@ -35,7 +35,7 @@ public partial class MainViewModel
         if (!decimal.TryParse(TransactionAmountInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var amount) ||
             amount <= 0 ||
             SelectedTransactionCategory is null ||
-            !TryBuildTransactionDateTime(TransactionSelectedDate, TransactionTimeInput, out var transactionDate) ||
+            !TryBuildTransactionDateTime(TransactionSelectedDate, TransactionSelectedTime, out var transactionDate) ||
             (IsTransactionSharedInput && SelectedTransactionShareGroup is null))
         {
             ApiStatusMessage = Texts.TransactionFormValidationText;
@@ -141,7 +141,8 @@ public partial class MainViewModel
         }
         var localDate = transaction.TransactionDate.ToLocalTime();
         TransactionDateInput = localDate.ToString(DateDisplayFormat);
-        TransactionSelectedDate = localDate.DateTime;
+        TransactionSelectedDate = localDate;
+        TransactionSelectedTime = localDate.TimeOfDay;
         TransactionTimeInput = localDate.ToString("HH:mm");
         IsAllTransactionsDialogOpen = false;
         IsTransactionDialogOpen = true;
@@ -229,27 +230,14 @@ public partial class MainViewModel
                 SelectedBankAccount = BankAccounts.FirstOrDefault(a => a.Id == mainAccountId.Value);
             }
 
-            LatestExpenses = new ObservableCollection<TransactionItemViewModel>(
-                AllTransactions
-                    .Where(t => !mainAccountId.HasValue || t.AccountId == mainAccountId.Value)
-                    .OrderByDescending(t => t.TransactionDate));
+            homeTransactionSource = AllTransactions
+                .Where(t => !mainAccountId.HasValue || t.AccountId == mainAccountId.Value)
+                .OrderByDescending(t => t.TransactionDate)
+                .ToArray();
 
-            AvailableBalance = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)t.Amount) -
-                               LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)t.Amount);
-
-            ApplyTransactionFilters();
-            UpdateVisibleTransactions();
-            UpdateCharts();
-            OnPropertyChanged(nameof(Money));
-            OnPropertyChanged(nameof(Income));
-            OnPropertyChanged(nameof(Expense));
-            OnPropertyChanged(nameof(HasTransactions));
-            OnPropertyChanged(nameof(HasNoTransactions));
+            RefreshHomeTransactionsFromDateRange();
             OnPropertyChanged(nameof(SharedTransactions));
             OnPropertyChanged(nameof(HasSharedTransactions));
-            OnPropertyChanged(nameof(HasAllTransactions));
-            OnPropertyChanged(nameof(HasExpenseTransactions));
-            OnPropertyChanged(nameof(HasNoExpenseTransactions));
         }
         catch (HttpRequestException ex)
         {

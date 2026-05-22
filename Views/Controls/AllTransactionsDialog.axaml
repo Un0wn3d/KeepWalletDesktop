@@ -47,19 +47,18 @@
                         </Grid>
 
                         <Grid Grid.Row="1"
-                              ColumnDefinitions="72, 5*, 2*, 2*"
+                              ColumnDefinitions="52, 5*, 2*, 2*"
                               ColumnSpacing="12"
                               Margin="8,0,8,0"
                               IsVisible="{Binding HasAllTransactions}">
-                            <TextBlock Text="{Binding Texts.TransactionDateLabel}"
-                                       Classes="muted"
-                                       FontWeight="SemiBold" />
+                            <TextBlock />
                             <TextBlock Grid.Column="1"
                                        Text="{Binding Texts.TransactionDescriptionLabel}"
                                        Classes="muted"
                                        FontWeight="SemiBold" />
                             <TextBlock Grid.Column="2"
                                        Text="{Binding Texts.TransactionCategoryLabel}"
+                                       HorizontalAlignment="Center"
                                        Classes="muted"
                                        FontWeight="SemiBold" />
                             <TextBlock Grid.Column="3"
@@ -106,26 +105,57 @@
                                                 Command="{ReflectionBinding $parent[UserControl].DataContext.EditTransactionCommand}"
                                                 CommandParameter="{Binding .}">
                                             <Border Classes="list-item-card">
-                                                <Grid ColumnDefinitions="72, 5*, 2*, 2*"
+                                                <Grid ColumnDefinitions="52, 5*, 2*, 2*"
                                                       ColumnSpacing="12"
                                                       VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding TransactionDateShortDisplay}"
-                                                               VerticalAlignment="Center"
-                                                               FontWeight="SemiBold" />
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding DescriptionDisplay}"
-                                                               VerticalAlignment="Center"
-                                                               TextWrapping="Wrap" />
+                                                    <Border Width="40"
+                                                            Height="40"
+                                                            CornerRadius="8"
+                                                            Background="{Binding CategoryAnchorBrush}">
+                                                        <Grid>
+                                                            <TextBlock Text="{Binding CategoryIcon}"
+                                                                       FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                                       Foreground="{DynamicResource Color.Text1}"
+                                                                       FontSize="18"
+                                                                       FontWeight="SemiBold"
+                                                                       IsVisible="{Binding !HasCategoryIconSampleImage}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                            <Image Source="{Binding CategoryIconSampleImage}"
+                                                                   Width="26"
+                                                                   Height="26"
+                                                                   IsVisible="{Binding HasCategoryIconSampleImage}" />
+                                                        </Grid>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" Spacing="2">
+                                                        <TextBlock Text="{Binding DescriptionDisplay}"
+                                                                   VerticalAlignment="Center"
+                                                                   FontSize="14"
+                                                                   FontWeight="Medium"
+                                                                   TextWrapping="Wrap" />
+                                                        <TextBlock Text="{Binding TransactionDateDisplay}"
+                                                                   Classes="muted" />
+                                                    </StackPanel>
                                                     <Border Grid.Column="2"
                                                             Background="{DynamicResource Color.SurfaceAlt}"
                                                             CornerRadius="20"
-                                                            Padding="12,6">
-                                                        <TextBlock Text="{Binding CategoryDisplay}" />
+                                                            Padding="12,6"
+                                                            HorizontalAlignment="Center"
+                                                            MinWidth="{Binding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
+                                                        <TextBlock Text="{Binding CategoryDisplay}"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextAlignment="Center" />
                                                     </Border>
-                                                    <TextBlock Grid.Column="3"
-                                                               Text="{Binding AmountDisplay}"
-                                                               VerticalAlignment="Center"
-                                                               FontWeight="Bold" />
+                                                    <Grid Grid.Column="3" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding AmountDisplay}"
+                                                                   Foreground="{DynamicResource Color.Success}"
+                                                                   FontWeight="Bold"
+                                                                   IsVisible="{Binding IsIncome}" />
+                                                        <TextBlock Text="{Binding AmountDisplay}"
+                                                                   Foreground="{DynamicResource Color.Danger}"
+                                                                   FontWeight="Bold"
+                                                                   IsVisible="{Binding !IsIncome}" />
+                                                    </Grid>
                                                 </Grid>
                                             </Border>
                                         </Button>

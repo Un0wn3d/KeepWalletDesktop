@@ -300,6 +300,9 @@
   <data name="TransactionDescriptionLabel" xml:space="preserve">
     <value>Description</value>
   </data>
+  <data name="TransactionShareLabel" xml:space="preserve">
+    <value>Share transaction</value>
+  </data>
   <data name="TransactionIncomeType" xml:space="preserve">
     <value>Income</value>
   </data>
@@ -367,7 +370,7 @@
     <value>Expenses by category</value>
   </data>
   <data name="TransactionTimelineTitle" xml:space="preserve">
-    <value>Last 7 days trend</value>
+    <value>Trend for selected period</value>
   </data>
   <data name="ChartNoDataText" xml:space="preserve">
     <value>Add transactions to see the charts.</value>
@@ -465,6 +468,24 @@
   <data name="ScheduledPaymentCustomRepeatHint" xml:space="preserve">
     <value>10 years and 3 months</value>
   </data>
+  <data name="ScheduledRepeatOnce" xml:space="preserve">
+    <value>Once</value>
+  </data>
+  <data name="ScheduledRepeatDaily" xml:space="preserve">
+    <value>Daily</value>
+  </data>
+  <data name="ScheduledRepeatWeekly" xml:space="preserve">
+    <value>Weekly</value>
+  </data>
+  <data name="ScheduledRepeatMonthly" xml:space="preserve">
+    <value>Monthly</value>
+  </data>
+  <data name="ScheduledRepeatYearly" xml:space="preserve">
+    <value>Yearly</value>
+  </data>
+  <data name="ScheduledRepeatCustom" xml:space="preserve">
+    <value>Custom</value>
+  </data>
   <data name="AddScheduledPaymentButton" xml:space="preserve">
     <value>Add scheduled payment</value>
   </data>
@@ -476,6 +497,24 @@
   </data>
   <data name="ScheduledPaymentPaidStatus" xml:space="preserve">
     <value>Paid</value>
+  </data>
+  <data name="ThemeLabel" xml:space="preserve">
+    <value>Theme</value>
+  </data>
+  <data name="Theme1Name" xml:space="preserve">
+    <value>Theme 1</value>
+  </data>
+  <data name="Theme2Name" xml:space="preserve">
+    <value>Theme 2</value>
+  </data>
+  <data name="MergeCategoriesTitle" xml:space="preserve">
+    <value>Merge categories</value>
+  </data>
+  <data name="MergeCategoriesButton" xml:space="preserve">
+    <value>Merge</value>
+  </data>
+  <data name="IconSearchHint" xml:space="preserve">
+    <value>Search emoji</value>
   </data>
   <data name="SavingNameLabel" xml:space="preserve">
     <value>Name</value>
@@ -512,6 +551,51 @@
   </data>
   <data name="AddGroupButton" xml:space="preserve">
     <value>Add group</value>
+  </data>
+  <data name="AddGroupButtonPlus" xml:space="preserve">
+    <value>+ Add group</value>
+  </data>
+  <data name="GroupAccessTitle" xml:space="preserve">
+    <value>Group access</value>
+  </data>
+  <data name="GroupMemberSearchHint" xml:space="preserve">
+    <value>Search by username, email or name</value>
+  </data>
+  <data name="GroupMembersTitle" xml:space="preserve">
+    <value>Members</value>
+  </data>
+  <data name="SearchButton" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="AddUserButton" xml:space="preserve">
+    <value>Add user</value>
+  </data>
+  <data name="RemoveButton" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="DeleteGroupButton" xml:space="preserve">
+    <value>Delete group</value>
+  </data>
+  <data name="ChangeRoleButton" xml:space="preserve">
+    <value>Change role</value>
+  </data>
+  <data name="TransferOwnerButton" xml:space="preserve">
+    <value>Make owner</value>
+  </data>
+  <data name="ShareAccountButton" xml:space="preserve">
+    <value>Share account</value>
+  </data>
+  <data name="ShareSavingsButton" xml:space="preserve">
+    <value>Share savings</value>
+  </data>
+  <data name="GroupAccessAccountsTitle" xml:space="preserve">
+    <value>Accounts</value>
+  </data>
+  <data name="GroupAccessTransactionsTitle" xml:space="preserve">
+    <value>Transactions</value>
+  </data>
+  <data name="GroupAccessSavingsTitle" xml:space="preserve">
+    <value>Savings</value>
   </data>
   <data name="UserAccessLabel" xml:space="preserve">
     <value>Login allowed</value>

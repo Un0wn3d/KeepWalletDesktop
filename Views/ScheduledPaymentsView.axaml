@@ -32,7 +32,13 @@
                                 <StackPanel Grid.Column="3">
                                     <TextBlock Text="{Binding Texts.ScheduledPaymentRepeatLabel}" />
                                     <ComboBox ItemsSource="{Binding ScheduledRepeatOptions}"
-                                              SelectedItem="{Binding SelectedScheduledRepeatOption}" />
+                                              SelectedItem="{Binding SelectedScheduledRepeatOption}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
                                 </StackPanel>
                             </Grid>
                             <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, *, *" ColumnSpacing="8">

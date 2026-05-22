@@ -262,7 +262,7 @@ public partial class MainViewModel
             var categoryId = GetCategoryId(SelectedScheduledPaymentCategory.Code);
             var repeatInterval = ParseRepeatInterval(IsCustomScheduledRepeat
                 ? ScheduledPaymentCustomRepeatInput
-                : SelectedScheduledRepeatOption);
+                : SelectedScheduledRepeatOption?.Code ?? "once");
 
             await _apiClient!.CreatePlannedTransactionAsync(new CreatePlannedTransactionRequestDto(
                 ScheduledPaymentNameInput.Trim(),
@@ -277,7 +277,7 @@ public partial class MainViewModel
             ScheduledPaymentAmountInput = string.Empty;
             ScheduledPaymentDescriptionInput = string.Empty;
             ScheduledPaymentDateInput = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue).ToString(DateTimeDisplayFormat);
-            SelectedScheduledRepeatOption = "once";
+            SelectedScheduledRepeatOption = ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "once");
             ScheduledPaymentCustomRepeatInput = string.Empty;
             await LoadScheduledPaymentsAsync();
         }

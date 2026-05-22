@@ -25,23 +25,29 @@
                         <TextBlock Text="{Binding Texts.OnboardingAddCategoryTitle}"
                                    FontSize="18"
                                    FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*, 160, Auto, Auto, Auto" ColumnSpacing="8">
-                            <TextBox Text="{Binding CategoryNewName}"
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="8">
+                            <Button Width="40"
+                                    Height="40"
+                                    Padding="0"
+                                    Click="NewCategoryIconButton_OnClick"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center">
+                                <Grid>
+                                    <TextBlock Text="{Binding CategoryNewIconGlyph}"
+                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                               FontSize="18"
+                                               TextAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                    <Image Source="{Binding CategoryNewIconSampleImage}"
+                                           Width="26"
+                                           Height="26"
+                                           IsVisible="{Binding HasCategoryNewIconSampleImage}" />
+                                </Grid>
+                            </Button>
+                            <TextBox Grid.Column="1"
+                                     Text="{Binding CategoryNewName}"
                                      Watermark="{Binding Texts.OnboardingCategoryNameHint}" />
-                            <ComboBox Grid.Column="1"
-                                      ItemsSource="{Binding CategoryIconOptions}"
-                                      SelectedValue="{Binding CategoryNewIconKey}"
-                                      SelectedValueBinding="{Binding Key}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <TextBlock Text="{Binding Glyph}"
-                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
-                                            <TextBlock Text="{Binding DisplayName}" />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
                             <Button Grid.Column="2"
                                     Content="{Binding Texts.TransactionExpenseType}"
                                     Classes="secondary-button"
@@ -69,34 +75,42 @@
                             <ItemsControl ItemsSource="{Binding ExpenseCategories}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
-                                        <Grid ColumnDefinitions="Auto, *, 160, Auto, Auto" ColumnSpacing="12" Margin="0,4">
-                                            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SurfaceAlt}">
-                                                <TextBlock Text="{Binding IconGlyph}"
-                                                           FontFamily="{DynamicResource Phosphor-Fill}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center" />
-                                            </Border>
+                                        <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="12" Margin="0,4">
+                                            <Button Width="40"
+                                                    Height="40"
+                                                    Padding="0"
+                                                    Grid.Column="0"
+                                                    Click="CategoryIconButton_OnClick"
+                                                    HorizontalContentAlignment="Center"
+                                                    VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding IconGlyph}"
+                                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                               FontSize="18"
+                                                               TextAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                                    <Image Source="{Binding IconSampleImage}"
+                                                           Width="26"
+                                                           Height="26"
+                                                           IsVisible="{Binding HasIconSampleImage}" />
+                                                </Grid>
+                                            </Button>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Medium" />
-                                                <TextBlock Text="{Binding TypeDisplay}" Classes="muted" />
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontWeight="Medium"
+                                                           DoubleTapped="CategoryName_OnDoubleTapped"
+                                                           IsVisible="{Binding !IsEditingName}" />
+                                                <TextBox Text="{Binding NameInput}"
+                                                         Width="180"
+                                                         HorizontalAlignment="Left"
+                                                         LostFocus="CategoryNameTextBox_OnLostFocus"
+                                                         KeyDown="CategoryNameTextBox_OnKeyDown"
+                                                         IsVisible="{Binding IsEditingName}" />
                                             </StackPanel>
-                                            <ComboBox Grid.Column="2"
-                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.CategoryIconOptions}"
-                                                      SelectedValue="{Binding SelectedIconKey}"
-                                                      SelectedValueBinding="{ReflectionBinding Key}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <TextBlock Text="{Binding Glyph}"
-                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
-                                                            <TextBlock Text="{Binding DisplayName}" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                            <ToggleSwitch Grid.Column="3"
+                                            <ToggleSwitch Grid.Column="2"
                                                           IsChecked="{Binding IsSelected}" />
-                                            <Button Grid.Column="4"
+                                            <Button Grid.Column="3"
                                                     Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
                                                     Classes="danger-button"
                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
@@ -116,34 +130,42 @@
                             <ItemsControl ItemsSource="{Binding IncomeCategories}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:CategoryManagementItemViewModel">
-                                        <Grid ColumnDefinitions="Auto, *, 160, Auto, Auto" ColumnSpacing="12" Margin="0,4">
-                                            <Border Width="40" Height="40" CornerRadius="8" Background="{DynamicResource Color.SuccessPanel}">
-                                                <TextBlock Text="{Binding IconGlyph}"
-                                                           FontFamily="{DynamicResource Phosphor-Fill}"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Center" />
-                                            </Border>
+                                        <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="12" Margin="0,4">
+                                            <Button Width="40"
+                                                    Height="40"
+                                                    Padding="0"
+                                                    Grid.Column="0"
+                                                    Click="CategoryIconButton_OnClick"
+                                                    HorizontalContentAlignment="Center"
+                                                    VerticalContentAlignment="Center">
+                                                <Grid>
+                                                    <TextBlock Text="{Binding IconGlyph}"
+                                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                               FontSize="18"
+                                                               TextAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                                    <Image Source="{Binding IconSampleImage}"
+                                                           Width="26"
+                                                           Height="26"
+                                                           IsVisible="{Binding HasIconSampleImage}" />
+                                                </Grid>
+                                            </Button>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                                <TextBlock Text="{Binding Name}" FontWeight="Medium" />
-                                                <TextBlock Text="{Binding TypeDisplay}" Classes="muted" />
+                                                <TextBlock Text="{Binding Name}"
+                                                           FontWeight="Medium"
+                                                           DoubleTapped="CategoryName_OnDoubleTapped"
+                                                           IsVisible="{Binding !IsEditingName}" />
+                                                <TextBox Text="{Binding NameInput}"
+                                                         Width="180"
+                                                         HorizontalAlignment="Left"
+                                                         LostFocus="CategoryNameTextBox_OnLostFocus"
+                                                         KeyDown="CategoryNameTextBox_OnKeyDown"
+                                                         IsVisible="{Binding IsEditingName}" />
                                             </StackPanel>
-                                            <ComboBox Grid.Column="2"
-                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.CategoryIconOptions}"
-                                                      SelectedValue="{Binding SelectedIconKey}"
-                                                      SelectedValueBinding="{ReflectionBinding Key}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate x:DataType="vm:CategoryIconOptionViewModel">
-                                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                                            <TextBlock Text="{Binding Glyph}"
-                                                                       FontFamily="{DynamicResource Phosphor-Fill}" />
-                                                            <TextBlock Text="{Binding DisplayName}" />
-                                                        </StackPanel>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
-                                            <ToggleSwitch Grid.Column="3"
+                                            <ToggleSwitch Grid.Column="2"
                                                           IsChecked="{Binding IsSelected}" />
-                                            <Button Grid.Column="4"
+                                            <Button Grid.Column="3"
                                                     Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
                                                     Classes="danger-button"
                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
@@ -158,10 +180,10 @@
 
                 <Border Classes="panel-card alt">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Merge categories"
+                        <TextBlock Text="{Binding Texts.MergeCategoriesTitle}"
                                    FontSize="18"
                                    FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="*, *, Auto" ColumnSpacing="8">
+                        <Grid ColumnDefinitions="*, Auto, *, Auto" ColumnSpacing="8">
                             <ComboBox ItemsSource="{Binding Categories}"
                                       SelectedItem="{Binding SelectedMergeSourceCategory}">
                                 <ComboBox.ItemTemplate>
@@ -170,7 +192,12 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <ComboBox Grid.Column="1"
+                            <TextBlock Grid.Column="1"
+                                       Text="→"
+                                       FontSize="22"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center" />
+                            <ComboBox Grid.Column="2"
                                       ItemsSource="{Binding MergeTargetCategories}"
                                       SelectedItem="{Binding SelectedMergeTargetCategory}">
                                 <ComboBox.ItemTemplate>
@@ -179,8 +206,8 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <Button Grid.Column="2"
-                                    Content="Merge"
+                            <Button Grid.Column="3"
+                                    Content="{Binding Texts.MergeCategoriesButton}"
                                     Classes="primary-button"
                                     Command="{Binding MergeCategoriesCommand}" />
                         </Grid>

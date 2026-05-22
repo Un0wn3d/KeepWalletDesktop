@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -57,7 +57,7 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <CheckBox Content="Поділитися транзакцією"
+                        <CheckBox Content="{Binding Texts.TransactionShareLabel}"
                                   IsChecked="{Binding IsTransactionSharedInput}" />
                         <ComboBox ItemsSource="{Binding Groups}"
                                   SelectedItem="{Binding SelectedTransactionShareGroup}"
@@ -69,18 +69,20 @@
                             </ComboBox.ItemTemplate>
                         </ComboBox>
 
-                        <Grid ColumnDefinitions="*, 120" ColumnSpacing="10">
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
                             <StackPanel>
                                 <TextBlock Text="{Binding Texts.TransactionDateLabel}" Classes="form-label" />
-                                <CalendarDatePicker SelectedDate="{Binding TransactionSelectedDate, Mode=TwoWay}"
-                                                    Watermark="{Binding Texts.TransactionDateHint}"
-                                                    Classes="transaction-calendar" />
+                                <CalendarDatePicker SelectedDate="{Binding TransactionDate, Mode=TwoWay}"
+                                                HorizontalAlignment="Left"
+                                            Classes="transaction-picker" />
                             </StackPanel>
                             <StackPanel Grid.Column="1">
                                 <TextBlock Text="{Binding Texts.TransactionTimeLabel}" Classes="form-label" />
-                                <TextBox Text="{Binding TransactionTimeInput}"
-                                         Watermark="{Binding Texts.TransactionTimeHint}"
-                                         Classes="auth-input" />
+                                <TimePicker  SelectedTime="{Binding TransactionSelectedTime, Mode=TwoWay}"
+                                             MinuteIncrement="1"
+                                             MinWidth="110"
+                                             HorizontalAlignment="Stretch"
+                                             Classes="transaction-picker" />
                             </StackPanel>
                         </Grid>
 

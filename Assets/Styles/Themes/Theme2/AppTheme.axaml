@@ -87,6 +87,47 @@
     <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
   </Style>
 
+  <Style Selector="CalendarDatePicker.transaction-calendar /template/ Button#PART_Button">
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+  </Style>
+
+  <Style Selector="CalendarDatePicker.transaction-calendar:pointerover /template/ Button#PART_Button">
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
+  <Style Selector="CalendarDatePicker.transaction-calendar:focus /template/ Button#PART_Button">
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
+  <Style Selector="DatePicker.transaction-picker, TimePicker.transaction-picker">
+    <Setter Property="Height" Value="36" />
+    <Setter Property="Padding" Value="4,0" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="8" />
+  </Style>
+
+  <Style Selector="DatePicker.transaction-picker /template/ Calendar">
+    <Setter Property="Width" Value="170"/>
+    <Setter Property="MinWidth" Value="170"/>
+    <Setter Property="MaxWidth" Value="170"/>
+  </Style>
+
+  <Style Selector="DatePicker.transaction-picker:pointerover, TimePicker.transaction-picker:pointerover">
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
+  <Style Selector="DatePicker.transaction-picker:focus, TimePicker.transaction-picker:focus">
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.Accent}" />
+  </Style>
+
   <Style Selector="Calendar">
     <Setter Property="Background" Value="{DynamicResource Color.Surface}" />
     <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
@@ -172,6 +213,30 @@
     <Setter Property="Padding" Value="8" />
     <Setter Property="Background" Value="{DynamicResource Color.SurfaceOverlay}" />
     <Setter Property="CornerRadius" Value="8" />
+  </Style>
+
+  <Style Selector="Border.owner-chip, Border.member-chip, Border.viewer-chip">
+    <Setter Property="Padding" Value="10,4" />
+    <Setter Property="CornerRadius" Value="999" />
+    <Setter Property="MinWidth" Value="64" />
+  </Style>
+
+  <Style Selector="Border.owner-chip">
+    <Setter Property="Background" Value="{DynamicResource Color.AccentSoft}" />
+  </Style>
+
+  <Style Selector="Border.member-chip">
+    <Setter Property="Background" Value="{DynamicResource Color.SuccessPanel}" />
+  </Style>
+
+  <Style Selector="Border.viewer-chip">
+    <Setter Property="Background" Value="{DynamicResource Color.InfoPanel}" />
+  </Style>
+
+  <Style Selector="Border.owner-chip TextBlock, Border.member-chip TextBlock, Border.viewer-chip TextBlock">
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="FontWeight" Value="SemiBold" />
   </Style>
 
   <Style Selector="Button">

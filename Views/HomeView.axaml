@@ -1,6 +1,7 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:modules="using:KeepWalletDesktop.Views.Mdules"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,8 +12,9 @@
              x:DataType="vm:MainViewModel">
         <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsHomePage}">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid RowDefinitions="Auto, 260, Auto" RowSpacing="16" MaxWidth="1280">
-                    <Border Grid.Row="0">
+                <Grid RowDefinitions="Auto, Auto, 260, Auto" RowSpacing="16" MaxWidth="1280">
+                    <modules:DateSortModule Grid.Row="0" />
+                    <Border Grid.Row="1">
                         <Grid ColumnDefinitions="*, *, *" ColumnSpacing="16">
                             <Border Grid.Column="0" Classes="metric-card total">
                                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
@@ -53,7 +55,7 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="1">
+                    <Border Grid.Row="2">
                         <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
                             <Button Grid.Column="0"
                                     Background="Transparent"
@@ -131,8 +133,8 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="2" Classes="expenses-card">
-                            <Grid RowDefinitions="Auto, Auto, Auto, Auto, *">
+                    <Border Grid.Row="3" Classes="expenses-card">
+                            <Grid RowDefinitions="Auto, Auto, Auto, *">
                                 <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,16">
                                     <TextBlock Grid.Column="0"
                                                Text="{Binding Texts.TransactionsSectionTitle}"
@@ -143,41 +145,12 @@
                                             Command="{Binding OpenAllTransactionsCommand}" />
                                 </Grid>
 
-                                <Border Grid.Row="1"
-                                        Background="{DynamicResource Color.SurfaceOverlay}"
-                                        CornerRadius="8"
-                                        Padding="12"
-                                        Margin="0,0,0,10"
-                                        IsVisible="{Binding HasSharedTransactions}">
-                                    <StackPanel Spacing="8">
-                                        <TextBlock Text="Поділилися транзакціями"
-                                                   Classes="muted"
-                                                   FontWeight="SemiBold" />
-                                        <ItemsControl ItemsSource="{Binding SharedTransactions}">
-                                            <ItemsControl.ItemTemplate>
-                                                <DataTemplate x:DataType="vm:TransactionItemViewModel">
-                                                    <Grid ColumnDefinitions="*, Auto"
-                                                          ColumnSpacing="12"
-                                                          Margin="0,2">
-                                                        <TextBlock Text="{Binding DescriptionDisplay}"
-                                                                   FontWeight="SemiBold"
-                                                                   TextWrapping="Wrap" />
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{Binding SharedDisplay}"
-                                                                   Classes="muted" />
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </Border>
-
-                                <TextBlock Grid.Row="2"
+                                <TextBlock Grid.Row="1"
                                            Text="{Binding Texts.NoTransactionsText}"
                                            IsVisible="{Binding HasNoTransactions}"
                                            Margin="0,0,0,8" />
 
-                                <Grid Grid.Row="3"
+                                <Grid Grid.Row="2"
                                       ColumnDefinitions="52, 5*, 2*, 2*"
                                       ColumnSpacing="12"
                                       Margin="8,0,8,2"
@@ -197,7 +170,7 @@
                                                FontWeight="SemiBold" />
                                 </Grid>
 
-                                <ItemsControl Grid.Row="4" ItemsSource="{Binding VisibleTransactions}" Background="{DynamicResource Color.AquaPanel}">
+                                <ItemsControl Grid.Row="3" ItemsSource="{Binding VisibleTransactions}" Background="{DynamicResource Color.AquaPanel}">
                                     <ItemsControl.Styles>
                                         <Style Selector="Button.transaction-row-button">
                                             <Setter Property="Background" Value="Transparent" />
@@ -238,13 +211,20 @@
                                                                 Height="40"
                                                                 CornerRadius="8"
                                                                 Background="{Binding CategoryAnchorBrush}">
-                                                            <TextBlock Text="{Binding CategoryIcon}"
-                                                                       FontFamily="{DynamicResource Phosphor-Fill}"
-                                                                       Foreground="{DynamicResource Color.Text1}"
-                                                                       FontSize="18"
-                                                                       FontWeight="SemiBold"
-                                                                       HorizontalAlignment="Center"
-                                                                       VerticalAlignment="Center" />
+                                                            <Grid>
+                                                                <TextBlock Text="{Binding CategoryIcon}"
+                                                                           FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                                           Foreground="{DynamicResource Color.Text1}"
+                                                                           FontSize="18"
+                                                                           FontWeight="SemiBold"
+                                                                           IsVisible="{Binding !HasCategoryIconSampleImage}"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                                <Image Source="{Binding CategoryIconSampleImage}"
+                                                                       Width="26"
+                                                                       Height="26"
+                                                                       IsVisible="{Binding HasCategoryIconSampleImage}" />
+                                                            </Grid>
                                                         </Border>
                                                         <StackPanel Grid.Column="1" Spacing="2">
                                                             <TextBlock Text="{Binding DescriptionDisplay}"
@@ -260,8 +240,11 @@
                                                                 CornerRadius="20"
                                                                 Padding="12,6"
                                                                 VerticalAlignment="Center"
-                                                                HorizontalAlignment="Stretch">
+                                                                HorizontalAlignment="Center"
+                                                                MinWidth="{Binding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
                                                             <TextBlock Text="{Binding CategoryDisplay}"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
                                                                        TextWrapping="Wrap"
                                                                        VerticalAlignment="Center" />
                                                         </Border>

@@ -38,15 +38,22 @@ public sealed record UpdateUserRequestDto(
     string? FullName = null,
     bool? IsActive = null);
 
-public sealed record CreateGroupRequestDto(string Name);
+public sealed record CreateGroupRequestDto(string Name, string? IconKey = null);
+
+public sealed record UpdateGroupRequestDto(string Name, string? IconKey = null);
 
 public sealed record AddGroupMemberRequestDto(string LoginOrEmail, string RoleName);
+
+public sealed record UpdateGroupMemberRoleRequestDto(string RoleName);
+
+public sealed record TransferGroupOwnerRequestDto(Guid NewOwnerUserId);
 
 public sealed record ShareResourceWithGroupRequestDto(Guid? GroupId);
 
 public sealed record ApiGroupDto(
     Guid Id,
     string Name,
+    string IconKey,
     string RoleName,
     DateTimeOffset CreatedAt,
     int MemberCount);
