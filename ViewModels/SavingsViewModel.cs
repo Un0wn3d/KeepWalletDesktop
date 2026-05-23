@@ -1,4 +1,4 @@
-using CommunityToolkit.Mvvm.Input;
+﻿using CommunityToolkit.Mvvm.Input;
 using KeepWalletDesktop.Models;
 using KeepWalletDesktop.Services;
 using System;
@@ -298,30 +298,19 @@ public partial class MainViewModel
             coveredAmount = saving?.CurrentAmount ?? (decimal)SavedAmount;
         }
 
-        // Куплені вже списані з балансу — додаємо їх назад,
-        // щоб порахувати "повний" баланс до будь-яких покупок
-        var purchasedTotal = orderedItems
-            .Where(i => i.IsPurchased)
-            .Sum(i => Math.Max(0, i.Price));
-    
-        var totalAvailable = coveredAmount + purchasedTotal;
-        var cumulativeCost = 0m;
 
         SavingItems = new ObservableCollection<SavingItemViewModel>(
             orderedItems.Select((i, index) =>
             {
                 var itemCost = Math.Max(0, i.Price);
-                var amountAvailableForItem = Math.Max(0, totalAvailable - cumulativeCost);
-                var isFullyFunded = i.IsPurchased || itemCost <= 0 || amountAvailableForItem >= itemCost;
+                var isFullyFunded = i.IsPurchased || itemCost <= 0 || coveredAmount >= itemCost;
             
                 var progress = i.IsPurchased
                     ? 100
                     : itemCost <= 0
                         ? 100
-                        : Math.Clamp((double)(amountAvailableForItem / itemCost * 100), 0, 100);
+                        : Math.Clamp((double)(coveredAmount / itemCost * 100), 0, 100);
 
-                // Всі айтеми (і куплені, і ні) займають місце в черзі
-                cumulativeCost += itemCost;
 
                 return new SavingItemViewModel(
                     i.Id, i.Name, itemCost,
@@ -343,8 +332,8 @@ public partial class MainViewModel
         }
 
         var marker = $"saving:{ActiveSavingId.Value}";
-        var depositPrefix = $"Накопичення: {SavingNameInput}";
-        var withdrawalPrefix = $"Зняття з накопичення: {SavingNameInput}";
+        var depositPrefix = $"ÐÐ°ÐºÐ¾Ð¿Ð¸Ñ‡ÐµÐ½Ð½Ñ: {SavingNameInput}";
+        var withdrawalPrefix = $"Ð—Ð½ÑÑ‚Ñ‚Ñ Ð· Ð½Ð°ÐºÐ¾Ð¿Ð¸Ñ‡ÐµÐ½Ð½Ñ: {SavingNameInput}";
 
         SavingTransactions = new ObservableCollection<TransactionItemViewModel>(
             AllTransactions
@@ -436,3 +425,4 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(ActiveSavingAmountGoalDisplay));
     }
 }
+
