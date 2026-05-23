@@ -1,10 +1,14 @@
 using Avalonia.Controls;
 using KeepWalletDesktop.ViewModels;
+using System;
 
 namespace KeepWalletDesktop.Views.Controls;
 
 public partial class AllTransactionsDialog : UserControl
 {
+    private static readonly TimeSpan ScrollThrottleInterval = TimeSpan.FromMilliseconds(300);
+    private DateTimeOffset lastLoadMoreScrollAt = DateTimeOffset.MinValue;
+
     public AllTransactionsDialog()
     {
         InitializeComponent();
@@ -19,8 +23,10 @@ public partial class AllTransactionsDialog : UserControl
         }
 
         var remaining = scrollViewer.Extent.Height - scrollViewer.Viewport.Height - scrollViewer.Offset.Y;
-        if (remaining <= 48)
+        var now = DateTimeOffset.UtcNow;
+        if (remaining <= 48 && now - lastLoadMoreScrollAt >= ScrollThrottleInterval)
         {
+            lastLoadMoreScrollAt = now;
             viewModel.LoadMoreFilteredTransactionsCommand.Execute(null);
         }
     }

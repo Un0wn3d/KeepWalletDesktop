@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1100"
+             d:DesignHeight="720"
+             x:Class="KeepWalletDesktop.Views.ReportingView"
+             x:DataType="vm:MainViewModel">
+    <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsReportingPage}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" MaxWidth="1120">
+                <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
+                    <TextBlock Text="Звітність профілю" Classes="page-title" />
+                    <Button Grid.Column="1"
+                            Content="Експорт PDF"
+                            Classes="secondary-button"
+                            Command="{Binding ExportReportPdfCommand}" />
+                    <Button Grid.Column="2"
+                            Content="Експорт Excel"
+                            Classes="primary-button"
+                            Command="{Binding ExportReportExcelCommand}" />
+                </Grid>
+
+                <Grid ColumnDefinitions="*, *, *" ColumnSpacing="12">
+                    <Border Grid.Column="0" Classes="panel-card alt">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Доходи" Classes="muted" />
+                            <TextBlock Text="{Binding ReportIncomeTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Classes="panel-card alt">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Витрати" Classes="muted" />
+                            <TextBlock Text="{Binding ReportExpenseTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Classes="panel-card alt">
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="Баланс" Classes="muted" />
+                            <TextBlock Text="{Binding ReportBalanceTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                    <Border Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Банківські рахунки" Classes="card-title" />
+                            <ItemsControl ItemsSource="{Binding BankAccounts}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BankAccountItemViewModel">
+                                        <Grid ColumnDefinitions="*, Auto" Margin="0,3">
+                                            <TextBlock Text="{Binding Name}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding BalanceDisplay}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Classes="panel-card">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Накопичення" Classes="card-title" />
+                            <ItemsControl ItemsSource="{Binding Savings}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:SavingOptionViewModel">
+                                        <Grid ColumnDefinitions="*, Auto" Margin="0,3">
+                                            <TextBlock Text="{Binding Name}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding AmountDisplay}" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Classes="panel-card">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Останні транзакції" Classes="card-title" />
+                        <ItemsControl ItemsSource="{Binding AllTransactions}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:TransactionItemViewModel">
+                                    <Grid ColumnDefinitions="140, *, 120, 120" ColumnSpacing="8" Margin="0,3">
+                                        <TextBlock Text="{Binding TransactionDateDisplay}" Classes="muted" />
+                                        <TextBlock Grid.Column="1" Text="{Binding DescriptionDisplay}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding CategoryDisplay}" Classes="muted" />
+                                        <TextBlock Grid.Column="3" Text="{Binding AmountDisplay}" HorizontalAlignment="Right" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="{Binding ReportStatusMessage}" Classes="muted" TextWrapping="Wrap" />
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

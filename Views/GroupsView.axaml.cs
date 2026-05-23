@@ -135,9 +135,9 @@ public partial class GroupsView : UserControl
             return;
         }
 
-        if (viewModel.OpenPiggyBankCommand.CanExecute(null))
+        if (viewModel.OpenSavingsCommand.CanExecute(null))
         {
-            viewModel.OpenPiggyBankCommand.Execute(null);
+            viewModel.OpenSavingsCommand.Execute(null);
         }
 
         if (viewModel.SelectSavingCommand.CanExecute(saving))

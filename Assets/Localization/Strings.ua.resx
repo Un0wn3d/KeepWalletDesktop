@@ -91,22 +91,22 @@
     <value>Транзакції, рахунки, накопичення та регулярні платежі завантажуються з KeepWalletAPI.</value>
   </data>
   <data name="BankAccountsTitle" xml:space="preserve">
-    <value>Банківські акаунти</value>
+    <value>Банківські рахунки</value>
   </data>
   <data name="BankAccountsUnavailableText" xml:space="preserve">
-    <value>Банківських акаунтів ще немає.</value>
+    <value>Банківських рахунків ще немає.</value>
   </data>
   <data name="BankAccountDefaultLabel" xml:space="preserve">
-    <value>Основний акаунт</value>
+    <value>Основний рахунок</value>
   </data>
   <data name="NewBankAccountButton" xml:space="preserve">
-    <value>Новий банківський акаунт</value>
+    <value>Новий банківський рахунок</value>
   </data>
   <data name="BankAccountDetailsTitle" xml:space="preserve">
-    <value>Деталі банківського акаунта</value>
+    <value>Деталі банківського рахунку</value>
   </data>
-  <data name="PiggyBankTitle" xml:space="preserve">
-    <value>Скарбничка</value>
+  <data name="SavingsTitle" xml:space="preserve">
+    <value>Накопичення</value>
   </data>
   <data name="AvailableBalanceLabel" xml:space="preserve">
     <value>Доступний баланс</value>
@@ -121,7 +121,7 @@
     <value>Зберегти ціль</value>
   </data>
   <data name="SavingsAmountLabel" xml:space="preserve">
-    <value>Сума для скарбнички (₴)</value>
+    <value>Сума для накопичення (₴)</value>
   </data>
   <data name="SavingsAmountHint" xml:space="preserve">
     <value>Наприклад: 1500</value>
@@ -183,8 +183,8 @@
   <data name="CreateTransactionButton" xml:space="preserve">
     <value>Створити транзакцію</value>
   </data>
-  <data name="CreatePiggyBankButton" xml:space="preserve">
-    <value>Створити нову скарбничку</value>
+  <data name="CreateSavingsButton" xml:space="preserve">
+    <value>Створити скарбничку</value>
   </data>
   <data name="ConnectedStatus" xml:space="preserve">
     <value>Підключено</value>
@@ -231,14 +231,14 @@
   <data name="CreateTransactionDisabled" xml:space="preserve">
     <value>Увійдіть, щоб створювати транзакції через KeepWalletAPI.</value>
   </data>
-  <data name="CreatePiggyBankDisabled" xml:space="preserve">
-    <value>Створення скарбнички тимчасово недоступне: desktop працює лише через API.</value>
+  <data name="CreateSavingsDisabled" xml:space="preserve">
+    <value>Створення накопичення тимчасово недоступне: desktop працює лише через API.</value>
   </data>
   <data name="SaveGoalDisabled" xml:space="preserve">
     <value>Увійдіть, щоб зберігати цілі через KeepWalletAPI.</value>
   </data>
   <data name="SavingsOperationsDisabled" xml:space="preserve">
-    <value>Увійдіть, щоб керувати скарбничками через KeepWalletAPI.</value>
+    <value>Увійдіть, щоб керувати накопиченнями через KeepWalletAPI.</value>
   </data>
   <data name="ApiAvailableLoginRequired" xml:space="preserve">
     <value>KeepWalletAPI доступний за адресою {0}. Виконайте вхід або реєстрацію.</value>
@@ -424,10 +424,10 @@
     <value>Ласкаво просимо до KeepWallet</value>
   </data>
   <data name="OnboardingSubtitle" xml:space="preserve">
-    <value>Налаштуйте перший банківський акаунт і виберіть категорії, які хочете бачити в застосунку.</value>
+    <value>Налаштуйте перший банківський рахунок і виберіть категорії, які хочете бачити в застосунку.</value>
   </data>
   <data name="OnboardingAccountNameLabel" xml:space="preserve">
-    <value>Назва акаунта</value>
+    <value>Назва рахунку</value>
   </data>
   <data name="OnboardingCurrencyLabel" xml:space="preserve">
     <value>Валюта</value>
@@ -451,7 +451,7 @@
     <value>Введіть назву категорії.</value>
   </data>
   <data name="OnboardingAccountNameRequired" xml:space="preserve">
-    <value>Введіть назву банківського акаунта.</value>
+    <value>Введіть назву банківського рахунку.</value>
   </data>
   <data name="OnboardingCategorySelectionRequired" xml:space="preserve">
     <value>Виберіть хоча б одну категорію.</value>
@@ -487,7 +487,7 @@
     <value>Ставка, %</value>
   </data>
   <data name="SavingItemsTitle" xml:space="preserve">
-    <value>Оплати та покупки</value>
+    <value>Список бажаного</value>
   </data>
   <data name="SavingItemNameHint" xml:space="preserve">
     <value>Назва</value>
@@ -550,16 +550,16 @@
     <value>Надати доступ до рахунку</value>
   </data>
   <data name="ShareSavingsButton" xml:space="preserve">
-    <value>Надати доступ до скарбнички</value>
+    <value>Надати доступ до накопичення</value>
   </data>
   <data name="GroupAccessAccountsTitle" xml:space="preserve">
-    <value>Акаунти</value>
+    <value>Рахунки</value>
   </data>
   <data name="GroupAccessTransactionsTitle" xml:space="preserve">
     <value>Транзакції</value>
   </data>
   <data name="GroupAccessSavingsTitle" xml:space="preserve">
-    <value>Скарбнички</value>
+    <value>Накопичення</value>
   </data>
   <data name="UserAccessLabel" xml:space="preserve">
     <value>Вхід дозволено</value>

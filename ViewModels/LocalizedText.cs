@@ -42,7 +42,7 @@ public interface ILocalizedText
     string BankAccountDefaultLabel { get; }
     string NewBankAccountButton { get; }
     string BankAccountDetailsTitle { get; }
-    string PiggyBankTitle { get; }
+    string SavingsTitle { get; }
     string AvailableBalanceLabel { get; }
     string SavingNameLabel { get; }
     string GoalAmountLabel { get; }
@@ -96,7 +96,7 @@ public interface ILocalizedText
     string UkrainianLanguage { get; }
     string EnglishLanguage { get; }
     string CreateTransactionButton { get; }
-    string CreatePiggyBankButton { get; }
+    string CreateSavingsButton { get; }
     string ConnectedStatus { get; }
     string DisconnectedStatus { get; }
     string GuestLabel { get; }
@@ -112,7 +112,7 @@ public interface ILocalizedText
     string ApiSessionClosed { get; }
     string ApiLogoutErrorPrefix { get; }
     string CreateTransactionDisabled { get; }
-    string CreatePiggyBankDisabled { get; }
+    string CreateSavingsDisabled { get; }
     string SaveGoalDisabled { get; }
     string SavingsOperationsDisabled { get; }
     string ApiAvailableLoginRequired { get; }
@@ -279,7 +279,7 @@ public sealed class LocalizedText : ILocalizedText
     public string BankAccountDefaultLabel => Get(nameof(BankAccountDefaultLabel));
     public string NewBankAccountButton => Get(nameof(NewBankAccountButton));
     public string BankAccountDetailsTitle => Get(nameof(BankAccountDetailsTitle));
-    public string PiggyBankTitle => Get(nameof(PiggyBankTitle));
+    public string SavingsTitle => Get(nameof(SavingsTitle));
     public string AvailableBalanceLabel => Get(nameof(AvailableBalanceLabel));
     public string SavingNameLabel => Get(nameof(SavingNameLabel));
     public string GoalAmountLabel => Get(nameof(GoalAmountLabel));
@@ -333,7 +333,7 @@ public sealed class LocalizedText : ILocalizedText
     public string UkrainianLanguage => Get(nameof(UkrainianLanguage));
     public string EnglishLanguage => Get(nameof(EnglishLanguage));
     public string CreateTransactionButton => Get(nameof(CreateTransactionButton));
-    public string CreatePiggyBankButton => Get(nameof(CreatePiggyBankButton));
+    public string CreateSavingsButton => Get(nameof(CreateSavingsButton));
     public string ConnectedStatus => Get(nameof(ConnectedStatus));
     public string DisconnectedStatus => Get(nameof(DisconnectedStatus));
     public string GuestLabel => Get(nameof(GuestLabel));
@@ -349,7 +349,7 @@ public sealed class LocalizedText : ILocalizedText
     public string ApiSessionClosed => Get(nameof(ApiSessionClosed));
     public string ApiLogoutErrorPrefix => Get(nameof(ApiLogoutErrorPrefix));
     public string CreateTransactionDisabled => Get(nameof(CreateTransactionDisabled));
-    public string CreatePiggyBankDisabled => Get(nameof(CreatePiggyBankDisabled));
+    public string CreateSavingsDisabled => Get(nameof(CreateSavingsDisabled));
     public string SaveGoalDisabled => Get(nameof(SaveGoalDisabled));
     public string SavingsOperationsDisabled => Get(nameof(SavingsOperationsDisabled));
     public string ApiAvailableLoginRequired => Get(nameof(ApiAvailableLoginRequired));

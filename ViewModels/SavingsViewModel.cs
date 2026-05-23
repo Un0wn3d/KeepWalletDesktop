@@ -36,28 +36,38 @@ public partial class MainViewModel
                 Savings = [];
                 SavingRateHistory = [];
                 SavingItems = [];
-                PiggyBankStatusMessage = string.Empty;
+                SavingsStatusMessage = string.Empty;
                 RefreshSavingsProperties();
                 return;
             }
 
             Savings = new ObservableCollection<SavingOptionViewModel>(
-                savings.Select(s => new SavingOptionViewModel(
-                    s.Id,
-                    s.GroupId,
-                    s.Name,
-                    $"{s.CurrentAmount:N2} UAH",
-                    s.Id == activeSaving.Id)));
+                savings.Select(s =>
+                {
+                    var targetAmount = s.TargetAmount ?? 0;
+                    var progress = targetAmount <= 0
+                        ? 0
+                        : Math.Clamp((double)(s.CurrentAmount / targetAmount * 100), 0, 100);
+                    return new SavingOptionViewModel(
+                        s.Id,
+                        s.GroupId,
+                        s.Name,
+                        $"{s.CurrentAmount:N2} UAH",
+                        $"{targetAmount:N2} UAH",
+                        progress,
+                        $"{progress:0}%",
+                        s.Id == activeSaving.Id);
+                }));
             ApplySaving(activeSaving);
             await LoadSavingDetailsAsync(activeSaving.Id);
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
     }
 
@@ -69,6 +79,7 @@ public partial class MainViewModel
         SavedAmount = (double)saving.CurrentAmount;
         InterestRate = 0;
         RefreshSavingsProperties();
+        RefreshSavingTransactions();
     }
 
     [RelayCommand]
@@ -117,11 +128,11 @@ public partial class MainViewModel
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -139,6 +150,36 @@ public partial class MainViewModel
     private async Task MoveSavingItemDownAsync(SavingItemViewModel? item)
     {
         await MoveSavingItemAsync(item, 1);
+    }
+
+    [RelayCommand]
+    private async Task DeleteSavingItemAsync(SavingItemViewModel? item)
+    {
+        if (!ActiveSavingId.HasValue || item is null || IsApiBusy)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.DeleteSavingItemAsync(ActiveSavingId.Value, item.Id);
+            await UpdateActiveSavingTargetFromItemsAsync();
+            await LoadSavingDetailsAsync(ActiveSavingId.Value);
+        }
+        catch (HttpRequestException ex)
+        {
+            SavingsStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
     }
 
     [RelayCommand]
@@ -163,15 +204,15 @@ public partial class MainViewModel
             SavingRateHistory = [];
             SavingItems = [];
             await LoadSavingsAsync();
-            PiggyBankStatusMessage = Texts.TransactionDeletedText;
+            SavingsStatusMessage = Texts.TransactionDeletedText;
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -191,20 +232,43 @@ public partial class MainViewModel
         {
             IsApiBusy = true;
             EnsureApiClient();
+            var markAsPurchased = !item.IsPaid;
+            var latestSaving = (await _apiClient!.GetSavingsAsync())
+                .FirstOrDefault(s => s.Id == ActiveSavingId.Value);
+            if (latestSaving is null)
+            {
+                SavingsStatusMessage = Texts.RequestErrorPrefix;
+                return;
+            }
+
+            if (markAsPurchased)
+            {
+                if (latestSaving.CurrentAmount < item.Amount)
+                {
+                    SavingsStatusMessage = Texts.TransactionFormValidationText;
+                    await LoadSavingDetailsAsync(ActiveSavingId.Value, latestSaving.CurrentAmount);
+                    return;
+                }
+            }
+
             await _apiClient!.UpdateSavingItemAsync(
                 ActiveSavingId.Value,
                 item.Id,
-                new UpdateSavingItemRequestDto(item.Name, item.Amount, item.Priority, !item.IsPaid));
-            await UpdateActiveSavingTargetFromItemsAsync();
-            await LoadSavingDetailsAsync(ActiveSavingId.Value);
+                new UpdateSavingItemRequestDto(item.Name, item.Amount, item.Priority, markAsPurchased));
+
+            var updatedCurrentAmount = markAsPurchased
+                ? Math.Max(0, latestSaving.CurrentAmount - item.Amount)
+                : latestSaving.CurrentAmount + item.Amount;
+            await UpdateActiveSavingTargetFromItemsAsync(updatedCurrentAmount);
+            await LoadSavingDetailsAsync(ActiveSavingId.Value, updatedCurrentAmount);
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -212,7 +276,7 @@ public partial class MainViewModel
         }
     }
 
-    private async Task LoadSavingDetailsAsync(int savingId)
+    private async Task LoadSavingDetailsAsync(int savingId, decimal? currentAmountOverride = null)
     {
         SavingRateHistory = [];
 
@@ -221,29 +285,74 @@ public partial class MainViewModel
             .OrderBy(i => i.Priority ?? short.MaxValue)
             .ThenBy(i => i.Id)
             .ToList();
-        var coveredAmount = (decimal)SavedAmount;
+
+        decimal coveredAmount;
+        if (currentAmountOverride.HasValue)
+        {
+            coveredAmount = currentAmountOverride.Value;
+        }
+        else
+        {
+            var saving = (await _apiClient!.GetSavingsAsync())
+                .FirstOrDefault(s => s.Id == savingId);
+            coveredAmount = saving?.CurrentAmount ?? (decimal)SavedAmount;
+        }
+
+        // Куплені вже списані з балансу — додаємо їх назад,
+        // щоб порахувати "повний" баланс до будь-яких покупок
+        var purchasedTotal = orderedItems
+            .Where(i => i.IsPurchased)
+            .Sum(i => Math.Max(0, i.Price));
+    
+        var totalAvailable = coveredAmount + purchasedTotal;
         var cumulativeCost = 0m;
 
         SavingItems = new ObservableCollection<SavingItemViewModel>(
             orderedItems.Select((i, index) =>
             {
                 var itemCost = Math.Max(0, i.Price);
-                var amountAvailableForItem = Math.Max(0, coveredAmount - cumulativeCost);
-                var progress = itemCost <= 0
+                var amountAvailableForItem = Math.Max(0, totalAvailable - cumulativeCost);
+                var isFullyFunded = i.IsPurchased || itemCost <= 0 || amountAvailableForItem >= itemCost;
+            
+                var progress = i.IsPurchased
                     ? 100
-                    : Math.Clamp((double)(amountAvailableForItem / itemCost * 100), 0, 100);
+                    : itemCost <= 0
+                        ? 100
+                        : Math.Clamp((double)(amountAvailableForItem / itemCost * 100), 0, 100);
+
+                // Всі айтеми (і куплені, і ні) займають місце в черзі
                 cumulativeCost += itemCost;
 
                 return new SavingItemViewModel(
-                    i.Id,
-                    i.Name,
-                    itemCost,
+                    i.Id, i.Name, itemCost,
                     i.Priority ?? (short)(index + 1),
                     i.IsPurchased,
                     $"{itemCost:N2} UAH",
                     progress,
-                    $"{progress:0}%");
+                    $"{progress:0}%",
+                    isFullyFunded);
             }));
+    }
+
+    private void RefreshSavingTransactions()
+    {
+        if (!ActiveSavingId.HasValue)
+        {
+            SavingTransactions = [];
+            return;
+        }
+
+        var marker = $"saving:{ActiveSavingId.Value}";
+        var depositPrefix = $"Накопичення: {SavingNameInput}";
+        var withdrawalPrefix = $"Зняття з накопичення: {SavingNameInput}";
+
+        SavingTransactions = new ObservableCollection<TransactionItemViewModel>(
+            AllTransactions
+                .Where(t =>
+                    (t.Description?.Contains(marker, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                    string.Equals(t.Description, depositPrefix, StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(t.Description, withdrawalPrefix, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(t => t.TransactionDate));
     }
 
     private async Task MoveSavingItemAsync(SavingItemViewModel? item, int direction)
@@ -282,11 +391,11 @@ public partial class MainViewModel
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -294,7 +403,7 @@ public partial class MainViewModel
         }
     }
 
-    private async Task UpdateActiveSavingTargetFromItemsAsync()
+    private async Task UpdateActiveSavingTargetFromItemsAsync(decimal? currentAmountOverride = null)
     {
         if (!ActiveSavingId.HasValue)
         {
@@ -311,9 +420,9 @@ public partial class MainViewModel
             new UpdateSavingRequestDto(
                 string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
                 targetAmount > 0 ? targetAmount : null,
-                (decimal)SavedAmount,
+                currentAmountOverride ?? (decimal)SavedAmount,
                 null,
-                targetAmount > 0 && (decimal)SavedAmount >= targetAmount));
+                targetAmount > 0 && (currentAmountOverride ?? (decimal)SavedAmount) >= targetAmount));
 
         ApplySaving(saving);
     }
@@ -324,5 +433,6 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(ProgressPercent));
         OnPropertyChanged(nameof(SavedAmountDisplay));
         OnPropertyChanged(nameof(RemainingAmountDisplay));
+        OnPropertyChanged(nameof(ActiveSavingAmountGoalDisplay));
     }
 }

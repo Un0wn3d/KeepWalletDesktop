@@ -23,10 +23,11 @@
         <views:GroupsView Grid.Column="1" />
         <views:ScheduledPaymentsView Grid.Column="1" />
         <views:CategoriesView Grid.Column="1" />
+        <views:ReportingView Grid.Column="1" />
         <views:ApiSettingsView Grid.Column="1" />
 
         <controls:FloatingActionMenu Grid.Column="1"
-                                     IsVisible="{Binding CanOpenAppPages}"
+                                     IsVisible="{Binding IsHomePage}"
                                      HorizontalAlignment="Right"
                                      VerticalAlignment="Bottom"
                                      Margin="0,0,24,24" />
@@ -225,10 +226,22 @@
                                                             <ToggleSwitch Grid.Column="3"
                                                                           IsChecked="{Binding IsSelected}" />
                                                             <Button Grid.Column="4"
-                                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                                    Width="44"
+                                                                    Height="44"
+                                                                    Padding="0"
+                                                                    HorizontalContentAlignment="Center"
+                                                                    VerticalContentAlignment="Center"
                                                                     Classes="danger-button"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
-                                                                    CommandParameter="{Binding .}" />
+                                                                    CommandParameter="{Binding .}">
+                                                                <Viewbox Width="18" Height="18">
+                                                                    <TextBlock Text="&#xE4A6;"
+                                                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                                                               TextAlignment="Center"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center" />
+                                                                </Viewbox>
+                                                            </Button>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>
@@ -272,10 +285,22 @@
                                                             <ToggleSwitch Grid.Column="3"
                                                                           IsChecked="{Binding IsSelected}" />
                                                             <Button Grid.Column="4"
-                                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.DeleteTransactionButton}"
+                                                                    Width="44"
+                                                                    Height="44"
+                                                                    Padding="0"
+                                                                    HorizontalContentAlignment="Center"
+                                                                    VerticalContentAlignment="Center"
                                                                     Classes="danger-button"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteCategoryCommand}"
-                                                                    CommandParameter="{Binding .}" />
+                                                                    CommandParameter="{Binding .}">
+                                                                <Viewbox Width="18" Height="18">
+                                                                    <TextBlock Text="&#xE4A6;"
+                                                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                                                               TextAlignment="Center"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center" />
+                                                                </Viewbox>
+                                                            </Button>
                                                         </Grid>
                                                     </DataTemplate>
                                                 </ItemsControl.ItemTemplate>

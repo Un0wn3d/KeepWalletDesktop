@@ -49,6 +49,7 @@
         <PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
         <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
         <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.6.2" />
+        <PackageReference Include="QuestPDF" Version="2024.12.1" />
     </ItemGroup>
 
     <ItemGroup>

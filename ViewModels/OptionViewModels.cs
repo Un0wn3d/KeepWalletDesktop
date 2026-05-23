@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace KeepWalletDesktop.ViewModels;
 
@@ -134,6 +135,7 @@ public sealed record CategoryIconOptionViewModel(
 
 public static class CategoryIconCatalog
 {
+    private static readonly ILogger EmojiLog = Log.ForContext("SourceContext", "CategoryIconCatalog");
     private static readonly Lock SyncRoot = new();
     private static readonly string OperatingFolder = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -175,11 +177,17 @@ public static class CategoryIconCatalog
         {
             preloadTask ??= Task.Run(() =>
             {
+                EmojiLog.Information("Emoji catalog preload started. Folder={Folder}", OperatingFolder);
                 var loadedData = LoadEmojiCatalogData();
                 lock (SyncRoot)
                 {
                     catalogData = loadedData;
                 }
+
+                EmojiLog.Information(
+                    "Emoji catalog preload completed. OptionsCount={OptionsCount}, CategoriesCount={CategoriesCount}",
+                    loadedData.Options.Count,
+                    loadedData.Categories.Count);
             });
             return preloadTask;
         }
@@ -196,8 +204,16 @@ public static class CategoryIconCatalog
             return legacyGlyph;
         }
 
-        return Options.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.Ordinal))?.Glyph
-            ?? (string.Equals(categoryType, "income", System.StringComparison.OrdinalIgnoreCase) ? LegacyGlyphs["income"] : LegacyGlyphs["other"]);
+        var option = Options.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.Ordinal));
+        if (option is not null)
+        {
+            return option.Glyph;
+        }
+
+        var fallbackGlyph = string.Equals(categoryType, "income", System.StringComparison.OrdinalIgnoreCase)
+            ? LegacyGlyphs["income"]
+            : LegacyGlyphs["other"];
+        return fallbackGlyph;
     }
 
     public static Bitmap? GetSampleImage(string? iconKey)
@@ -231,11 +247,24 @@ public static class CategoryIconCatalog
         try
         {
             Directory.CreateDirectory(OperatingFolder);
+            EmojiLog.Information("Emoji catalog loading started. Folder={Folder}", OperatingFolder);
             var emojiTestPath = GetEmojiTestPath();
             if (!File.Exists(emojiTestPath) || new FileInfo(emojiTestPath).Length == 0)
             {
+                EmojiLog.Information("Emoji test file missing or empty. Downloading from {Url}", EmojiTestUrl);
                 var emojiTest = DownloadEmojiTestAsync().GetAwaiter().GetResult();
                 File.WriteAllText(emojiTestPath, emojiTest, System.Text.Encoding.UTF8);
+                EmojiLog.Information(
+                    "Emoji test file downloaded. Path={Path}, Length={Length}",
+                    emojiTestPath,
+                    emojiTest.Length);
+            }
+            else
+            {
+                EmojiLog.Information(
+                    "Emoji test file found in cache. Path={Path}, Size={Size}",
+                    emojiTestPath,
+                    new FileInfo(emojiTestPath).Length);
             }
 
             EnsureSampleChartsAsync().GetAwaiter().GetResult();
@@ -243,13 +272,19 @@ public static class CategoryIconCatalog
             var options = ParseEmojiTestFile(File.ReadAllLines(emojiTestPath), sampleImages);
             var json = JsonSerializer.Serialize(options, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(GetEmojiJsonPath(), json, System.Text.Encoding.UTF8);
+            EmojiLog.Information(
+                "Emoji catalog parsed and cached. OptionsCount={OptionsCount}, SampleImagesCount={SampleImagesCount}, JsonPath={JsonPath}",
+                options.Count,
+                sampleImages.Count,
+                GetEmojiJsonPath());
 
             return new EmojiCatalogData(
                 options.Count > 0 ? options : GetFallbackEmojiOptions(),
                 options.Select(x => x.MainCategory).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList());
         }
-        catch
+        catch (Exception ex)
         {
+            EmojiLog.Error(ex, "Emoji catalog loading failed. Fallback options will be used.");
             return new EmojiCatalogData(GetFallbackEmojiOptions(), []);
         }
     }
@@ -263,11 +298,18 @@ public static class CategoryIconCatalog
             var path = Path.Combine(OperatingFolder, fileName);
             if (File.Exists(path) && new FileInfo(path).Length > 0)
             {
+                EmojiLog.Information("Emoji sample chart found in cache. Path={Path}, Size={Size}", path, new FileInfo(path).Length);
                 continue;
             }
 
+            EmojiLog.Information("Emoji sample chart downloading. Url={Url}", url);
             var html = await DownloadStringWithRedirectsAsync(url);
             File.WriteAllText(path, html, System.Text.Encoding.UTF8);
+            EmojiLog.Information(
+                "Emoji sample chart downloaded. Url={Url}, Path={Path}, Length={Length}",
+                url,
+                path,
+                html.Length);
         }
     }
 
@@ -290,11 +332,18 @@ public static class CategoryIconCatalog
                     requestUri = new UriBuilder(requestUri) { Scheme = Uri.UriSchemeHttps, Port = -1 }.Uri;
                 }
 
+                EmojiLog.Information("Emoji download redirected. From={From}, To={To}", url, requestUri);
                 continue;
             }
 
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadAsStringAsync();
+            var content = await response.Content.ReadAsStringAsync();
+            EmojiLog.Information(
+                "Emoji download completed. Url={Url}, FinalUrl={FinalUrl}, Length={Length}",
+                url,
+                requestUri,
+                content.Length);
+            return content;
         }
 
         throw new HttpRequestException($"Too many redirects while downloading {url}.");
@@ -307,9 +356,11 @@ public static class CategoryIconCatalog
             var emojiJsonPath = GetEmojiJsonPath();
             if (!File.Exists(emojiJsonPath) || new FileInfo(emojiJsonPath).Length <= 5)
             {
+                EmojiLog.Information("Emoji cached catalog missing or empty. Path={Path}", emojiJsonPath);
                 return new EmojiCatalogData(GetFallbackEmojiOptions(), []);
             }
 
+            EmojiLog.Information("Emoji cached catalog loading. Path={Path}, Size={Size}", emojiJsonPath, new FileInfo(emojiJsonPath).Length);
             using var document = JsonDocument.Parse(File.ReadAllText(emojiJsonPath));
             var sampleImages = LoadSampleImages();
             var options = document.RootElement
@@ -319,12 +370,17 @@ public static class CategoryIconCatalog
                 .Cast<CategoryIconOptionViewModel>()
                 .ToList();
 
+            EmojiLog.Information(
+                "Emoji cached catalog loaded. OptionsCount={OptionsCount}, SampleImagesCount={SampleImagesCount}",
+                options.Count,
+                sampleImages.Count);
             return new EmojiCatalogData(
                 options.Count > 0 ? options : GetFallbackEmojiOptions(),
                 options.Select(x => x.MainCategory).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList());
         }
-        catch
+        catch (Exception ex)
         {
+            EmojiLog.Warning(ex, "Emoji cached catalog loading failed. Fallback options will be used.");
             return new EmojiCatalogData(GetFallbackEmojiOptions(), []);
         }
     }
@@ -444,10 +500,12 @@ public static class CategoryIconCatalog
             var htmlPath = Path.Combine(OperatingFolder, fileName);
             if (!File.Exists(htmlPath))
             {
+                EmojiLog.Debug("Emoji sample chart file is absent. Path={Path}", htmlPath);
                 continue;
             }
 
             var html = File.ReadAllText(htmlPath);
+            var beforeCount = images.Count;
             foreach (Match match in Regex.Matches(
                 html,
                 "<img\\s+(?=[^>]*\\balt='(?<alt>[^']+)')(?=[^>]*\\bsrc='(?<src>data:image/png[^']+)')[^>]*>",
@@ -461,6 +519,12 @@ public static class CategoryIconCatalog
 
                 images[glyph] = match.Groups["src"].Value;
             }
+
+            EmojiLog.Information(
+                "Emoji sample chart processed. Path={Path}, AddedImagesCount={AddedImagesCount}, TotalImagesCount={TotalImagesCount}",
+                htmlPath,
+                images.Count - beforeCount,
+                images.Count);
         }
 
         return images;
@@ -485,8 +549,9 @@ public static class CategoryIconCatalog
             var bytes = Convert.FromBase64String(dataUri[(commaIndex + 1)..]);
             return new Bitmap(new MemoryStream(bytes));
         }
-        catch
+        catch (Exception ex)
         {
+            EmojiLog.Warning(ex, "Emoji bitmap decode failed. DataUriLength={Length}", dataUri.Length);
             return null;
         }
     }
@@ -529,6 +594,7 @@ public static class CategoryIconCatalog
             }
         }
 
+        EmojiLog.Information("Emoji fallback catalog generated. OptionsCount={OptionsCount}", options.Count);
         return options;
     }
 

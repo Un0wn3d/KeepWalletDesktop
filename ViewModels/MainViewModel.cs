@@ -19,21 +19,28 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Text;
+using System.IO;
+using Serilog;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
 
 namespace KeepWalletDesktop.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
     private const int AllTransactionsPageSize = 30;
+    private const int HomeTransactionsPageSize = 10;
     private const string DateDisplayFormat = "dd.MM.yyyy";
     private const string DateTimeDisplayFormat = "dd.MM.yyyy HH:mm";
     private const string AuthPage = "Auth";
     private const string HomePage = "Home";
     private const string BankAccountsPage = "BankAccounts";
-    private const string PiggyBankPage = "PiggyBank";
+    private const string SavingsPage = "Savings";
     private const string GroupsPage = "Groups";
     private const string ScheduledPaymentsPage = "ScheduledPayments";
     private const string CategoriesPage = "Categories";
+    private const string ReportingPage = "Reporting";
     private const string SettingsPage = "Settings";
     private static readonly string[] ExpenseChartPalette =
     [
@@ -65,8 +72,10 @@ public partial class MainViewModel : ViewModelBase
     private IReadOnlyList<TransactionItemViewModel> filteredTransactionSource = [];
     private readonly Dictionary<string, decimal> categoryLimits = new(StringComparer.OrdinalIgnoreCase);
     private int filteredTransactionTakeCount = AllTransactionsPageSize;
+    private int homeTransactionTakeCount = HomeTransactionsPageSize;
     private DateTimeOffset homeDateRangeFrom = DateTimeOffset.Now.AddMonths(-1);
     private DateTimeOffset homeDateRangeTo = DateTimeOffset.Now;
+    private static readonly ILogger ViewModelLog = Log.ForContext<MainViewModel>();
 
     [ObservableProperty]
     private ILocalizedText texts = LocalizedText.Load("ua");
@@ -194,6 +203,9 @@ public partial class MainViewModel : ViewModelBase
     private bool isCategoryDetailsOpen;
 
     [ObservableProperty]
+    private string reportStatusMessage = string.Empty;
+
+    [ObservableProperty]
     private string transactionSearchText = string.Empty;
 
     [ObservableProperty]
@@ -213,6 +225,9 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private ObservableCollection<TransactionItemViewModel> filteredTransactions = [];
+
+    [ObservableProperty]
+    private ObservableCollection<TransactionItemViewModel> savingTransactions = [];
 
     [ObservableProperty]
     private TransactionItemViewModel? activeTransaction;
@@ -245,6 +260,21 @@ public partial class MainViewModel : ViewModelBase
     private double savingItemAmount;
 
     [ObservableProperty]
+    private bool isSavingsDialogOpen;
+
+    [ObservableProperty]
+    private string savingsDialogNameInput = string.Empty;
+
+    [ObservableProperty]
+    private string savingsDialogTargetAmountInput = string.Empty;
+
+    [ObservableProperty]
+    private string savingsDialogInitialAmountInput = string.Empty;
+
+    [ObservableProperty]
+    private BankAccountItemViewModel? selectedSavingsBankAccount;
+
+    [ObservableProperty]
     private ObservableCollection<SavingOptionViewModel> savings = [];
 
     [ObservableProperty]
@@ -254,7 +284,7 @@ public partial class MainViewModel : ViewModelBase
     private ObservableCollection<SavingItemViewModel> savingItems = [];
 
     [ObservableProperty]
-    private string piggyBankStatusMessage = string.Empty;
+    private string savingsStatusMessage = string.Empty;
 
     [ObservableProperty]
     private ObservableCollection<TransactionItemViewModel> latestExpenses = [];
@@ -476,10 +506,11 @@ public partial class MainViewModel : ViewModelBase
     public bool IsAuthPage => CurrentPage == AuthPage;
     public bool IsHomePage => CurrentPage == HomePage;
     public bool IsBankAccountsPage => CurrentPage == BankAccountsPage;
-    public bool IsPiggyBankPage => CurrentPage == PiggyBankPage;
+    public bool IsSavingsPage => CurrentPage == SavingsPage;
     public bool IsGroupsPage => CurrentPage == GroupsPage;
     public bool IsScheduledPaymentsPage => CurrentPage == ScheduledPaymentsPage;
     public bool IsCategoriesPage => CurrentPage == CategoriesPage;
+    public bool IsReportingPage => CurrentPage == ReportingPage;
     public bool IsSettingsPage => CurrentPage == SettingsPage;
     public bool IsCurrentUserAdmin => string.Equals(CurrentUserRole, "admin", StringComparison.OrdinalIgnoreCase);
     public string ApiConnectionStatus => IsApiAuthorized ? Texts.ConnectedStatus : Texts.DisconnectedStatus;
@@ -497,6 +528,8 @@ public partial class MainViewModel : ViewModelBase
     public bool HasNoBankAccounts => !HasBankAccounts;
     public bool HasTransactions => LatestExpenses.Count > 0;
     public bool HasNoTransactions => !HasTransactions;
+    public bool HasSavingTransactions => SavingTransactions.Count > 0;
+    public bool HasNoSavingTransactions => !HasSavingTransactions;
     public IEnumerable<TransactionItemViewModel> SharedTransactions => AllTransactions.Where(t => t.IsShared).Take(5);
     public bool HasSharedTransactions => AllTransactions.Any(t => t.IsShared);
     public bool HasAllTransactions => LatestExpenses.Count > 0;
@@ -528,6 +561,10 @@ public partial class MainViewModel : ViewModelBase
     public string AdminUsersCountDisplay => $"{Texts.UsersTitle}: {AdminUsers.Count}";
     public string SavedAmountDisplay => $"{Texts.SavedAmountPrefix}: {SavedAmount:N2} ₴";
     public string RemainingAmountDisplay => $"{Texts.RemainingAmountPrefix}: {RemainingAmount:N2} ₴";
+    public string ActiveSavingAmountGoalDisplay => $"{SavedAmount:N2} ₴ / {GoalAmount:N2} ₴";
+    public decimal ReportIncomeTotal => AllTransactions.Where(t => t.IsIncome).Sum(t => t.Amount);
+    public decimal ReportExpenseTotal => AllTransactions.Where(t => !t.IsIncome).Sum(t => t.Amount);
+    public decimal ReportBalanceTotal => ReportIncomeTotal - ReportExpenseTotal;
     public string AuthCardTitle => IsRegisterMode ? Texts.RegisterTitle : Texts.LoginTitle;
     public bool IsLoginMode => !IsRegisterMode;
     public bool IsOnboardingAccountSetupVisible => !IsCategorySettingsMode;
@@ -593,6 +630,10 @@ public partial class MainViewModel : ViewModelBase
 
         homeDateRangeFrom = from;
         homeDateRangeTo = to;
+        ViewModelLog.Information(
+            "Home date range changed: From={From:o}, To={To:o}",
+            homeDateRangeFrom,
+            homeDateRangeTo);
         RefreshHomeTransactionsFromDateRange();
     }
 
@@ -601,10 +642,11 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsAuthPage));
         OnPropertyChanged(nameof(IsHomePage));
         OnPropertyChanged(nameof(IsBankAccountsPage));
-        OnPropertyChanged(nameof(IsPiggyBankPage));
+        OnPropertyChanged(nameof(IsSavingsPage));
         OnPropertyChanged(nameof(IsGroupsPage));
         OnPropertyChanged(nameof(IsScheduledPaymentsPage));
         OnPropertyChanged(nameof(IsCategoriesPage));
+        OnPropertyChanged(nameof(IsReportingPage));
         OnPropertyChanged(nameof(IsSettingsPage));
     }
 
@@ -626,12 +668,20 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasBankAccounts));
         OnPropertyChanged(nameof(HasNoBankAccounts));
         OnPropertyChanged(nameof(SelectedGroupBankAccounts));
+        SelectedSavingsBankAccount ??= value.FirstOrDefault(a => a.IsDefault) ?? value.FirstOrDefault();
     }
 
     partial void OnAllTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
     {
         OnPropertyChanged(nameof(SelectedGroupTransactions));
         OnPropertyChanged(nameof(TransactionCategoryPillWidth));
+        RefreshSavingTransactions();
+    }
+
+    partial void OnSavingTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
+    {
+        OnPropertyChanged(nameof(HasSavingTransactions));
+        OnPropertyChanged(nameof(HasNoSavingTransactions));
     }
 
     partial void OnSavingsChanged(ObservableCollection<SavingOptionViewModel> value)
@@ -825,14 +875,16 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void OpenPiggyBank()
+    private void OpenSavings()
     {
         if (!EnsureAuthorizedNavigation())
         {
             return;
         }
 
-        CurrentPage = PiggyBankPage;
+        CurrentPage = SavingsPage;
+        _ = LoadBankAccountsAsync();
+        _ = LoadTransactionsAsync();
         _ = LoadSavingsAsync();
     }
 
@@ -899,6 +951,123 @@ public partial class MainViewModel : ViewModelBase
 
         CurrentPage = SettingsPage;
         _ = LoadSettingsDataAsync();
+    }
+
+    [RelayCommand]
+    private async Task OpenReportingAsync()
+    {
+        if (!EnsureAuthorizedNavigation())
+        {
+            return;
+        }
+
+        CurrentPage = ReportingPage;
+        await LoadReportingDataAsync();
+    }
+
+    private async Task LoadReportingDataAsync()
+    {
+        await LoadBankAccountsAsync();
+        await LoadTransactionsAsync();
+        await LoadSavingsAsync();
+        OnPropertyChanged(nameof(ReportIncomeTotal));
+        OnPropertyChanged(nameof(ReportExpenseTotal));
+        OnPropertyChanged(nameof(ReportBalanceTotal));
+    }
+
+    [RelayCommand]
+    private async Task ExportReportExcelAsync()
+    {
+        if (IsApiBusy)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            await LoadReportingDataAsync();
+            var reportDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "KeepWalletReports");
+            Directory.CreateDirectory(reportDir);
+            var filePath = Path.Combine(reportDir, $"report-{DateTime.Now:yyyyMMdd-HHmmss}.csv");
+            var sb = new StringBuilder();
+            sb.AppendLine("Type,Date,Description,Category,Amount,Currency,AccountId");
+            foreach (var t in AllTransactions.OrderByDescending(x => x.TransactionDate))
+            {
+                sb.Append('"').Append(t.Type).Append("\",");
+                sb.Append('"').Append(t.TransactionDateDisplay).Append("\",");
+                sb.Append('"').Append((t.DescriptionDisplay ?? string.Empty).Replace("\"", "\"\"")).Append("\",");
+                sb.Append('"').Append((t.CategoryDisplay ?? string.Empty).Replace("\"", "\"\"")).Append("\",");
+                sb.Append(t.Amount.ToString(CultureInfo.InvariantCulture)).Append(',');
+                sb.Append('"').Append(t.Currency).Append("\",");
+                sb.Append('"').Append(t.AccountId).Append('"').AppendLine();
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+            ReportStatusMessage = $"Excel export: {filePath}";
+        }
+        catch (Exception ex)
+        {
+            ReportStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ExportReportPdfAsync()
+    {
+        if (IsApiBusy)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            await LoadReportingDataAsync();
+            var reportDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "KeepWalletReports");
+            Directory.CreateDirectory(reportDir);
+            var filePath = Path.Combine(reportDir, $"report-{DateTime.Now:yyyyMMdd-HHmmss}.pdf");
+            QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+            Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Margin(30);
+                    page.Header().Text("KeepWallet Profile Report").SemiBold().FontSize(18);
+                    page.Content().Column(col =>
+                    {
+                        col.Spacing(8);
+                        col.Item().Text($"Generated: {DateTime.Now:yyyy-MM-dd HH:mm}");
+                        col.Item().Text($"Bank Accounts: {BankAccounts.Count}");
+                        col.Item().Text($"Savings: {Savings.Count}");
+                        col.Item().Text($"Transactions: {AllTransactions.Count}");
+                        col.Item().Text($"Income: {ReportIncomeTotal:N2}");
+                        col.Item().Text($"Expense: {ReportExpenseTotal:N2}");
+                        col.Item().Text($"Balance: {ReportBalanceTotal:N2}");
+                        col.Item().LineHorizontal(1);
+                        foreach (var t in AllTransactions.OrderByDescending(x => x.TransactionDate).Take(200))
+                        {
+                            col.Item().Text($"{t.TransactionDateDisplay} | {t.Type} | {t.Amount:N2} {t.Currency} | {t.CategoryDisplay} | {t.DescriptionDisplay}");
+                        }
+                    });
+                });
+            }).GeneratePdf(filePath);
+
+            ReportStatusMessage = $"PDF export: {filePath}";
+        }
+        catch (Exception ex)
+        {
+            ReportStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
     }
 
     [RelayCommand]
@@ -1514,10 +1683,36 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task CreateNewPiggyBankAsync()
+    private void CreateNewSavings()
+    {
+        SavingsDialogNameInput = string.Empty;
+        SavingsDialogTargetAmountInput = string.Empty;
+        SavingsDialogInitialAmountInput = string.Empty;
+        SelectedSavingsBankAccount ??= BankAccounts.FirstOrDefault(a => a.IsDefault) ?? BankAccounts.FirstOrDefault();
+        SavingsStatusMessage = string.Empty;
+        IsSavingsDialogOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseSavingsDialog()
+    {
+        IsSavingsDialogOpen = false;
+    }
+
+    [RelayCommand]
+    private async Task SaveNewSavingsAsync()
     {
         if (IsApiBusy)
         {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(SavingsDialogNameInput) ||
+            !TryParseOptionalPositiveDecimal(SavingsDialogTargetAmountInput, out var targetAmount) ||
+            !TryParseOptionalPositiveDecimal(SavingsDialogInitialAmountInput, out var initialAmount) ||
+            (initialAmount > 0 && SelectedSavingsBankAccount is null))
+        {
+            SavingsStatusMessage = Texts.TransactionFormValidationText;
             return;
         }
 
@@ -1527,22 +1722,31 @@ public partial class MainViewModel : ViewModelBase
             EnsureApiClient();
 
             var saving = await _apiClient!.CreateSavingAsync(new CreateSavingRequestDto(
-                string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
-                GoalAmount > 0 ? (decimal)GoalAmount : null,
-                0,
+                SavingsDialogNameInput.Trim(),
+                targetAmount > 0 ? targetAmount : null,
+                initialAmount,
                 null));
 
+            if (initialAmount > 0 && SelectedSavingsBankAccount is not null)
+            {
+                await CreateSavingsAccountTransactionAsync(initialAmount, SelectedSavingsBankAccount, isDeposit: true, saving.Id, saving.Name);
+            }
+
             ApplySaving(saving);
+            await LoadSavingsAsync();
             await LoadSavingDetailsAsync(saving.Id);
-            PiggyBankStatusMessage = Texts.TransactionSavedText;
+            await LoadBankAccountsAsync();
+            await LoadTransactionsAsync();
+            IsSavingsDialogOpen = false;
+            SavingsStatusMessage = Texts.TransactionSavedText;
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -1588,15 +1792,15 @@ public partial class MainViewModel : ViewModelBase
 
             ApplySaving(saving);
             await LoadSavingDetailsAsync(saving.Id);
-            PiggyBankStatusMessage = Texts.TransactionUpdatedText;
+            SavingsStatusMessage = Texts.TransactionUpdatedText;
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
@@ -1607,8 +1811,25 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task AddToSavingsAsync()
     {
+        await TransferSavingsAsync(isDeposit: true);
+    }
+
+    [RelayCommand]
+    private async Task WithdrawFromSavingsAsync()
+    {
+        await TransferSavingsAsync(isDeposit: false);
+    }
+
+    private async Task TransferSavingsAsync(bool isDeposit)
+    {
         if (IsApiBusy || AddAmount <= 0)
         {
+            return;
+        }
+
+        if (SelectedSavingsBankAccount is null)
+        {
+            SavingsStatusMessage = Texts.TransactionFormValidationText;
             return;
         }
 
@@ -1617,7 +1838,10 @@ public partial class MainViewModel : ViewModelBase
             IsApiBusy = true;
             EnsureApiClient();
 
-            var newCurrentAmount = (decimal)(SavedAmount + AddAmount);
+            var transferAmount = (decimal)AddAmount;
+            var newCurrentAmount = isDeposit
+                ? (decimal)SavedAmount + transferAmount
+                : Math.Max(0, (decimal)SavedAmount - transferAmount);
             decimal? targetAmount = GoalAmount > 0 ? (decimal)GoalAmount : null;
             ApiSavingDto saving;
 
@@ -1641,23 +1865,99 @@ public partial class MainViewModel : ViewModelBase
                     null));
             }
 
+            await CreateSavingsAccountTransactionAsync(
+                transferAmount,
+                SelectedSavingsBankAccount,
+                isDeposit,
+                saving.Id,
+                saving.Name);
+
             AddAmount = 0;
             ApplySaving(saving);
+            await LoadSavingsAsync();
             await LoadSavingDetailsAsync(saving.Id);
-            PiggyBankStatusMessage = Texts.TransactionUpdatedText;
+            await LoadBankAccountsAsync();
+            await LoadTransactionsAsync();
+            SavingsStatusMessage = Texts.TransactionUpdatedText;
         }
         catch (HttpRequestException ex)
         {
-            PiggyBankStatusMessage = GetApiErrorMessage(ex);
+            SavingsStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            PiggyBankStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
         finally
         {
             IsApiBusy = false;
         }
+    }
+
+    private async Task CreateSavingsAccountTransactionAsync(
+        decimal amount,
+        BankAccountItemViewModel account,
+        bool isDeposit,
+        int savingId,
+        string savingName)
+    {
+        if (apiCategories.Count == 0)
+        {
+            await LoadCategoriesAsync();
+        }
+
+        var transactionType = isDeposit ? "expense" : "income";
+        var categoryId = ResolveSavingsTransferCategoryId(transactionType);
+        var description = isDeposit
+            ? $"Накопичення: {savingName} [saving:{savingId}]"
+            : $"Зняття з накопичення: {savingName} [saving:{savingId}]";
+
+        await _apiClient!.CreateTransactionAsync(new CreateTransactionRequestDto(
+            account.Id,
+            account.GroupId,
+            categoryId,
+            null,
+            amount,
+            description,
+            DateTimeOffset.Now.ToUniversalTime()));
+    }
+
+    private int ResolveSavingsTransferCategoryId(string transactionType)
+    {
+        if (apiCategories.Count > 0)
+        {
+            var candidates = apiCategories
+                .Where(c => string.Equals(c.Type, transactionType, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+            var preferred = candidates.FirstOrDefault(c =>
+                    c.Name.Contains("накоп", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("скарб", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("saving", StringComparison.OrdinalIgnoreCase))
+                ?? candidates.FirstOrDefault(c =>
+                    c.Name.Contains("інші", StringComparison.OrdinalIgnoreCase) ||
+                    c.Name.Contains("other", StringComparison.OrdinalIgnoreCase))
+                ?? candidates.FirstOrDefault();
+
+            if (preferred is not null)
+            {
+                return preferred.Id;
+            }
+        }
+
+        return transactionType == "income"
+            ? GetCategoryId("other_income")
+            : GetCategoryId("other_expense");
+    }
+
+    private static bool TryParseOptionalPositiveDecimal(string rawValue, out decimal value)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            value = 0;
+            return true;
+        }
+
+        return decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out value) && value >= 0;
     }
 
     private async Task RestoreApiSessionAsync()
@@ -1730,7 +2030,7 @@ public partial class MainViewModel : ViewModelBase
         IsApiAuthorized = false;
         CurrentPage = AuthPage;
         LoadApiOnlyPlaceholders();
-        PiggyBankStatusMessage = Texts.SavingsOperationsDisabled;
+        SavingsStatusMessage = Texts.SavingsOperationsDisabled;
         RefreshLocalizedProperties();
     }
 
@@ -2247,6 +2547,28 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    public void LoadMoreHomeTransactions()
+    {
+        if (LatestExpenses.Count <= VisibleTransactions.Count)
+        {
+            ViewModelLog.Debug(
+                "Home load more skipped: all transactions are visible. VisibleCount={VisibleCount}, SourceCount={SourceCount}",
+                VisibleTransactions.Count,
+                LatestExpenses.Count);
+            return;
+        }
+
+        var previousTakeCount = homeTransactionTakeCount;
+        homeTransactionTakeCount += HomeTransactionsPageSize;
+        ViewModelLog.Information(
+            "Home load more requested: PreviousTakeCount={PreviousTakeCount}, NewTakeCount={NewTakeCount}, SourceCount={SourceCount}",
+            previousTakeCount,
+            homeTransactionTakeCount,
+            LatestExpenses.Count);
+        UpdateVisibleTransactions();
+    }
+
+    [RelayCommand]
     private async Task OpenCategoryDetailsAsync()
     {
         IsCategorySettingsMode = false;
@@ -2532,15 +2854,32 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateVisibleTransactions()
     {
-        VisibleTransactions = new ObservableCollection<TransactionItemViewModel>(LatestExpenses.Take(6));
+        var visible = LatestExpenses.Take(homeTransactionTakeCount).ToArray();
+        VisibleTransactions = new ObservableCollection<TransactionItemViewModel>(visible);
+        ViewModelLog.Debug(
+            "Home visible transactions refreshed: VisibleCount={VisibleCount}, SourceCount={SourceCount}, TakeCount={TakeCount}, From={From:o}, To={To:o}",
+            visible.Length,
+            LatestExpenses.Count,
+            homeTransactionTakeCount,
+            homeDateRangeFrom,
+            homeDateRangeTo);
     }
 
     private void RefreshHomeTransactionsFromDateRange()
     {
+        homeTransactionTakeCount = HomeTransactionsPageSize;
         LatestExpenses = new ObservableCollection<TransactionItemViewModel>(
             homeTransactionSource
                 .Where(t => t.TransactionDate >= homeDateRangeFrom && t.TransactionDate <= homeDateRangeTo)
                 .OrderByDescending(t => t.TransactionDate));
+
+        ViewModelLog.Information(
+            "Home transactions filtered by period: FilteredCount={FilteredCount}, SourceCount={SourceCount}, InitialTakeCount={TakeCount}, From={From:o}, To={To:o}",
+            LatestExpenses.Count,
+            homeTransactionSource.Count,
+            homeTransactionTakeCount,
+            homeDateRangeFrom,
+            homeDateRangeTo);
 
         AvailableBalance = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)t.Amount) -
                            LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)t.Amount);

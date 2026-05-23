@@ -471,6 +471,15 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty saving item response.");
     }
 
+    public async Task DeleteSavingItemAsync(
+        int savingId,
+        int itemId,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedAsync(HttpMethod.Delete, $"/api/savings/{savingId}/items/{itemId}", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ApiPlannedTransactionDto>> GetPlannedTransactionsAsync(CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Get, "/api/planned-transactions", cancellationToken);

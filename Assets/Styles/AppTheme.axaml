@@ -159,11 +159,14 @@
   <Style Selector="Button.fab-button">
     <Setter Property="Width" Value="64" />
     <Setter Property="Height" Value="64" />
+    <Setter Property="Padding" Value="0" />
     <Setter Property="CornerRadius" Value="32" />
     <Setter Property="Background" Value="{DynamicResource Color.Accent}" />
     <Setter Property="Foreground" Value="White" />
     <Setter Property="FontSize" Value="32" />
     <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
   </Style>
 
   <Style Selector="Border.fab-menu">

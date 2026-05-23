@@ -203,7 +203,12 @@ public partial class MainViewModel
                 await LoadBankAccountsAsync();
             }
 
+            ViewModelLog.Information(
+                "Loading transactions from API for home/all transaction views. CurrentPage={CurrentPage}, BankAccountsCount={BankAccountsCount}",
+                CurrentPage,
+                BankAccounts.Count);
             var transactions = await _apiClient!.GetTransactionsAsync();
+            ViewModelLog.Information("Transactions received from API: Count={Count}", transactions.Count);
             AllTransactions = new ObservableCollection<TransactionItemViewModel>(
                 transactions.Select(t => new TransactionItemViewModel(
                     t.Id,
@@ -236,15 +241,22 @@ public partial class MainViewModel
                 .ToArray();
 
             RefreshHomeTransactionsFromDateRange();
+            ViewModelLog.Information(
+                "Transactions processed: AllCount={AllCount}, HomeSourceCount={HomeSourceCount}, SelectedAccountId={SelectedAccountId}",
+                AllTransactions.Count,
+                homeTransactionSource.Count,
+                mainAccountId);
             OnPropertyChanged(nameof(SharedTransactions));
             OnPropertyChanged(nameof(HasSharedTransactions));
         }
         catch (HttpRequestException ex)
         {
+            ViewModelLog.Warning(ex, "HTTP error while loading transactions from API");
             ApiStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
+            ViewModelLog.Error(ex, "Unexpected error while loading transactions from API");
             ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
     }

@@ -20,11 +20,11 @@ public partial class LeftPanel : UserControl
         }
     }
 
-    private void btn_PiggyBank(object? sender, RoutedEventArgs e)
+    private void btn_Savings(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel vm)
         {
-            vm.OpenPiggyBankCommand.Execute(null);
+            vm.OpenSavingsCommand.Execute(null);
         }
     }
 
@@ -57,6 +57,14 @@ public partial class LeftPanel : UserControl
         if (DataContext is MainViewModel vm)
         {
             vm.OpenCategoriesCommand.Execute(null);
+        }
+    }
+
+    private void btn_Reporting(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.OpenReportingCommand.Execute(null);
         }
     }
 

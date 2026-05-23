@@ -11,7 +11,8 @@
              x:Class="KeepWalletDesktop.Views.HomeView"
              x:DataType="vm:MainViewModel">
         <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsHomePage}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          ScrollChanged="HomeScrollViewer_OnScrollChanged">
                 <Grid RowDefinitions="Auto, Auto, 260, Auto" RowSpacing="16" MaxWidth="1280">
                     <modules:DateSortModule Grid.Row="0" />
                     <Border Grid.Row="1">

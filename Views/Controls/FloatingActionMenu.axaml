@@ -7,24 +7,7 @@
              x:DataType="vm:MainViewModel"
              x:Class="KeepWalletDesktop.Views.Controls.FloatingActionMenu">
 
-    <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom">
-        <StackPanel HorizontalAlignment="Right"
-                    VerticalAlignment="Bottom"
-                    Spacing="10">
-            <Border x:Name="ActionList"
-                    IsVisible="False"
-                    Classes="fab-menu">
-                <StackPanel Spacing="8">
-                    <Button Content="{Binding Texts.CreateTransactionButton}"
-                            Click="CreateTransaction_Click" />
-                    <Button Content="{Binding Texts.CreatePiggyBankButton}"
-                            Click="CreatePiggyBank_Click" />
-                </StackPanel>
-            </Border>
-
-            <Button Classes="fab-button"
-                    Content="+"
-                    Click="ToggleFab_Click" />
-        </StackPanel>
-    </Grid>
+    <Button Classes="fab-button"
+            Content="+"
+            Command="{Binding CreateTransactionCommand}" />
 </UserControl>

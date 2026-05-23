@@ -34,6 +34,7 @@ public sealed record TransactionItemViewModel(
         ? $"{GroupName ?? "Group"} - {SharedBy ?? "-"}"
         : string.Empty;
     public string AmountDisplay => $"{(IsIncome ? "+" : "-")}{FormatAmount(Amount)}{(Currency == "UAH" ? " ₴" : $" {Currency}")}";
+    public string ReversedAmountDisplay => $"{(IsIncome ? "-" : "+")}{FormatAmount(Amount)}{(Currency == "UAH" ? " ₴" : $" {Currency}")}";
     public string TransactionDateDisplay => TransactionDate.ToString(DateTimeDisplayFormat);
     public string TransactionDateShortDisplay => TransactionDate.ToString("dd.MM");
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
@@ -57,6 +58,9 @@ public sealed record SavingOptionViewModel(
     Guid? GroupId,
     string Name,
     string AmountDisplay,
+    string TargetAmountDisplay,
+    double ProgressPercent,
+    string ProgressDisplay,
     bool IsSelected);
 
 public sealed record SavingRateHistoryItemViewModel(
@@ -75,10 +79,8 @@ public sealed record SavingItemViewModel(
     bool IsPaid,
     string AmountDisplay,
     double ProgressPercent,
-    string ProgressDisplay)
-{
-    public bool IsFullyFunded => ProgressPercent >= 100;
-}
+    string ProgressDisplay,
+    bool IsFullyFunded);
 
 public sealed record ScheduledPaymentItemViewModel(
     int Id,

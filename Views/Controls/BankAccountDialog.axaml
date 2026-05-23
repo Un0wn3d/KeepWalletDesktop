@@ -24,7 +24,9 @@
                         <TextBox Text="{Binding BankAccountNameInput}" />
 
                         <TextBlock Text="{Binding Texts.TransactionCurrencyLabel}" Classes="form-label" />
-                        <TextBox Text="{Binding BankAccountCurrencyInput}" />
+                        <ComboBox ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                  SelectedItem="{Binding BankAccountCurrencyInput}"
+                                  HorizontalAlignment="Stretch" />
 
                         <TextBlock Text="{Binding Texts.TransactionAmountLabel}" Classes="form-label" />
                         <TextBox Text="{Binding BankAccountBalanceInput}" />
@@ -32,7 +34,7 @@
                         <CheckBox Content="{Binding Texts.BankAccountDefaultLabel}"
                                   IsChecked="{Binding IsBankAccountDefaultInput}" />
 
-                        <CheckBox Content="Поділитися акаунтом"
+                        <CheckBox Content="Поділитися рахунком"
                                   IsChecked="{Binding IsBankAccountSharedInput}" />
                         <ComboBox ItemsSource="{Binding Groups}"
                                   SelectedItem="{Binding SelectedBankAccountShareGroup}"
@@ -50,10 +52,22 @@
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Right"
                                     Spacing="8">
-                            <Button Content="{Binding Texts.DeleteTransactionButton}"
-                                    Classes="secondary-button"
+                            <Button Width="44"
+                                    Height="44"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Classes="danger-button"
                                     IsVisible="{Binding IsEditingBankAccount}"
-                                    Command="{Binding DeleteBankAccountCommand}" />
+                                    Command="{Binding DeleteBankAccountCommand}">
+                                <Viewbox Width="18" Height="18">
+                                    <TextBlock Text="&#xE4A6;"
+                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                               TextAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Viewbox>
+                            </Button>
                             <Button Content="{Binding SaveBankAccountButtonText}"
                                     Classes="primary-button"
                                     Command="{Binding SaveBankAccountCommand}" />

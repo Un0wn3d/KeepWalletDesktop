@@ -25,7 +25,7 @@
                 <Button Click="btn_BankAccounts">
                     <Label Classes="nav-icon" Content="&#xE1D2;"></Label>
                 </Button>
-                <Button Click="btn_PiggyBank">
+                <Button Click="btn_Savings">
                     <Label Classes="nav-icon" Content="&#xEA04;"></Label>
                 </Button>
                 <Button Click="btn_Groups">
@@ -36,6 +36,9 @@
                 </Button>
                 <Button Click="btn_Categories">
                     <Label Classes="nav-icon" Content="&#xE464;"></Label>
+                </Button>
+                <Button Click="btn_Reporting">
+                    <Label Classes="nav-icon" Content="&#xE59A;"></Label>
                 </Button>
             </StackPanel>
 

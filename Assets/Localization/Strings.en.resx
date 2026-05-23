@@ -105,8 +105,8 @@
   <data name="BankAccountDetailsTitle" xml:space="preserve">
     <value>Bank account details</value>
   </data>
-  <data name="PiggyBankTitle" xml:space="preserve">
-    <value>Piggy bank</value>
+  <data name="SavingsTitle" xml:space="preserve">
+    <value>Savings</value>
   </data>
   <data name="AvailableBalanceLabel" xml:space="preserve">
     <value>Available balance</value>
@@ -183,8 +183,8 @@
   <data name="CreateTransactionButton" xml:space="preserve">
     <value>Create transaction</value>
   </data>
-  <data name="CreatePiggyBankButton" xml:space="preserve">
-    <value>Create new piggy bank</value>
+  <data name="CreateSavingsButton" xml:space="preserve">
+    <value>Create new savings</value>
   </data>
   <data name="ConnectedStatus" xml:space="preserve">
     <value>Connected</value>
@@ -231,14 +231,14 @@
   <data name="CreateTransactionDisabled" xml:space="preserve">
     <value>Sign in to create transactions through KeepWalletAPI.</value>
   </data>
-  <data name="CreatePiggyBankDisabled" xml:space="preserve">
-    <value>Piggy bank creation is temporarily unavailable: desktop works only through API.</value>
+  <data name="CreateSavingsDisabled" xml:space="preserve">
+    <value>Savings creation is temporarily unavailable: desktop works only through API.</value>
   </data>
   <data name="SaveGoalDisabled" xml:space="preserve">
     <value>Sign in to save goals through KeepWalletAPI.</value>
   </data>
   <data name="SavingsOperationsDisabled" xml:space="preserve">
-    <value>Sign in to manage piggy banks through KeepWalletAPI.</value>
+    <value>Sign in to manage savings through KeepWalletAPI.</value>
   </data>
   <data name="ApiAvailableLoginRequired" xml:space="preserve">
     <value>KeepWalletAPI is available at {0}. Sign in or register.</value>
