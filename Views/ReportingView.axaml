@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
@@ -41,6 +42,64 @@
                             <TextBlock Text="Баланс" Classes="muted" />
                             <TextBlock Text="{Binding ReportBalanceTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                    <Border Classes="panel-card">
+                        <Grid RowDefinitions="Auto, *" RowSpacing="12">
+                            <TextBlock Text="{Binding Texts.TransactionBreakdownTitle}" Classes="card-title" />
+                            <Grid Grid.Row="1" ColumnDefinitions="*, 220" ColumnSpacing="10">
+                                <lvc:PieChart Grid.Column="0"
+                                              Background="{DynamicResource Color.SurfaceAlt}"
+                                              LegendPosition="Hidden"
+                                              Series="{Binding Series}" />
+                                <ItemsControl Grid.Column="1"
+                                              ItemsSource="{Binding ExpenseCategoryLegend}"
+                                              IsVisible="{Binding HasExpenseTransactions}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate x:DataType="vm:CategoryLegendItemViewModel">
+                                            <Grid ColumnDefinitions="14, *, Auto" ColumnSpacing="8" Margin="0,4">
+                                                <Border Width="10"
+                                                        Height="10"
+                                                        CornerRadius="5"
+                                                        Background="{Binding ColorBrush}"
+                                                        VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding Name}"
+                                                           TextWrapping="Wrap"
+                                                           VerticalAlignment="Center" />
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding AmountDisplay}"
+                                                           Classes="muted"
+                                                           VerticalAlignment="Center" />
+                                            </Grid>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="{Binding Texts.ChartNoDataText}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding HasNoExpenseTransactions}" />
+                            </Grid>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1" Classes="panel-card">
+                        <Grid RowDefinitions="Auto, *" RowSpacing="12">
+                            <TextBlock Text="{Binding TransactionTimelineTitle}" Classes="card-title" />
+                            <Grid Grid.Row="1">
+                                <lvc:CartesianChart Background="{DynamicResource Color.SurfaceAlt}"
+                                                    Series="{Binding Chart}"
+                                                    XAxes="{Binding TransactionTimelineXAxes}"
+                                                    YAxes="{Binding TransactionTimelineYAxes}"
+                                                    ZoomMode="X" />
+                                <TextBlock Text="{Binding Texts.ChartNoDataText}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsVisible="{Binding HasNoTransactions}" />
+                            </Grid>
+                        </Grid>
                     </Border>
                 </Grid>
 

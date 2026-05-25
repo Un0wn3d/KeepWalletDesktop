@@ -52,6 +52,7 @@ public partial class MainViewModel
                         s.Id,
                         s.GroupId,
                         s.Name,
+                        BuildSavingDeadlineDisplay(s.Deadline),
                         $"{s.CurrentAmount:N2} UAH",
                         $"{targetAmount:N2} UAH",
                         progress,
@@ -299,17 +300,25 @@ public partial class MainViewModel
         }
 
 
+        var remainingAmountForPriority = Math.Max(0, coveredAmount);
+
         SavingItems = new ObservableCollection<SavingItemViewModel>(
             orderedItems.Select((i, index) =>
             {
                 var itemCost = Math.Max(0, i.Price);
-                var isFullyFunded = i.IsPurchased || itemCost <= 0 || coveredAmount >= itemCost;
-            
+                var amountForThisItem = i.IsPurchased ? itemCost : remainingAmountForPriority;
+                var isFullyFunded = i.IsPurchased || itemCost <= 0 || amountForThisItem >= itemCost;
+             
                 var progress = i.IsPurchased
                     ? 100
                     : itemCost <= 0
                         ? 100
-                        : Math.Clamp((double)(coveredAmount / itemCost * 100), 0, 100);
+                        : Math.Clamp((double)(amountForThisItem / itemCost * 100), 0, 100);
+
+                if (!i.IsPurchased && itemCost > 0)
+                {
+                    remainingAmountForPriority = Math.Max(0, remainingAmountForPriority - itemCost);
+                }
 
 
                 return new SavingItemViewModel(
@@ -331,16 +340,9 @@ public partial class MainViewModel
             return;
         }
 
-        var marker = $"saving:{ActiveSavingId.Value}";
-        var depositPrefix = $"ÐÐ°ÐºÐ¾Ð¿Ð¸Ñ‡ÐµÐ½Ð½Ñ: {SavingNameInput}";
-        var withdrawalPrefix = $"Ð—Ð½ÑÑ‚Ñ‚Ñ Ð· Ð½Ð°ÐºÐ¾Ð¿Ð¸Ñ‡ÐµÐ½Ð½Ñ: {SavingNameInput}";
-
         SavingTransactions = new ObservableCollection<TransactionItemViewModel>(
             AllTransactions
-                .Where(t =>
-                    (t.Description?.Contains(marker, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                    string.Equals(t.Description, depositPrefix, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(t.Description, withdrawalPrefix, StringComparison.OrdinalIgnoreCase))
+                .Where(t => t.SavingId == ActiveSavingId.Value)
                 .OrderByDescending(t => t.TransactionDate));
     }
 
@@ -423,6 +425,29 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(SavedAmountDisplay));
         OnPropertyChanged(nameof(RemainingAmountDisplay));
         OnPropertyChanged(nameof(ActiveSavingAmountGoalDisplay));
+    }
+
+    private static string BuildSavingDeadlineDisplay(DateOnly? deadline)
+    {
+        if (!deadline.HasValue)
+        {
+            return string.Empty;
+        }
+
+        var today = DateOnly.FromDateTime(DateTime.Today);
+        var daysLeft = deadline.Value.DayNumber - today.DayNumber;
+        if (daysLeft <= 0)
+        {
+            return "залишилося 0 днів";
+        }
+
+        if (daysLeft < 30)
+        {
+            return $"залишилося {daysLeft} днів";
+        }
+
+        var monthsLeft = daysLeft / 30;
+        return $"залишилося {monthsLeft} місяців ({daysLeft} днів)";
     }
 }
 

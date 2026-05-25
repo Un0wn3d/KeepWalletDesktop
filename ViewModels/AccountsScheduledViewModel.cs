@@ -13,6 +13,12 @@ namespace KeepWalletDesktop.ViewModels;
 
 public partial class MainViewModel
 {
+    [RelayCommand]
+    private void SetScheduledPaymentsFilter(string filter)
+    {
+        ScheduledPaymentsFilter = string.IsNullOrWhiteSpace(filter) ? "all" : filter.Trim().ToLowerInvariant();
+    }
+
     private async Task LoadScheduledPaymentsAsync()
     {
         if (!IsApiAuthorized)

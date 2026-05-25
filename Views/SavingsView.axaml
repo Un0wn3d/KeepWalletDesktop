@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -61,9 +61,16 @@
                                                         <StackPanel Grid.Column="1"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">
-                                                            <TextBlock Text="{Binding Name}"
-                                                                       FontWeight="SemiBold"
-                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           FontWeight="SemiBold"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Grid.Column="1"
+                                                                           Text="{Binding DeadlineDisplay}"
+                                                                           Classes="muted"
+                                                                           FontSize="11"
+                                                                           VerticalAlignment="Center" />
+                                                            </Grid>
                                                             <Grid ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="5">
                                                                 <TextBlock Text="{Binding AmountDisplay}"
                                                                            Classes="muted"
@@ -206,7 +213,7 @@
                                                 MinWidth="120"
                                                 Command="{Binding AddToSavingsCommand}" />
                                         <Button Grid.Column="3"
-                                                Content="Зняти"
+                                                Content="Ð—Ð½ÑÑ‚Ð¸"
                                                 Classes="secondary-button"
                                                 MinWidth="120"
                                                 Command="{Binding WithdrawFromSavingsCommand}" />
@@ -232,7 +239,7 @@
                                                                         CornerRadius="8"
                                                                         Background="{Binding CategoryAnchorBrush}">
                                                                     <TextBlock Text="{Binding CategoryIcon}"
-                                                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                                               FontFamily="{StaticResource EmojiFontFamily}"
                                                                                FontSize="16"
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center" />
@@ -325,17 +332,17 @@
                                                                     Orientation="Horizontal"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">
-                                                            <Button Content="↑"
+                                                            <Button Content="â†‘"
                                                                     Classes="secondary-button"
                                                                     Padding="8,4"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemUpCommand}"
                                                                     CommandParameter="{Binding .}" />
-                                                            <Button Content="↓"
+                                                            <Button Content="â†“"
                                                                     Classes="secondary-button"
                                                                     Padding="8,4"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemDownCommand}"
                                                                     CommandParameter="{Binding .}" />
-                                                            <Button Content="×"
+                                                            <Button Content="Ã—"
                                                                     Classes="danger-button"
                                                                     Padding="8,4"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteSavingItemCommand}"
@@ -377,6 +384,10 @@
                         <TextBox Watermark="{Binding Texts.SavingsAmountHint}"
                                  Text="{Binding SavingsDialogInitialAmountInput}" />
 
+                        <TextBlock Text="Ð”ÐµÐ´Ð»Ð°Ð¹Ð½ (Ð´Ð´.Ð¼Ð¼.Ñ€Ñ€Ñ€Ñ€)" Classes="form-label" />
+                        <TextBox Watermark="31.12.2026"
+                                 Text="{Binding SavingsDialogDeadlineInput}" />
+
                         <TextBlock Text="{Binding Texts.BankAccountsTitle}" Classes="form-label" />
                         <ComboBox ItemsSource="{Binding BankAccounts}"
                                   SelectedItem="{Binding SelectedSavingsBankAccount}"
@@ -408,3 +419,4 @@
         </Border>
     </Grid>
 </UserControl>
+

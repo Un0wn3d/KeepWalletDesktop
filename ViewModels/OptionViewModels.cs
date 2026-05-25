@@ -116,8 +116,7 @@ public sealed record CategoryIconOptionViewModel(
     string Glyph,
     string DisplayName,
     string MainCategory = "",
-    string SubCategory = "",
-    string? SampleImageSource = null)
+    string SubCategory = "")
 {
     public bool Matches(string searchText)
     {
@@ -144,14 +143,8 @@ public static class CategoryIconCatalog
     private const string EmojiTestUrl = "https://www.unicode.org/Public/latest/emoji/emoji-test.txt";
     private const string EmojiJsonFileName = "filtered-emojis.json";
     private const string EmojiTestFileName = "emoji-test.txt";
-    private static readonly (string Url, string FileName)[] SampleChartSources =
-    [
-        ("https://www.unicode.org/emoji/charts/full-emoji-list.html", "unicode-full-list.html"),
-        ("https://www.unicode.org/emoji/charts/full-emoji-modifiers.html", "unicode-modifier-list.html")
-    ];
     private static EmojiCatalogData catalogData = LoadCachedCatalogData();
     private static Task? preloadTask;
-    private static readonly Dictionary<string, Bitmap?> SampleImageCache = [];
 
     private static readonly IReadOnlyDictionary<string, string> LegacyGlyphs = new Dictionary<string, string>
     {
@@ -193,6 +186,19 @@ public static class CategoryIconCatalog
         }
     }
 
+    public static bool HasCachedCatalog()
+    {
+        try
+        {
+            var path = GetEmojiJsonPath();
+            return File.Exists(path) && new FileInfo(path).Length > 5;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     public static string GetGlyph(string? iconKey, string? categoryType = null)
     {
         var key = string.IsNullOrWhiteSpace(iconKey)
@@ -216,31 +222,7 @@ public static class CategoryIconCatalog
         return fallbackGlyph;
     }
 
-    public static Bitmap? GetSampleImage(string? iconKey)
-    {
-        if (string.IsNullOrWhiteSpace(iconKey))
-        {
-            return null;
-        }
-
-        var sampleImageSource = Options.FirstOrDefault(x => string.Equals(x.Key, iconKey, StringComparison.Ordinal))?.SampleImageSource;
-        if (string.IsNullOrWhiteSpace(sampleImageSource))
-        {
-            return null;
-        }
-
-        lock (SampleImageCache)
-        {
-            if (SampleImageCache.TryGetValue(sampleImageSource, out var cachedImage))
-            {
-                return cachedImage;
-            }
-
-            var image = CreateBitmap(sampleImageSource);
-            SampleImageCache[sampleImageSource] = image;
-            return image;
-        }
-    }
+    public static Bitmap? GetSampleImage(string? iconKey) => null;
 
     private static EmojiCatalogData LoadEmojiCatalogData()
     {
@@ -267,15 +249,12 @@ public static class CategoryIconCatalog
                     new FileInfo(emojiTestPath).Length);
             }
 
-            EnsureSampleChartsAsync().GetAwaiter().GetResult();
-            var sampleImages = LoadSampleImages();
-            var options = ParseEmojiTestFile(File.ReadAllLines(emojiTestPath), sampleImages);
+            var options = ParseEmojiTestFile(File.ReadAllLines(emojiTestPath));
             var json = JsonSerializer.Serialize(options, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(GetEmojiJsonPath(), json, System.Text.Encoding.UTF8);
             EmojiLog.Information(
-                "Emoji catalog parsed and cached. OptionsCount={OptionsCount}, SampleImagesCount={SampleImagesCount}, JsonPath={JsonPath}",
+                "Emoji catalog parsed and cached. OptionsCount={OptionsCount}, JsonPath={JsonPath}",
                 options.Count,
-                sampleImages.Count,
                 GetEmojiJsonPath());
 
             return new EmojiCatalogData(
@@ -290,28 +269,6 @@ public static class CategoryIconCatalog
     }
 
     private static async Task<string> DownloadEmojiTestAsync() => await DownloadStringWithRedirectsAsync(EmojiTestUrl);
-
-    private static async Task EnsureSampleChartsAsync()
-    {
-        foreach (var (url, fileName) in SampleChartSources)
-        {
-            var path = Path.Combine(OperatingFolder, fileName);
-            if (File.Exists(path) && new FileInfo(path).Length > 0)
-            {
-                EmojiLog.Information("Emoji sample chart found in cache. Path={Path}, Size={Size}", path, new FileInfo(path).Length);
-                continue;
-            }
-
-            EmojiLog.Information("Emoji sample chart downloading. Url={Url}", url);
-            var html = await DownloadStringWithRedirectsAsync(url);
-            File.WriteAllText(path, html, System.Text.Encoding.UTF8);
-            EmojiLog.Information(
-                "Emoji sample chart downloaded. Url={Url}, Path={Path}, Length={Length}",
-                url,
-                path,
-                html.Length);
-        }
-    }
 
     private static async Task<string> DownloadStringWithRedirectsAsync(string url)
     {
@@ -362,18 +319,16 @@ public static class CategoryIconCatalog
 
             EmojiLog.Information("Emoji cached catalog loading. Path={Path}, Size={Size}", emojiJsonPath, new FileInfo(emojiJsonPath).Length);
             using var document = JsonDocument.Parse(File.ReadAllText(emojiJsonPath));
-            var sampleImages = LoadSampleImages();
             var options = document.RootElement
                 .EnumerateArray()
-                .Select(emojiElement => ReadEmojiOption(emojiElement, sampleImages))
+                .Select(ReadEmojiOptionFromCache)
                 .Where(option => option is not null)
                 .Cast<CategoryIconOptionViewModel>()
                 .ToList();
 
             EmojiLog.Information(
-                "Emoji cached catalog loaded. OptionsCount={OptionsCount}, SampleImagesCount={SampleImagesCount}",
-                options.Count,
-                sampleImages.Count);
+                "Emoji cached catalog loaded fast. OptionsCount={OptionsCount}",
+                options.Count);
             return new EmojiCatalogData(
                 options.Count > 0 ? options : GetFallbackEmojiOptions(),
                 options.Select(x => x.MainCategory).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList());
@@ -385,23 +340,21 @@ public static class CategoryIconCatalog
         }
     }
 
-    private static CategoryIconOptionViewModel? ReadEmojiOption(
-        JsonElement emojiElement,
-        IReadOnlyDictionary<string, string> sampleImages)
+    private static CategoryIconOptionViewModel? ReadEmojiOptionFromCache(JsonElement emojiElement)
     {
-        var value = GetJsonString(emojiElement, "value", "Value");
-        if (string.IsNullOrWhiteSpace(value))
+        var key = GetJsonString(emojiElement, "key", "Key", "value", "Value");
+        var glyph = GetJsonString(emojiElement, "glyph", "Glyph", "value", "Value");
+        if (string.IsNullOrWhiteSpace(key) || string.IsNullOrWhiteSpace(glyph))
         {
             return null;
         }
 
         return new CategoryIconOptionViewModel(
-            value,
-            value,
-            GetJsonString(emojiElement, "name", "Name") ?? value,
+            key,
+            glyph,
+            GetJsonString(emojiElement, "displayName", "DisplayName", "name", "Name") ?? key,
             GetJsonString(emojiElement, "mainCategory", "MainCategory") ?? string.Empty,
-            GetJsonString(emojiElement, "subCategory", "SubCategory") ?? string.Empty,
-            sampleImages.GetValueOrDefault(value) ?? GetJsonString(emojiElement, "sampleImageSource", "SampleImageSource"));
+            GetJsonString(emojiElement, "subCategory", "SubCategory") ?? string.Empty);
     }
 
     private static string? GetJsonString(JsonElement element, params string[] names)
@@ -417,9 +370,7 @@ public static class CategoryIconCatalog
         return null;
     }
 
-    private static List<CategoryIconOptionViewModel> ParseEmojiTestFile(
-        IEnumerable<string> lines,
-        IReadOnlyDictionary<string, string> sampleImages)
+    private static List<CategoryIconOptionViewModel> ParseEmojiTestFile(IEnumerable<string> lines)
     {
         var options = new List<CategoryIconOptionViewModel>();
         var mainCategory = string.Empty;
@@ -473,8 +424,7 @@ public static class CategoryIconCatalog
                 glyph,
                 name,
                 mainCategory,
-                subCategory,
-                sampleImages.GetValueOrDefault(glyph)));
+                subCategory));
         }
 
         return options
@@ -491,70 +441,6 @@ public static class CategoryIconCatalog
 
     private static string GetEmojiJsonPath() => Path.Combine(OperatingFolder, EmojiJsonFileName);
     private static string GetEmojiTestPath() => Path.Combine(OperatingFolder, EmojiTestFileName);
-
-    private static IReadOnlyDictionary<string, string> LoadSampleImages()
-    {
-        var images = new Dictionary<string, string>();
-        foreach (var (_, fileName) in SampleChartSources)
-        {
-            var htmlPath = Path.Combine(OperatingFolder, fileName);
-            if (!File.Exists(htmlPath))
-            {
-                EmojiLog.Debug("Emoji sample chart file is absent. Path={Path}", htmlPath);
-                continue;
-            }
-
-            var html = File.ReadAllText(htmlPath);
-            var beforeCount = images.Count;
-            foreach (Match match in Regex.Matches(
-                html,
-                "<img\\s+(?=[^>]*\\balt='(?<alt>[^']+)')(?=[^>]*\\bsrc='(?<src>data:image/png[^']+)')[^>]*>",
-                RegexOptions.IgnoreCase))
-            {
-                var glyph = DecodeHtmlEmoji(match.Groups["alt"].Value);
-                if (string.IsNullOrWhiteSpace(glyph) || images.ContainsKey(glyph))
-                {
-                    continue;
-                }
-
-                images[glyph] = match.Groups["src"].Value;
-            }
-
-            EmojiLog.Information(
-                "Emoji sample chart processed. Path={Path}, AddedImagesCount={AddedImagesCount}, TotalImagesCount={TotalImagesCount}",
-                htmlPath,
-                images.Count - beforeCount,
-                images.Count);
-        }
-
-        return images;
-    }
-
-    private static string DecodeHtmlEmoji(string htmlEmoji)
-    {
-        return Regex.Replace(htmlEmoji, "&#x(?<hex>[0-9A-Fa-f]+);", match =>
-            char.ConvertFromUtf32(Convert.ToInt32(match.Groups["hex"].Value, 16)));
-    }
-
-    private static Bitmap? CreateBitmap(string dataUri)
-    {
-        var commaIndex = dataUri.IndexOf(',');
-        if (commaIndex < 0)
-        {
-            return null;
-        }
-
-        try
-        {
-            var bytes = Convert.FromBase64String(dataUri[(commaIndex + 1)..]);
-            return new Bitmap(new MemoryStream(bytes));
-        }
-        catch (Exception ex)
-        {
-            EmojiLog.Warning(ex, "Emoji bitmap decode failed. DataUriLength={Length}", dataUri.Length);
-            return null;
-        }
-    }
 
     private static IReadOnlyList<CategoryIconOptionViewModel> GetFallbackEmojiOptions()
     {

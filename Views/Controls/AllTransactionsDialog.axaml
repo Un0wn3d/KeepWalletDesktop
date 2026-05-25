@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -114,17 +114,12 @@
                                                             Background="{Binding CategoryAnchorBrush}">
                                                         <Grid>
                                                             <TextBlock Text="{Binding CategoryIcon}"
-                                                                       FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                                       FontFamily="{StaticResource EmojiFontFamily}"
                                                                        Foreground="{DynamicResource Color.Text1}"
                                                                        FontSize="18"
                                                                        FontWeight="SemiBold"
-                                                                       IsVisible="{Binding !HasCategoryIconSampleImage}"
                                                                        HorizontalAlignment="Center"
                                                                        VerticalAlignment="Center" />
-                                                            <Image Source="{Binding CategoryIconSampleImage}"
-                                                                   Width="26"
-                                                                   Height="26"
-                                                                   IsVisible="{Binding HasCategoryIconSampleImage}" />
                                                         </Grid>
                                                     </Border>
                                                     <StackPanel Grid.Column="1" Spacing="2">
@@ -168,3 +163,6 @@
             </Grid>
         </Border>
 </UserControl>
+
+
+

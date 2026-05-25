@@ -147,7 +147,7 @@ public sealed class IconPickerModule
         return new TextBlock
         {
             Text = option.Glyph,
-            FontFamily = new FontFamily("Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"),
+            FontFamily = new FontFamily("avares://KeepWalletDesktop/Assets/Fonts/NotoColorEmoji.ttf#Noto Color Emoji"),
             FontSize = 20,
             TextAlignment = Avalonia.Media.TextAlignment.Center
         };

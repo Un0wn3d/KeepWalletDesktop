@@ -4,108 +4,127 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
-             d:DesignWidth="800"
-             d:DesignHeight="450"
+             d:DesignWidth="1100"
+             d:DesignHeight="720"
              x:Class="KeepWalletDesktop.Views.ScheduledPaymentsView"
              x:DataType="vm:MainViewModel">
-                <Border Grid.Column="1" Margin="10, 10, 10, 10" IsVisible="{Binding IsScheduledPaymentsPage}">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <Grid RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="10">
-                    <TextBlock Text="{Binding Texts.ScheduledPaymentsTitle}"
-                               Classes="page-title" />
-
-                    <Border Grid.Row="1" Classes="panel-card">
-                        <Grid RowDefinitions="Auto, Auto, Auto" RowSpacing="8">
-                            <Grid ColumnDefinitions="2*, *, *, *" ColumnSpacing="8">
-                                <StackPanel>
-                                    <TextBlock Text="{Binding Texts.ScheduledPaymentNameLabel}" />
-                                    <TextBox Text="{Binding ScheduledPaymentNameInput}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="1">
-                                    <TextBlock Text="{Binding Texts.TransactionAmountLabel}" />
-                                    <TextBox Text="{Binding ScheduledPaymentAmountInput}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="{Binding Texts.TransactionDateLabel}" />
-                                    <TextBox Text="{Binding ScheduledPaymentDateInput}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="3">
-                                    <TextBlock Text="{Binding Texts.ScheduledPaymentRepeatLabel}" />
-                                    <ComboBox ItemsSource="{Binding ScheduledRepeatOptions}"
-                                              SelectedItem="{Binding SelectedScheduledRepeatOption}">
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
-                                                <TextBlock Text="{Binding DisplayName}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </StackPanel>
-                            </Grid>
-                            <Grid Grid.Row="1" ColumnDefinitions="Auto, Auto, *, *" ColumnSpacing="8">
-                                <Button Content="{Binding Texts.TransactionExpenseType}"
-                                        Classes="secondary-button"
-                                        Command="{Binding SelectScheduledPaymentTypeCommand}"
-                                        CommandParameter="expense" />
-                                <Button Grid.Column="1"
-                                        Content="{Binding Texts.TransactionIncomeType}"
-                                        Classes="secondary-button"
-                                        Command="{Binding SelectScheduledPaymentTypeCommand}"
-                                        CommandParameter="income" />
-                                <ComboBox Grid.Column="2"
-                                          ItemsSource="{Binding ScheduledPaymentCategoryOptions}"
-                                          SelectedItem="{Binding SelectedScheduledPaymentCategory}">
-                                    <ComboBox.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:CategoryOptionViewModel">
-                                            <TextBlock Text="{Binding DisplayName}" />
-                                        </DataTemplate>
-                                    </ComboBox.ItemTemplate>
-                                </ComboBox>
-                                <TextBox Grid.Column="3"
-                                         Text="{Binding ScheduledPaymentCustomRepeatInput}"
-                                         Watermark="{Binding Texts.ScheduledPaymentCustomRepeatHint}"
-                                         IsVisible="{Binding IsCustomScheduledRepeat}" />
-                            </Grid>
-                            <StackPanel Grid.Row="2">
-                                <TextBlock Text="{Binding Texts.TransactionDescriptionLabel}" />
-                                <TextBox Text="{Binding ScheduledPaymentDescriptionInput}" />
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <Button Grid.Row="2"
-                            HorizontalAlignment="Left"
-                            Content="{Binding Texts.AddScheduledPaymentButton}"
+    <Border Grid.Column="1" Margin="12" IsVisible="{Binding IsScheduledPaymentsPage}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="Заплановані платежі" Classes="page-title" />
+                    <Button Grid.Column="1"
+                            Content="Нова платіжка"
+                            Classes="primary-button"
                             Command="{Binding AddScheduledPaymentCommand}" />
-
-                    <ItemsControl Grid.Row="3" ItemsSource="{Binding ScheduledPayments}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate x:DataType="vm:ScheduledPaymentItemViewModel">
-                                <Border Classes="list-item-card">
-                                    <Grid ColumnDefinitions="2*, *, *, Auto" ColumnSpacing="12">
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                            <TextBlock Text="{Binding CategoryDisplay}" Classes="muted" />
-                                            <TextBlock Text="{Binding Frequency}" Classes="muted" />
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding DueDateDisplay}"
-                                                   VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2"
-                                                   Text="{Binding AmountDisplay}"
-                                                   FontWeight="Bold"
-                                                   VerticalAlignment="Center" />
-                                        <Button Grid.Column="3"
-                                                Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.ConfirmScheduledPaymentButton}"
-                                                Classes="primary-button"
-                                                IsEnabled="{Binding IsActive}"
-                                                Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}"
-                                                CommandParameter="{Binding .}" />
-                                    </Grid>
-                                </Border>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
                 </Grid>
-            </ScrollViewer>
-        </Border>
+
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                    <Border Classes="panel-card alt">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Всього платежів" Classes="muted" />
+                            <TextBlock Text="{Binding ScheduledPaymentsTotalCount}" FontSize="22" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="1" Classes="panel-card alt">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Просрочені" Classes="muted" />
+                            <TextBlock Text="{Binding ScheduledPaymentsOverdueCount}" FontSize="22" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
+                    <Border Grid.Column="2" Classes="panel-card alt">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="Майбутні" Classes="muted" />
+                            <TextBlock Text="{Binding ScheduledPaymentsUpcomingCount}" FontSize="22" FontWeight="Bold" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Border Classes="panel-card">
+                    <StackPanel Spacing="10">
+                        <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="8">
+                            <Button Content="Всі"
+                                    Classes="secondary-button"
+                                    Command="{Binding SetScheduledPaymentsFilterCommand}"
+                                    CommandParameter="all" />
+                            <Button Grid.Column="1"
+                                    Content="Витрати"
+                                    Classes="secondary-button"
+                                    Command="{Binding SetScheduledPaymentsFilterCommand}"
+                                    CommandParameter="expense" />
+                            <Button Grid.Column="2"
+                                    Content="Доходи"
+                                    Classes="secondary-button"
+                                    Command="{Binding SetScheduledPaymentsFilterCommand}"
+                                    CommandParameter="income" />
+                            <Button Grid.Column="3"
+                                    Content="Просрочені"
+                                    Classes="secondary-button"
+                                    Command="{Binding SetScheduledPaymentsFilterCommand}"
+                                    CommandParameter="overdue" />
+                        </Grid>
+
+                        <Grid ColumnDefinitions="34,2*,1.3*,1.2*,1*,1.2*,1.2*,1.2*" ColumnSpacing="8" Margin="0,2,0,0">
+                            <TextBlock Grid.Column="1" Text="Назва транзакції" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="2" Text="Залишилось" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="3" Text="Категорія" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="4" Text="Сума" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="5" Text="Дата" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="6" Text="Повторення" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="7" Text="Підтвердити оплату" Classes="muted" FontWeight="SemiBold" />
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding FilteredScheduledPayments}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:ScheduledPaymentItemViewModel">
+                                    <Border Classes="list-item-card" Margin="0,2">
+                                        <Grid ColumnDefinitions="34,2*,1.3*,1.2*,1*,1.2*,1.2*,1.2*" ColumnSpacing="8">
+                                            <Border Width="28"
+                                                    Height="28"
+                                                    CornerRadius="8"
+                                                    Background="#E5E7EB">
+                                                <TextBlock Text="{Binding CategoryDisplay, StringFormat={}{0[0]}}"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"
+                                                           FontWeight="Bold" />
+                                            </Border>
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding Name}"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="2"
+                                                       Text="{Binding DaysRemainingDisplay}"
+                                                       Classes="muted"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding CategoryDisplay}"
+                                                       Classes="muted"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="4"
+                                                       Text="{Binding AmountDisplay}"
+                                                       FontWeight="SemiBold"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="5"
+                                                       Text="{Binding DueDateDisplay}"
+                                                       VerticalAlignment="Center" />
+                                            <TextBlock Grid.Column="6"
+                                                       Text="{Binding Frequency}"
+                                                       Classes="muted"
+                                                       VerticalAlignment="Center" />
+                                            <Button Grid.Column="7"
+                                                    Content="Підтвердити"
+                                                    Classes="primary-button"
+                                                    IsEnabled="{Binding IsActive}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
 </UserControl>

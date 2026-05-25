@@ -17,6 +17,7 @@ public sealed record TransactionItemViewModel(
     string? GroupName,
     string? SharedBy,
     string Type,
+    int? SavingId,
     decimal Amount,
     string Currency,
     string? CategoryCode,
@@ -57,6 +58,7 @@ public sealed record SavingOptionViewModel(
     int Id,
     Guid? GroupId,
     string Name,
+    string DeadlineDisplay,
     string AmountDisplay,
     string TargetAmountDisplay,
     double ProgressPercent,
@@ -99,6 +101,24 @@ public sealed record ScheduledPaymentItemViewModel(
 {
     public bool IsPaid => !IsActive;
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
+    public string DaysRemainingDisplay
+    {
+        get
+        {
+            if (!DateTime.TryParseExact(DueDateDisplay, "dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var due))
+            {
+                return "-";
+            }
+
+            var days = (due.Date - DateTime.Today).Days;
+            if (days < 0)
+            {
+                return $"Просрочено {-days} дн.";
+            }
+
+            return days == 0 ? "Сьогодні" : $"{days} дн.";
+        }
+    }
 }
 
 public sealed record CategoryLegendItemViewModel(

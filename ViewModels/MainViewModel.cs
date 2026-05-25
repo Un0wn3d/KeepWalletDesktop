@@ -272,6 +272,9 @@ public partial class MainViewModel : ViewModelBase
     private string savingsDialogInitialAmountInput = string.Empty;
 
     [ObservableProperty]
+    private string savingsDialogDeadlineInput = string.Empty;
+
+    [ObservableProperty]
     private BankAccountItemViewModel? selectedSavingsBankAccount;
 
     [ObservableProperty]
@@ -400,7 +403,23 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private string scheduledPaymentCustomRepeatInput = string.Empty;
 
+    [ObservableProperty]
+    private string scheduledPaymentsFilter = "all";
+
     public bool IsCustomScheduledRepeat => string.Equals(SelectedScheduledRepeatOption?.Code, "custom", StringComparison.OrdinalIgnoreCase);
+    public int ScheduledPaymentsTotalCount => ScheduledPayments.Count;
+    public int ScheduledPaymentsOverdueCount => ScheduledPayments.Count(p =>
+        p.IsActive && TryParseScheduledDueDate(p.DueDateDisplay, out var dueDate) && dueDate.Date < DateTime.Today);
+    public int ScheduledPaymentsUpcomingCount => ScheduledPayments.Count(p =>
+        p.IsActive && TryParseScheduledDueDate(p.DueDateDisplay, out var dueDate) && dueDate.Date >= DateTime.Today);
+    public IEnumerable<ScheduledPaymentItemViewModel> FilteredScheduledPayments => ScheduledPayments
+        .Where(p => ScheduledPaymentsFilter switch
+        {
+            "expense" => p.Type == "expense",
+            "income" => p.Type == "income",
+            "overdue" => p.IsActive && TryParseScheduledDueDate(p.DueDateDisplay, out var dueDate) && dueDate.Date < DateTime.Today,
+            _ => true
+        });
 
     [ObservableProperty]
     private string scheduledPaymentType = "expense";
@@ -479,28 +498,33 @@ public partial class MainViewModel : ViewModelBase
         LoadServerSettingsFromBaseUrl();
         ResetAuthorizedUser();
         LoadApiOnlyPlaceholders();
-        _ = CategoryIconCatalog.PreloadAsync().ContinueWith(_ =>
-            Dispatcher.UIThread.Post(() =>
-            {
-                OnPropertyChanged(nameof(CategoryIconOptions));
-                OnPropertyChanged(nameof(CategoryNewIconGlyph));
-                OnPropertyChanged(nameof(CategoryNewIconSampleImage));
-                OnPropertyChanged(nameof(HasCategoryNewIconSampleImage));
-                OnPropertyChanged(nameof(NewGroupIconGlyph));
-                OnPropertyChanged(nameof(NewGroupIconSampleImage));
-                OnPropertyChanged(nameof(HasNewGroupIconSampleImage));
-                foreach (var category in Categories)
-                {
-                    category.RefreshIconGlyph();
-                }
+    }
 
-                foreach (var group in Groups)
-                {
-                    group.RefreshIconGlyph();
-                }
-            }));
-        _ = LoadCategoriesAsync();
-        _ = RestoreApiSessionAsync();
+    public void StartBackgroundInitialization()
+    {
+        _ = EnsureEmojiCatalogIfMissingAsync();
+    }
+
+    private async Task EnsureEmojiCatalogIfMissingAsync()
+    {
+        if (CategoryIconCatalog.HasCachedCatalog())
+        {
+            return;
+        }
+
+        await Task.Delay(1500);
+        await CategoryIconCatalog.PreloadAsync();
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            OnPropertyChanged(nameof(CategoryIconOptions));
+            OnPropertyChanged(nameof(CategoryNewIconGlyph));
+            OnPropertyChanged(nameof(CategoryNewIconSampleImage));
+            OnPropertyChanged(nameof(HasCategoryNewIconSampleImage));
+            OnPropertyChanged(nameof(NewGroupIconGlyph));
+            OnPropertyChanged(nameof(NewGroupIconSampleImage));
+            OnPropertyChanged(nameof(HasNewGroupIconSampleImage));
+        });
     }
 
     public bool IsAuthPage => CurrentPage == AuthPage;
@@ -1688,6 +1712,7 @@ public partial class MainViewModel : ViewModelBase
         SavingsDialogNameInput = string.Empty;
         SavingsDialogTargetAmountInput = string.Empty;
         SavingsDialogInitialAmountInput = string.Empty;
+        SavingsDialogDeadlineInput = string.Empty;
         SelectedSavingsBankAccount ??= BankAccounts.FirstOrDefault(a => a.IsDefault) ?? BankAccounts.FirstOrDefault();
         SavingsStatusMessage = string.Empty;
         IsSavingsDialogOpen = true;
@@ -1710,6 +1735,7 @@ public partial class MainViewModel : ViewModelBase
         if (string.IsNullOrWhiteSpace(SavingsDialogNameInput) ||
             !TryParseOptionalPositiveDecimal(SavingsDialogTargetAmountInput, out var targetAmount) ||
             !TryParseOptionalPositiveDecimal(SavingsDialogInitialAmountInput, out var initialAmount) ||
+            !TryParseOptionalSavingsDeadline(SavingsDialogDeadlineInput, out var deadline) ||
             (initialAmount > 0 && SelectedSavingsBankAccount is null))
         {
             SavingsStatusMessage = Texts.TransactionFormValidationText;
@@ -1725,7 +1751,7 @@ public partial class MainViewModel : ViewModelBase
                 SavingsDialogNameInput.Trim(),
                 targetAmount > 0 ? targetAmount : null,
                 initialAmount,
-                null));
+                deadline));
 
             if (initialAmount > 0 && SelectedSavingsBankAccount is not null)
             {
@@ -1909,13 +1935,14 @@ public partial class MainViewModel : ViewModelBase
         var transactionType = isDeposit ? "expense" : "income";
         var categoryId = ResolveSavingsTransferCategoryId(transactionType);
         var description = isDeposit
-            ? $"Накопичення: {savingName} [saving:{savingId}]"
-            : $"Зняття з накопичення: {savingName} [saving:{savingId}]";
+            ? $"Накопичення: {savingName}"
+            : $"Зняття з накопичення: {savingName}";
 
         await _apiClient!.CreateTransactionAsync(new CreateTransactionRequestDto(
             account.Id,
             account.GroupId,
             categoryId,
+            savingId,
             null,
             amount,
             description,
@@ -1958,6 +1985,24 @@ public partial class MainViewModel : ViewModelBase
         }
 
         return decimal.TryParse(rawValue, NumberStyles.Number, CultureInfo.InvariantCulture, out value) && value >= 0;
+    }
+
+    private static bool TryParseOptionalSavingsDeadline(string rawValue, out DateOnly? deadline)
+    {
+        if (string.IsNullOrWhiteSpace(rawValue))
+        {
+            deadline = null;
+            return true;
+        }
+
+        if (DateOnly.TryParseExact(rawValue.Trim(), "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed))
+        {
+            deadline = parsed;
+            return true;
+        }
+
+        deadline = null;
+        return false;
     }
 
     private async Task RestoreApiSessionAsync()
@@ -3270,4 +3315,20 @@ public partial class MainViewModel : ViewModelBase
         value = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, DateTimeOffset.Now.Offset);
         return true;
     }
+
+    partial void OnScheduledPaymentsChanged(ObservableCollection<ScheduledPaymentItemViewModel> value)
+    {
+        OnPropertyChanged(nameof(ScheduledPaymentsTotalCount));
+        OnPropertyChanged(nameof(ScheduledPaymentsOverdueCount));
+        OnPropertyChanged(nameof(ScheduledPaymentsUpcomingCount));
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+    }
+
+    partial void OnScheduledPaymentsFilterChanged(string value)
+    {
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+    }
+
+    private static bool TryParseScheduledDueDate(string rawValue, out DateTime value) =>
+        DateTime.TryParseExact(rawValue, DateTimeDisplayFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out value);
 }

@@ -64,6 +64,7 @@ public partial class MainViewModel
                         groupId,
                         categoryId,
                         null,
+                        null,
                         amount,
                         string.IsNullOrWhiteSpace(TransactionDescriptionInput) ? null : TransactionDescriptionInput.Trim(),
                         transactionDate.ToUniversalTime()));
@@ -77,6 +78,7 @@ public partial class MainViewModel
                         accountId,
                         groupId,
                         categoryId,
+                        null,
                         null,
                         amount,
                         string.IsNullOrWhiteSpace(TransactionDescriptionInput) ? null : TransactionDescriptionInput.Trim(),
@@ -217,6 +219,7 @@ public partial class MainViewModel
                     t.GroupName,
                     t.SharedBy,
                     GetTransactionType(t.CategoryId),
+                    t.SavingId,
                     t.Amount,
                     GetAccountCurrency(t.AccountId),
                     t.CategoryId.ToString(CultureInfo.InvariantCulture),

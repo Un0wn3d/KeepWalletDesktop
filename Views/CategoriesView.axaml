@@ -1,4 +1,4 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -34,15 +34,11 @@
                                     VerticalContentAlignment="Center">
                                 <Grid>
                                     <TextBlock Text="{Binding CategoryNewIconGlyph}"
-                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                               FontFamily="{StaticResource EmojiFontFamily}"
                                                FontSize="18"
                                                TextAlignment="Center"
                                                HorizontalAlignment="Center"
                                                VerticalAlignment="Center" />
-                                    <Image Source="{Binding CategoryNewIconSampleImage}"
-                                           Width="26"
-                                           Height="26"
-                                           IsVisible="{Binding HasCategoryNewIconSampleImage}" />
                                 </Grid>
                             </Button>
                             <TextBox Grid.Column="1"
@@ -85,15 +81,11 @@
                                                     VerticalContentAlignment="Center">
                                                 <Grid>
                                                     <TextBlock Text="{Binding IconGlyph}"
-                                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                               FontFamily="{StaticResource EmojiFontFamily}"
                                                                FontSize="18"
                                                                TextAlignment="Center"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center" />
-                                                    <Image Source="{Binding IconSampleImage}"
-                                                           Width="26"
-                                                           Height="26"
-                                                           IsVisible="{Binding HasIconSampleImage}" />
                                                 </Grid>
                                             </Button>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -152,15 +144,11 @@
                                                     VerticalContentAlignment="Center">
                                                 <Grid>
                                                     <TextBlock Text="{Binding IconGlyph}"
-                                                               FontFamily="Segoe UI Emoji, Apple Color Emoji, Noto Color Emoji, sans-serif"
+                                                               FontFamily="{StaticResource EmojiFontFamily}"
                                                                FontSize="18"
                                                                TextAlignment="Center"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center" />
-                                                    <Image Source="{Binding IconSampleImage}"
-                                                           Width="26"
-                                                           Height="26"
-                                                           IsVisible="{Binding HasIconSampleImage}" />
                                                 </Grid>
                                             </Button>
                                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
@@ -217,7 +205,7 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                             <TextBlock Grid.Column="1"
-                                       Text="→"
+                                       Text="â†’"
                                        FontSize="22"
                                        FontWeight="SemiBold"
                                        VerticalAlignment="Center" />
@@ -245,3 +233,5 @@
         </ScrollViewer>
     </Border>
 </UserControl>
+
+

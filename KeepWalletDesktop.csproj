@@ -5,6 +5,20 @@
         <Nullable>enable</Nullable>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+        <PublishReadyToRun>true</PublishReadyToRun>
+        <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+        <TieredCompilation>true</TieredCompilation>
+        <TieredPGO>true</TieredPGO>
+        <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <IlcOptimizationPreference>Speed</IlcOptimizationPreference>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(EnableNativeAot)' == 'true'">
+        <PublishAot>true</PublishAot>
     </PropertyGroup>
 
     <ItemGroup>
