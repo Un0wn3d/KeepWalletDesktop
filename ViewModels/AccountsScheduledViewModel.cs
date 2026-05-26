@@ -39,6 +39,7 @@ public partial class MainViewModel
                     p.Amount,
                     GetTransactionType(p.CategoryId),
                     GetCategoryDisplayName(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                    GetCategoryIconKey(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     p.Description,
                     p.NextDueDate.ToDateTime(TimeOnly.MinValue).ToString(DateTimeDisplayFormat, CultureInfo.InvariantCulture),
                     FormatRepeatInterval(p.RepeatInterval),
@@ -317,6 +318,35 @@ public partial class MainViewModel
             await LoadScheduledPaymentsAsync();
             await LoadTransactionsAsync();
             await LoadBankAccountsAsync();
+        }
+        catch (HttpRequestException ex)
+        {
+            ApiStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task DeleteScheduledPaymentAsync(ScheduledPaymentItemViewModel? payment)
+    {
+        if (payment is null || IsApiBusy)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.DeletePlannedTransactionAsync(payment.Id);
+            await LoadScheduledPaymentsAsync();
         }
         catch (HttpRequestException ex)
         {

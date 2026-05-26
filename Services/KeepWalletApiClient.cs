@@ -512,6 +512,12 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty transaction response.");
     }
 
+    public async Task DeletePlannedTransactionAsync(int transactionId, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedAsync(HttpMethod.Delete, $"/api/planned-transactions/{transactionId}", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ApiBankAccountDto>> GetBankAccountsAsync(CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Get, "/api/bank-accounts", cancellationToken);

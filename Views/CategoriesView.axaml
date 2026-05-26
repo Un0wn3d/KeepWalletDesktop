@@ -204,11 +204,16 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <TextBlock Grid.Column="1"
-                                       Text="â†’"
-                                       FontSize="22"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center" />
+                            <Border Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center"
+                                    Padding="4,0">
+                                <TextBlock Text="&#x2192;"
+                                           FontSize="22"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
+                                           HorizontalAlignment="Center" />
+                            </Border>
                             <ComboBox Grid.Column="2"
                                       ItemsSource="{Binding MergeTargetCategories}"
                                       SelectedItem="{Binding SelectedMergeTargetCategory}">

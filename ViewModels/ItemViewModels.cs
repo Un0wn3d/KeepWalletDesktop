@@ -92,6 +92,7 @@ public sealed record ScheduledPaymentItemViewModel(
     decimal Amount,
     string Type,
     string CategoryDisplay,
+    string? CategoryIconKey,
     string? Description,
     string DueDateDisplay,
     string Frequency,
@@ -100,6 +101,7 @@ public sealed record ScheduledPaymentItemViewModel(
     string StatusDisplay)
 {
     public bool IsPaid => !IsActive;
+    public string CategoryIcon => CategoryIconCatalog.GetGlyph(CategoryIconKey, Type);
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
     public string DaysRemainingDisplay
     {
