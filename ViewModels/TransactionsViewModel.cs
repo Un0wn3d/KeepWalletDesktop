@@ -54,6 +54,7 @@ public partial class MainViewModel
             var accountId = SelectedBankAccount?.Id ?? await EnsureDefaultAccountAsync();
             var categoryId = GetCategoryId(SelectedTransactionCategory.Code);
             var groupId = IsTransactionSharedInput ? SelectedTransactionShareGroup?.Id : null;
+            var transactionName = string.IsNullOrWhiteSpace(TransactionDescriptionInput) ? null : TransactionDescriptionInput.Trim();
 
             if (EditingTransactionId.HasValue)
             {
@@ -66,10 +67,28 @@ public partial class MainViewModel
                         null,
                         null,
                         amount,
-                        string.IsNullOrWhiteSpace(TransactionDescriptionInput) ? null : TransactionDescriptionInput.Trim(),
+                        transactionName,
                         transactionDate.ToUniversalTime()));
 
                 ApiStatusMessage = Texts.TransactionUpdatedText;
+            }
+            else if (IsPlannedTransactionMode)
+            {
+                var repeatInterval = ParseRepeatInterval(IsCustomScheduledRepeat
+                    ? ScheduledPaymentCustomRepeatInput
+                    : SelectedScheduledRepeatOption?.Code ?? "once");
+
+                await _apiClient!.CreatePlannedTransactionAsync(
+                    new CreatePlannedTransactionRequestDto(
+                        transactionName ?? Texts.NewTransactionButton,
+                        accountId,
+                        categoryId,
+                        amount,
+                        null,
+                        DateOnly.FromDateTime(transactionDate.Date),
+                        repeatInterval));
+
+                ApiStatusMessage = Texts.TransactionSavedText;
             }
             else
             {
@@ -81,7 +100,7 @@ public partial class MainViewModel
                         null,
                         null,
                         amount,
-                        string.IsNullOrWhiteSpace(TransactionDescriptionInput) ? null : TransactionDescriptionInput.Trim(),
+                        transactionName,
                         transactionDate.ToUniversalTime()));
 
                 ApiStatusMessage = Texts.TransactionSavedText;

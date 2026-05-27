@@ -51,10 +51,22 @@
                                                 </Grid>
                                             </Button>
                                             <Button Grid.Column="1"
-                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.EditTransactionButton}"
+                                                    Width="44"
+                                                    Height="44"
+                                                    Padding="0"
+                                                    HorizontalContentAlignment="Center"
+                                                    VerticalContentAlignment="Center"
                                                     Classes="secondary-button"
                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.EditBankAccountCommand}"
-                                                    CommandParameter="{Binding .}" />
+                                                    CommandParameter="{Binding .}">
+                                                <Viewbox Width="18" Height="18">
+                                                    <TextBlock Text="&#xE34C;"
+                                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                                               TextAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center" />
+                                                </Viewbox>
+                                            </Button>
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

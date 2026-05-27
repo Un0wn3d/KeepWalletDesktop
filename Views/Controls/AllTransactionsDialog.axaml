@@ -7,26 +7,14 @@
              d:DesignWidth="800"
              d:DesignHeight="450"             x:Class="KeepWalletDesktop.Views.Controls.AllTransactionsDialog"
              x:DataType="vm:MainViewModel">
-        <Border Grid.ColumnSpan="2"
-                IsVisible="{Binding IsAllTransactionsDialogOpen}"
-                Background="{DynamicResource Color.Overlay}">
-            <Grid HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Width="760"
-                  MaxHeight="640">
-                <Border Classes="dialog-card">
-                    <Grid RowDefinitions="Auto, Auto, Auto, *" RowSpacing="12">
-                        <Grid ColumnDefinitions="*, Auto">
-                            <TextBlock Text="{Binding Texts.AllTransactionsLink}"
-                                       FontSize="24"
-                                       FontWeight="Bold" />
-                            <Button Grid.Column="1"
-                                    Content="{Binding Texts.CancelButton}"
-                                    Classes="secondary-button"
-                                    Command="{Binding CloseAllTransactionsCommand}" />
-                        </Grid>
+        <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsAllTransactionsPage}">
+            <Border Classes="panel-card">
+                    <Grid RowDefinitions="Auto, Auto, *" RowSpacing="12">
+                        <TextBlock Text="{Binding Texts.AllTransactionsLink}"
+                                   FontSize="24"
+                                   FontWeight="Bold" />
 
-                        <Grid Grid.Row="2"
+                        <Grid Grid.Row="1"
                               ColumnDefinitions="2*, Auto, 2*"
                               ColumnSpacing="10">
                             <TextBox Text="{Binding TransactionSearchText}"
@@ -46,28 +34,7 @@
                             </ComboBox>
                         </Grid>
 
-                        <Grid Grid.Row="1"
-                              ColumnDefinitions="52, 5*, 2*, 2*"
-                              ColumnSpacing="12"
-                              Margin="8,0,8,0"
-                              IsVisible="{Binding HasAllTransactions}">
-                            <TextBlock />
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding Texts.TransactionDescriptionLabel}"
-                                       Classes="muted"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="2"
-                                       Text="{Binding Texts.TransactionCategoryLabel}"
-                                       HorizontalAlignment="Center"
-                                       Classes="muted"
-                                       FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="3"
-                                       Text="{Binding Texts.TransactionAmountLabel}"
-                                       Classes="muted"
-                                       FontWeight="SemiBold" />
-                        </Grid>
-
-                        <ScrollViewer Grid.Row="3"
+                        <ScrollViewer Grid.Row="2"
                                       x:Name="TransactionsScrollViewer"
                                       VerticalScrollBarVisibility="Auto"
                                       ScrollChanged="TransactionsScrollViewer_OnScrollChanged">
@@ -111,7 +78,10 @@
                                                     <Border Width="40"
                                                             Height="40"
                                                             CornerRadius="8"
-                                                            Background="{Binding CategoryAnchorBrush}">
+                                                            Background="White"
+                                                            BorderBrush="{DynamicResource Color.BorderSoft}"
+                                                            BorderThickness="1"
+                                                            BoxShadow="{DynamicResource Shadow.Card}">
                                                         <Grid>
                                                             <TextBlock Text="{Binding CategoryIcon}"
                                                                        FontFamily="{StaticResource EmojiFontFamily}"
@@ -157,10 +127,7 @@
                             </ItemsControl>
                         </ScrollViewer>
                     </Grid>
-                </Border>
-            </Grid>
+            </Border>
         </Border>
 </UserControl>
-
-
 

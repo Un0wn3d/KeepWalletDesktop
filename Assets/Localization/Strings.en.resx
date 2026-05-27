@@ -129,6 +129,9 @@
   <data name="AddToSavingsButton" xml:space="preserve">
     <value>Add</value>
   </data>
+  <data name="WithdrawFromSavingsButton" xml:space="preserve">
+    <value>Withdraw</value>
+  </data>
   <data name="GoalProgressLabel" xml:space="preserve">
     <value>Goal progress</value>
   </data>
@@ -298,7 +301,7 @@
     <value>Time</value>
   </data>
   <data name="TransactionDescriptionLabel" xml:space="preserve">
-    <value>Description</value>
+    <value>Name</value>
   </data>
   <data name="TransactionShareLabel" xml:space="preserve">
     <value>Share transaction</value>
@@ -326,6 +329,9 @@
   </data>
   <data name="NewTransactionButton" xml:space="preserve">
     <value>New transaction</value>
+  </data>
+  <data name="NewPlannedTransactionTitle" xml:space="preserve">
+    <value>New scheduled transaction</value>
   </data>
   <data name="NoTransactionsText" xml:space="preserve">
     <value>No transactions yet.</value>
@@ -364,7 +370,7 @@
     <value>UAH</value>
   </data>
   <data name="TransactionDescriptionHint" xml:space="preserve">
-    <value>For example: supermarket or salary</value>
+    <value>For example: Salary May</value>
   </data>
   <data name="TransactionBreakdownTitle" xml:space="preserve">
     <value>Expenses by category</value>
@@ -462,6 +468,9 @@
   <data name="ScheduledPaymentNameLabel" xml:space="preserve">
     <value>Name</value>
   </data>
+  <data name="ScheduledPaymentRemainingLabel" xml:space="preserve">
+    <value>Remaining</value>
+  </data>
   <data name="ScheduledPaymentRepeatLabel" xml:space="preserve">
     <value>Repeat</value>
   </data>
@@ -536,6 +545,12 @@
   </data>
   <data name="SavingRateHistoryTitle" xml:space="preserve">
     <value>Rate history</value>
+  </data>
+  <data name="SavingsDeadlineLabel" xml:space="preserve">
+    <value>Deadline (dd.MM.yyyy)</value>
+  </data>
+  <data name="SavingsDeadlineHint" xml:space="preserve">
+    <value>31.12.2026</value>
   </data>
   <data name="UserLogsTitle" xml:space="preserve">
     <value>User and group logs</value>

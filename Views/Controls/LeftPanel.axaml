@@ -40,6 +40,9 @@
                 <Button Click="btn_Reporting">
                     <Label Classes="nav-icon" Content="&#xE59A;"></Label>
                 </Button>
+                <Button Click="btn_AllTransactions">
+                    <Label Classes="nav-icon" Content="&#xE2DE;"></Label>
+                </Button>
             </StackPanel>
 
             <!-- Buttons -->

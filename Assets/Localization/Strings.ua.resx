@@ -129,6 +129,9 @@
   <data name="AddToSavingsButton" xml:space="preserve">
     <value>Відкласти</value>
   </data>
+  <data name="WithdrawFromSavingsButton" xml:space="preserve">
+    <value>Зняти</value>
+  </data>
   <data name="GoalProgressLabel" xml:space="preserve">
     <value>Прогрес цілі</value>
   </data>
@@ -298,7 +301,7 @@
     <value>Час</value>
   </data>
   <data name="TransactionDescriptionLabel" xml:space="preserve">
-    <value>Опис</value>
+    <value>Назва</value>
   </data>
   <data name="TransactionShareLabel" xml:space="preserve">
     <value>Поділитися транзакцією</value>
@@ -327,6 +330,9 @@
   <data name="NewTransactionButton" xml:space="preserve">
     <value>Нова транзакція</value>
   </data>
+  <data name="NewPlannedTransactionTitle" xml:space="preserve">
+    <value>Нова запланована транзакція</value>
+  </data>
   <data name="NoTransactionsText" xml:space="preserve">
     <value>Транзакцій ще немає.</value>
   </data>
@@ -340,7 +346,7 @@
     <value>Транзакцію видалено.</value>
   </data>
   <data name="TransactionFormValidationText" xml:space="preserve">
-    <value>Заповніть опис, суму, тип, категорію, дату та коректний час.</value>
+    <value>Заповніть назву, суму, тип, категорію, дату та коректний час.</value>
   </data>
   <data name="AllTransactionsLink" xml:space="preserve">
     <value>Усі транзакції</value>
@@ -364,7 +370,7 @@
     <value>UAH</value>
   </data>
   <data name="TransactionDescriptionHint" xml:space="preserve">
-    <value>Наприклад: супермаркет або зарплата</value>
+    <value>Наприклад: Зарплата травень</value>
   </data>
   <data name="TransactionBreakdownTitle" xml:space="preserve">
     <value>Витрати по категоріям</value>
@@ -462,11 +468,14 @@
   <data name="ScheduledPaymentNameLabel" xml:space="preserve">
     <value>Назва</value>
   </data>
+  <data name="ScheduledPaymentRemainingLabel" xml:space="preserve">
+    <value>Залишилось</value>
+  </data>
   <data name="ScheduledPaymentRepeatLabel" xml:space="preserve">
     <value>Повторення</value>
   </data>
   <data name="ScheduledPaymentCustomRepeatHint" xml:space="preserve">
-    <value>10 years and 3 months</value>
+    <value>10 days / 2 weeks / 1 month</value>
   </data>
   <data name="AddScheduledPaymentButton" xml:space="preserve">
     <value>Додати запланований платіж</value>
@@ -500,6 +509,12 @@
   </data>
   <data name="SavingRateHistoryTitle" xml:space="preserve">
     <value>Історія ставок</value>
+  </data>
+  <data name="SavingsDeadlineLabel" xml:space="preserve">
+    <value>Дедлайн (дд.мм.рррр)</value>
+  </data>
+  <data name="SavingsDeadlineHint" xml:space="preserve">
+    <value>31.12.2026</value>
   </data>
   <data name="UserLogsTitle" xml:space="preserve">
     <value>Логи користувача та груп</value>

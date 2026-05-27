@@ -1,6 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using System.Linq;
 using KeepWalletDesktop.ViewModels;
 
 namespace KeepWalletDesktop.Views.Mdules;
@@ -34,16 +35,19 @@ public partial class DateSortModule : UserControl
         MovePeriod(1);
     }
 
-    private void DatePicker_SelectedDateChanged(object? sender, SelectionChangedEventArgs e)
+    private void RangeCalendar_SelectedDatesChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (_isUpdatingDates || FromDatePicker.SelectedDate is null || ToDatePicker.SelectedDate is null)
+        if (_isUpdatingDates || RangeCalendar.SelectedDates.Count == 0)
         {
             return;
         }
 
+        var selectedFrom = RangeCalendar.SelectedDates.Min();
+        var selectedTo = RangeCalendar.SelectedDates.Max();
+
         _period = DateSortPeriod.Custom;
-        _from = ToStartOfDay(FromDatePicker.SelectedDate.Value);
-        _to = ToEndOfDay(ToDatePicker.SelectedDate.Value);
+        _from = ToStartOfDay(selectedFrom);
+        _to = ToEndOfDay(selectedTo);
 
         if (_from > _to)
         {
@@ -77,21 +81,27 @@ public partial class DateSortModule : UserControl
     {
         var now = DateTime.Now;
         _period = period;
-        _to = now;
-        _from = period switch
+        if (period == DateSortPeriod.Month)
         {
-            DateSortPeriod.Hour => now.AddHours(-1),
-            DateSortPeriod.TwoHours => now.AddHours(-2),
-            DateSortPeriod.ThreeHours => now.AddHours(-3),
-            DateSortPeriod.SixHours => now.AddHours(-6),
-            DateSortPeriod.TwelveHours => now.AddHours(-12),
-            DateSortPeriod.Day => now.AddDays(-1),
-            DateSortPeriod.Week => now.AddDays(-7),
-            DateSortPeriod.Month => now.AddMonths(-1),
-            DateSortPeriod.HalfYear => now.AddMonths(-6),
-            DateSortPeriod.Year => now.AddYears(-1),
-            _ => now.AddMonths(-1)
-        };
+            SetMonthRange(now.Year, now.Month);
+        }
+        else
+        {
+            _to = now;
+            _from = period switch
+            {
+                DateSortPeriod.Hour => now.AddHours(-1),
+                DateSortPeriod.TwoHours => now.AddHours(-2),
+                DateSortPeriod.ThreeHours => now.AddHours(-3),
+                DateSortPeriod.SixHours => now.AddHours(-6),
+                DateSortPeriod.TwelveHours => now.AddHours(-12),
+                DateSortPeriod.Day => now.AddDays(-1),
+                DateSortPeriod.Week => now.AddDays(-7),
+                DateSortPeriod.HalfYear => now.AddMonths(-6),
+                DateSortPeriod.Year => now.AddYears(-1),
+                _ => now.AddMonths(-1)
+            };
+        }
 
         UpdateControls();
     }
@@ -99,6 +109,7 @@ public partial class DateSortModule : UserControl
     private void MovePeriod(int direction)
     {
         var span = _to - _from;
+        var days = (_to.Date - _from.Date).Days + 1;
 
         switch (_period)
         {
@@ -109,13 +120,16 @@ public partial class DateSortModule : UserControl
             case DateSortPeriod.TwelveHours:
             case DateSortPeriod.Day:
             case DateSortPeriod.Week:
-            case DateSortPeriod.Custom:
                 _from = _from.AddTicks(span.Ticks * direction);
                 _to = _to.AddTicks(span.Ticks * direction);
                 break;
+            case DateSortPeriod.Custom:
+                _from = ToStartOfDay(_from.Date.AddDays(days * direction));
+                _to = ToEndOfDay(_to.Date.AddDays(days * direction));
+                break;
             case DateSortPeriod.Month:
-                _from = _from.AddMonths(direction);
-                _to = _to.AddMonths(direction);
+                var nextMonth = _from.AddMonths(direction);
+                SetMonthRange(nextMonth.Year, nextMonth.Month);
                 break;
             case DateSortPeriod.HalfYear:
                 _from = _from.AddMonths(6 * direction);
@@ -133,14 +147,25 @@ public partial class DateSortModule : UserControl
     private void UpdateControls()
     {
         _isUpdatingDates = true;
-        FromDatePicker.SelectedDate = _from.Date;
-        ToDatePicker.SelectedDate = _to.Date;
+        RangeCalendar.DisplayDate = _from.Date;
+        RangeCalendar.SelectedDates.Clear();
+        for (var date = _from.Date; date <= _to.Date; date = date.AddDays(1))
+        {
+            RangeCalendar.SelectedDates.Add(date);
+        }
         _isUpdatingDates = false;
 
         PeriodButton.Content = _period == DateSortPeriod.Custom
             ? $"{_from:dd.MM.yyyy} - {_to:dd.MM.yyyy}"
             : GetPeriodLabel(_period);
         ApplyRangeToDataContext();
+    }
+
+    private void SetMonthRange(int year, int month)
+    {
+        _from = new DateTimeOffset(year, month, 1, 0, 0, 0, DateTimeOffset.Now.Offset);
+        var lastDay = DateTime.DaysInMonth(year, month);
+        _to = new DateTimeOffset(year, month, lastDay, 23, 59, 59, DateTimeOffset.Now.Offset);
     }
 
     private void ApplyRangeToDataContext()
@@ -151,12 +176,27 @@ public partial class DateSortModule : UserControl
         }
     }
 
+    private static DateTimeOffset ToStartOfDay(DateTime date) => new(date.Year, date.Month, date.Day, 0, 0, 0, DateTimeOffset.Now.Offset);
+
     private static DateTimeOffset ToStartOfDay(DateTimeOffset date) => new(date.Year, date.Month, date.Day, 0, 0, 0, date.Offset);
 
     private static DateTimeOffset ToEndOfDay(DateTimeOffset date) => new(date.Year, date.Month, date.Day, 23, 59, 59, date.Offset);
 
-    private static string GetPeriodLabel(DateSortPeriod period)
+    private string GetPeriodLabel(DateSortPeriod period)
     {
+        if (period == DateSortPeriod.Month)
+        {
+            var current = DateTime.Today;
+            var monthDiff = (_from.Year - current.Year) * 12 + (_from.Month - current.Month);
+            return monthDiff switch
+            {
+                -1 => "Минулий місяць",
+                0 => "Цей місяць",
+                1 => "Наступний місяць",
+                _ => $"{_from:MM.yyyy}"
+            };
+        }
+
         return period switch
         {
             DateSortPeriod.Hour => "Остання година",
@@ -166,7 +206,6 @@ public partial class DateSortModule : UserControl
             DateSortPeriod.TwelveHours => "Останні 12 годин",
             DateSortPeriod.Day => "Останній день",
             DateSortPeriod.Week => "Останній тиждень",
-            DateSortPeriod.Month => "Останній місяць",
             DateSortPeriod.HalfYear => "Останні пів року",
             DateSortPeriod.Year => "Останній рік",
             _ => "Діапазон"

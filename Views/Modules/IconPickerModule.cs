@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Threading;
@@ -111,6 +112,10 @@ public sealed class IconPickerModule
                 Width = 42,
                 Height = 42,
                 Padding = new Avalonia.Thickness(0),
+                Background = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.Parse("#D1D5DB")),
+                BorderThickness = new Avalonia.Thickness(1),
+                CornerRadius = new CornerRadius(8),
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 Content = CreateIconContent(option, 26)

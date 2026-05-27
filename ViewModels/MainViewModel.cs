@@ -40,6 +40,7 @@ public partial class MainViewModel : ViewModelBase
     private const string GroupsPage = "Groups";
     private const string ScheduledPaymentsPage = "ScheduledPayments";
     private const string CategoriesPage = "Categories";
+    private const string AllTransactionsPage = "AllTransactions";
     private const string ReportingPage = "Reporting";
     private const string SettingsPage = "Settings";
     private static readonly string[] ExpenseChartPalette =
@@ -71,6 +72,7 @@ public partial class MainViewModel : ViewModelBase
     private IReadOnlyList<TransactionItemViewModel> homeTransactionSource = [];
     private IReadOnlyList<TransactionItemViewModel> filteredTransactionSource = [];
     private readonly Dictionary<string, decimal> categoryLimits = new(StringComparer.OrdinalIgnoreCase);
+    private bool isRefreshingReportingSelections;
     private int filteredTransactionTakeCount = AllTransactionsPageSize;
     private int homeTransactionTakeCount = HomeTransactionsPageSize;
     private DateTimeOffset homeDateRangeFrom = DateTimeOffset.Now.AddMonths(-1);
@@ -204,6 +206,33 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private string reportStatusMessage = string.Empty;
+
+    [ObservableProperty]
+    private ObservableCollection<CategoryOptionViewModel> reportViewOptions = [];
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedReportView;
+
+    [ObservableProperty]
+    private DateTime? reportDateFrom = DateTime.Now.Date;
+
+    [ObservableProperty]
+    private DateTime? reportDateTo = DateTime.Now.Date;
+
+    [ObservableProperty]
+    private ObservableCollection<CategoryOptionViewModel> reportCategoryOptions = [];
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedReportCategory;
+
+    [ObservableProperty]
+    private decimal reportSelectedCategoryExpenseTotal;
+
+    [ObservableProperty]
+    private int reportSelectedCategoryTransactionCount;
+
+    [ObservableProperty]
+    private ObservableCollection<CategoryLegendItemViewModel> reportMonthlyExpenses = [];
 
     [ObservableProperty]
     private string transactionSearchText = string.Empty;
@@ -495,6 +524,7 @@ public partial class MainViewModel : ViewModelBase
         InitializeLanguages();
         InitializeThemes(userSettings.ThemeName);
         InitializeScheduledRepeatOptions();
+        InitializeReportingOptions();
         LoadServerSettingsFromBaseUrl();
         ResetAuthorizedUser();
         LoadApiOnlyPlaceholders();
@@ -534,6 +564,7 @@ public partial class MainViewModel : ViewModelBase
     public bool IsGroupsPage => CurrentPage == GroupsPage;
     public bool IsScheduledPaymentsPage => CurrentPage == ScheduledPaymentsPage;
     public bool IsCategoriesPage => CurrentPage == CategoriesPage;
+    public bool IsAllTransactionsPage => CurrentPage == AllTransactionsPage;
     public bool IsReportingPage => CurrentPage == ReportingPage;
     public bool IsSettingsPage => CurrentPage == SettingsPage;
     public bool IsCurrentUserAdmin => string.Equals(CurrentUserRole, "admin", StringComparison.OrdinalIgnoreCase);
@@ -589,13 +620,26 @@ public partial class MainViewModel : ViewModelBase
     public decimal ReportIncomeTotal => AllTransactions.Where(t => t.IsIncome).Sum(t => t.Amount);
     public decimal ReportExpenseTotal => AllTransactions.Where(t => !t.IsIncome).Sum(t => t.Amount);
     public decimal ReportBalanceTotal => ReportIncomeTotal - ReportExpenseTotal;
+    public bool IsCategoryPeriodReportView => string.Equals(SelectedReportView?.Code, "category_period", StringComparison.OrdinalIgnoreCase);
+    public bool IsMonthlyPlanReportView => string.Equals(SelectedReportView?.Code, "monthly_plan", StringComparison.OrdinalIgnoreCase);
+    public bool IsMonthlyExpensesReportView => string.Equals(SelectedReportView?.Code, "monthly_expenses", StringComparison.OrdinalIgnoreCase);
     public string AuthCardTitle => IsRegisterMode ? Texts.RegisterTitle : Texts.LoginTitle;
     public bool IsLoginMode => !IsRegisterMode;
     public bool IsOnboardingAccountSetupVisible => !IsCategorySettingsMode;
     public string AuthFooterPrompt => IsRegisterMode ? Texts.AlreadyRegisteredPrompt : Texts.NotRegisteredPrompt;
     public string AuthFooterAction => IsRegisterMode ? Texts.SwitchToLoginLink : Texts.SwitchToRegisterLink;
     public bool IsEditingTransaction => EditingTransactionId.HasValue;
-    public string TransactionDialogTitle => IsEditingTransaction ? Texts.TransactionDetailsTitle : Texts.NewTransactionButton;
+    public bool IsExpenseTransactionTypeSelected => string.Equals(TransactionType, "expense", StringComparison.OrdinalIgnoreCase);
+    public bool IsIncomeTransactionTypeSelected => string.Equals(TransactionType, "income", StringComparison.OrdinalIgnoreCase);
+    public bool IsPlannedTransactionMode =>
+        !IsEditingTransaction &&
+        TryBuildTransactionDateTime(TransactionSelectedDate, TransactionSelectedTime, out var transactionDate) &&
+        transactionDate.Date > DateTimeOffset.Now.Date;
+    public string TransactionDialogTitle => IsEditingTransaction
+        ? Texts.TransactionDetailsTitle
+        : IsPlannedTransactionMode
+            ? Texts.NewPlannedTransactionTitle
+            : Texts.NewTransactionButton;
     public string SaveTransactionButtonText => IsEditingTransaction ? Texts.UpdateTransactionButton : Texts.SaveTransactionButton;
     public string TransactionTypeDisplay => TransactionType == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType;
     public string TransactionTimelineTitle => Texts.TransactionTimelineTitle;
@@ -670,6 +714,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsGroupsPage));
         OnPropertyChanged(nameof(IsScheduledPaymentsPage));
         OnPropertyChanged(nameof(IsCategoriesPage));
+        OnPropertyChanged(nameof(IsAllTransactionsPage));
         OnPropertyChanged(nameof(IsReportingPage));
         OnPropertyChanged(nameof(IsSettingsPage));
     }
@@ -700,6 +745,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(SelectedGroupTransactions));
         OnPropertyChanged(nameof(TransactionCategoryPillWidth));
         RefreshSavingTransactions();
+        RefreshReportingSelections();
     }
 
     partial void OnSavingTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
@@ -771,6 +817,7 @@ public partial class MainViewModel : ViewModelBase
     partial void OnEditingTransactionIdChanged(int? value)
     {
         OnPropertyChanged(nameof(IsEditingTransaction));
+        OnPropertyChanged(nameof(IsPlannedTransactionMode));
         OnPropertyChanged(nameof(TransactionDialogTitle));
         OnPropertyChanged(nameof(SaveTransactionButtonText));
     }
@@ -789,6 +836,8 @@ public partial class MainViewModel : ViewModelBase
     {
         UpdateTransactionCategoryOptions(SelectedTransactionCategory?.Code);
         OnPropertyChanged(nameof(TransactionTypeDisplay));
+        OnPropertyChanged(nameof(IsExpenseTransactionTypeSelected));
+        OnPropertyChanged(nameof(IsIncomeTransactionTypeSelected));
     }
 
     partial void OnTransactionSearchTextChanged(string value)
@@ -806,6 +855,17 @@ public partial class MainViewModel : ViewModelBase
     {
         ApplyTransactionFilters();
     }
+
+    partial void OnSelectedReportViewChanged(CategoryOptionViewModel? value)
+    {
+        OnPropertyChanged(nameof(IsCategoryPeriodReportView));
+        OnPropertyChanged(nameof(IsMonthlyPlanReportView));
+        OnPropertyChanged(nameof(IsMonthlyExpensesReportView));
+    }
+
+    partial void OnSelectedReportCategoryChanged(CategoryOptionViewModel? value) => RefreshReportingSelections();
+    partial void OnReportDateFromChanged(DateTime? value) => RefreshReportingSelections();
+    partial void OnReportDateToChanged(DateTime? value) => RefreshReportingSelections();
 
     partial void OnScheduledPaymentTypeChanged(string value)
     {
@@ -832,6 +892,9 @@ public partial class MainViewModel : ViewModelBase
             TransactionSelectedMonth = value.Value.Month;
             TransactionSelectedYear = value.Value.Year;
         }
+
+        OnPropertyChanged(nameof(IsPlannedTransactionMode));
+        OnPropertyChanged(nameof(TransactionDialogTitle));
     }
 
     partial void OnTransactionDateChanged(DateTime? value)
@@ -843,6 +906,12 @@ public partial class MainViewModel : ViewModelBase
 
         var offset = TransactionSelectedDate?.Offset ?? DateTimeOffset.Now.Offset;
         TransactionSelectedDate = new DateTimeOffset(value.Value, offset);
+    }
+
+    partial void OnTransactionSelectedTimeChanged(TimeSpan? value)
+    {
+        OnPropertyChanged(nameof(IsPlannedTransactionMode));
+        OnPropertyChanged(nameof(TransactionDialogTitle));
     }
 
     partial void OnTransactionSelectedDayChanged(int value) => UpdateTransactionSelectedDateFromParts();
@@ -952,7 +1021,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void OpenCategories()
+    private async Task OpenCategoriesAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -962,7 +1031,22 @@ public partial class MainViewModel : ViewModelBase
         CurrentPage = CategoriesPage;
         IsCategoryDetailsOpen = false;
         IsCategorySettingsMode = true;
-        _ = LoadCategoryManagementAsync();
+        await LoadCategoryManagementAsync();
+        await LoadTransactionsAsync();
+        await LoadBudgetsAsync();
+        UpdateCategoryDetails();
+    }
+
+    [RelayCommand]
+    private void OpenAllTransactionsTab()
+    {
+        if (!EnsureAuthorizedNavigation())
+        {
+            return;
+        }
+
+        ApplyTransactionFilters();
+        CurrentPage = AllTransactionsPage;
     }
 
     [RelayCommand]
@@ -994,6 +1078,8 @@ public partial class MainViewModel : ViewModelBase
         await LoadBankAccountsAsync();
         await LoadTransactionsAsync();
         await LoadSavingsAsync();
+        await LoadBudgetsAsync();
+        RefreshReportingSelections();
         OnPropertyChanged(nameof(ReportIncomeTotal));
         OnPropertyChanged(nameof(ReportExpenseTotal));
         OnPropertyChanged(nameof(ReportBalanceTotal));
@@ -2181,6 +2267,10 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(AuthFooterPrompt));
         OnPropertyChanged(nameof(AuthFooterAction));
         OnPropertyChanged(nameof(TransactionTypeDisplay));
+        OnPropertyChanged(nameof(TransactionDialogTitle));
+        OnPropertyChanged(nameof(IsPlannedTransactionMode));
+        OnPropertyChanged(nameof(IsExpenseTransactionTypeSelected));
+        OnPropertyChanged(nameof(IsIncomeTransactionTypeSelected));
         OnPropertyChanged(nameof(TransactionTimelineTitle));
         OnPropertyChanged(nameof(SaveTransactionButtonText));
         RefreshOnboardingCategoryTypeDisplays();
@@ -2438,6 +2528,87 @@ public partial class MainViewModel : ViewModelBase
         SelectedScheduledRepeatOption = ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "once");
     }
 
+    private void InitializeReportingOptions()
+    {
+        var now = DateTimeOffset.Now;
+        ReportDateFrom = new DateTime(now.Year, now.Month, 1);
+        ReportDateTo = now.DateTime;
+
+        ReportViewOptions =
+        [
+            new CategoryOptionViewModel("category_period", "Звітність по обраній категорії за період часу"),
+            new CategoryOptionViewModel("monthly_plan", "Планові витрати за обраний місяць"),
+            new CategoryOptionViewModel("monthly_expenses", "Помісячні витрати за обраний період")
+        ];
+        SelectedReportView = ReportViewOptions.FirstOrDefault();
+    }
+
+    private void RefreshReportingSelections()
+    {
+        if (isRefreshingReportingSelections)
+        {
+            return;
+        }
+
+        isRefreshingReportingSelections = true;
+        try
+        {
+        var expenseCategoryOptions = BuildCategoryOptions("expense").ToArray();
+        ReportCategoryOptions = new ObservableCollection<CategoryOptionViewModel>(expenseCategoryOptions);
+        SelectedReportCategory = expenseCategoryOptions.FirstOrDefault(c => c.Code == SelectedReportCategory?.Code)
+            ?? expenseCategoryOptions.FirstOrDefault();
+
+        if (!ReportDateFrom.HasValue || !ReportDateTo.HasValue)
+        {
+            var now = DateTimeOffset.Now;
+            ReportDateFrom = new DateTime(now.Year, now.Month, 1);
+            ReportDateTo = now.DateTime;
+        }
+
+        var from = new DateTimeOffset(ReportDateFrom!.Value.Date);
+        var to = new DateTimeOffset(ReportDateTo!.Value.Date.AddDays(1).AddTicks(-1));
+        if (from > to)
+        {
+            (from, to) = (to, from);
+            ReportDateFrom = from.Date;
+            ReportDateTo = to.Date;
+        }
+
+        var categoryCode = SelectedReportCategory?.Code;
+        var categoryTransactions = AllTransactions
+            .Where(t => !t.IsIncome)
+            .Where(t => t.TransactionDate >= from && t.TransactionDate <= to)
+            .Where(t => string.Equals(t.CategoryCode, categoryCode, StringComparison.OrdinalIgnoreCase))
+            .ToArray();
+        ReportSelectedCategoryExpenseTotal = categoryTransactions.Sum(t => Math.Abs(t.Amount));
+        ReportSelectedCategoryTransactionCount = categoryTransactions.Length;
+
+        var monthly = AllTransactions
+            .Where(t => !t.IsIncome)
+            .Where(t => t.TransactionDate >= from && t.TransactionDate <= to)
+            .GroupBy(t => new { t.TransactionDate.Year, t.TransactionDate.Month })
+            .OrderBy(g => g.Key.Year).ThenBy(g => g.Key.Month)
+            .Select((g, index) =>
+            {
+                var amount = g.Sum(t => Math.Abs(t.Amount));
+                var monthLabel = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MM.yyyy", CultureInfo.InvariantCulture);
+                var palette = GetExpenseChartPalette();
+                var color = palette[index % palette.Length];
+                return new CategoryLegendItemViewModel(
+                    monthLabel,
+                    amount,
+                    new SolidColorBrush(Color.Parse(color)),
+                    $"{amount:N2}");
+            })
+            .ToArray();
+        ReportMonthlyExpenses = new ObservableCollection<CategoryLegendItemViewModel>(monthly);
+        }
+        finally
+        {
+            isRefreshingReportingSelections = false;
+        }
+    }
+
     private void UpdateLanguageOptionTitles()
     {
         foreach (var option in LanguageOptions)
@@ -2569,14 +2740,13 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private void OpenAllTransactions()
     {
-        ApplyTransactionFilters();
-        IsAllTransactionsDialogOpen = true;
+        OpenAllTransactionsTab();
     }
 
     [RelayCommand]
     private void CloseAllTransactions()
     {
-        IsAllTransactionsDialogOpen = false;
+        CurrentPage = HomePage;
     }
 
     [RelayCommand]
@@ -2626,9 +2796,9 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenCategorySettingsAsync()
     {
-        IsCategoryDetailsOpen = true;
-        IsCategorySettingsMode = true;
-        await LoadCategoryManagementAsync();
+        IsCategoryDetailsOpen = false;
+        IsCategorySettingsMode = false;
+        await OpenCategoriesAsync();
     }
 
     [RelayCommand]
@@ -2758,9 +2928,12 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateCharts()
     {
-        var incomeTotal = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)t.Amount);
-        var expenseTotal = LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)t.Amount);
+        var incomeTotal = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)Math.Abs(t.Amount));
+        var expenseTotal = LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)Math.Abs(t.Amount));
         var hasData = incomeTotal > 0 || expenseTotal > 0;
+        var chartCurrency = SelectedBankAccount?.Currency
+            ?? LatestExpenses.Select(t => t.Currency).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c))
+            ?? "UAH";
         var expenseGroups = LatestExpenses
             .Where(t => !t.IsIncome)
             .GroupBy(t => t.CategoryCode)
@@ -2774,9 +2947,10 @@ public partial class MainViewModel : ViewModelBase
                 {
                     var palette = GetExpenseChartPalette();
                     var color = palette[index % palette.Length];
+                    var amount = Math.Abs(g.Sum(t => t.Amount));
                     return new PieSeries<double>
                     {
-                        Values = [(double)g.Sum(t => t.Amount)],
+                        Values = [(double)amount],
                         Name = GetCategoryDisplayName(g.Key),
                         Fill = new SolidColorPaint(SKColor.Parse(color)),
                         Stroke = null
@@ -2790,12 +2964,12 @@ public partial class MainViewModel : ViewModelBase
             {
                 var palette = GetExpenseChartPalette();
                 var color = palette[index % palette.Length];
-                var amount = g.Sum(t => t.Amount);
+                var amount = Math.Abs(g.Sum(t => t.Amount));
                 return new CategoryLegendItemViewModel(
                     GetCategoryDisplayName(g.Key),
                     amount,
                     new SolidColorBrush(Color.Parse(color)),
-                    $"{amount:N2} UAH");
+                    $"{amount:N2} {chartCurrency}");
             }));
 
         UpdateCategoryDetails();
@@ -2815,7 +2989,7 @@ public partial class MainViewModel : ViewModelBase
                 g => new
                 {
                     Income = g.Where(t => t.IsIncome).Sum(t => (double)t.Amount),
-                    Expense = g.Where(t => !t.IsIncome).Sum(t => (double)t.Amount)
+                    Expense = g.Where(t => !t.IsIncome).Sum(t => (double)Math.Abs(t.Amount))
                 });
 
         var labels = new List<string>(dayCount);
@@ -2829,8 +3003,8 @@ public partial class MainViewModel : ViewModelBase
 
             if (grouped.TryGetValue(date, out var totals))
             {
-                incomeValues.Add(totals.Income);
-                expenseValues.Add(totals.Expense);
+                incomeValues.Add(Math.Max(0, totals.Income));
+                expenseValues.Add(Math.Max(0, totals.Expense));
             }
             else
             {

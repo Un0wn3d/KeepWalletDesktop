@@ -13,9 +13,8 @@
         <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsHomePage}">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           ScrollChanged="HomeScrollViewer_OnScrollChanged">
-                <Grid RowDefinitions="Auto, Auto, 260, Auto" RowSpacing="16" MaxWidth="1280">
-                    <modules:DateSortModule Grid.Row="0" />
-                    <Border Grid.Row="1">
+                <Grid RowDefinitions="Auto, 260, Auto, Auto" RowSpacing="16" MaxWidth="1280">
+                    <Border Grid.Row="0">
                         <Grid ColumnDefinitions="*, *, *" ColumnSpacing="16">
                             <Border Grid.Column="0" Classes="metric-card total">
                                 <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
@@ -56,7 +55,7 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="2">
+                    <Border Grid.Row="1">
                         <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
                             <Button Grid.Column="0"
                                     Background="Transparent"
@@ -134,8 +133,10 @@
                         </Grid>
                     </Border>
 
+                    <modules:DateSortModule Grid.Row="2" HorizontalAlignment="Stretch" />
+
                     <Border Grid.Row="3" Classes="expenses-card">
-                            <Grid RowDefinitions="Auto, Auto, Auto, *">
+                            <Grid RowDefinitions="Auto, Auto, *">
                                 <Grid ColumnDefinitions="*, Auto" Margin="0,0,0,16">
                                     <TextBlock Grid.Column="0"
                                                Text="{Binding Texts.TransactionsSectionTitle}"
@@ -151,27 +152,7 @@
                                            IsVisible="{Binding HasNoTransactions}"
                                            Margin="0,0,0,8" />
 
-                                <Grid Grid.Row="2"
-                                      ColumnDefinitions="52, 5*, 2*, 2*"
-                                      ColumnSpacing="12"
-                                      Margin="8,0,8,2"
-                                      IsVisible="{Binding HasTransactions}">
-                                    <TextBlock />
-                                    <TextBlock Grid.Column="1"
-                                               Text="{Binding Texts.TransactionDescriptionLabel}"
-                                               Classes="muted"
-                                               FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="2"
-                                               Text="{Binding Texts.TransactionCategoryLabel}"
-                                               Classes="muted"
-                                               FontWeight="SemiBold" />
-                                    <TextBlock Grid.Column="3"
-                                               Text="{Binding Texts.TransactionAmountLabel}"
-                                               Classes="muted"
-                                               FontWeight="SemiBold" />
-                                </Grid>
-
-                                <ItemsControl Grid.Row="3" ItemsSource="{Binding VisibleTransactions}" Background="{DynamicResource Color.AquaPanel}">
+                                <ItemsControl Grid.Row="2" ItemsSource="{Binding VisibleTransactions}" Background="{DynamicResource Color.AquaPanel}">
                                     <ItemsControl.Styles>
                                         <Style Selector="Button.transaction-row-button">
                                             <Setter Property="Background" Value="Transparent" />
@@ -211,7 +192,10 @@
                                                         <Border Width="40"
                                                                 Height="40"
                                                                 CornerRadius="8"
-                                                                Background="{Binding CategoryAnchorBrush}">
+                                                                Background="White"
+                                                                BorderBrush="{DynamicResource Color.BorderSoft}"
+                                                                BorderThickness="1"
+                                                                BoxShadow="{DynamicResource Shadow.Card}">
                                                             <Grid>
                                                                 <TextBlock Text="{Binding CategoryIcon}"
                                                                            FontFamily="{StaticResource EmojiFontFamily}"
@@ -264,6 +248,3 @@
             </ScrollViewer>
         </Border>
 </UserControl>
-
-
-

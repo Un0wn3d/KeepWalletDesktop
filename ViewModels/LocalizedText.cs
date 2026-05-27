@@ -52,6 +52,7 @@ public interface ILocalizedText
     string SavingsAmountLabel { get; }
     string SavingsAmountHint { get; }
     string AddToSavingsButton { get; }
+    string WithdrawFromSavingsButton { get; }
     string GoalProgressLabel { get; }
     string SavedAmountPrefix { get; }
     string RemainingAmountPrefix { get; }
@@ -60,6 +61,8 @@ public interface ILocalizedText
     string SavingItemAmountHint { get; }
     string AddSavingItemButton { get; }
     string SavingRateHistoryTitle { get; }
+    string SavingsDeadlineLabel { get; }
+    string SavingsDeadlineHint { get; }
     string SettingsTitle { get; }
     string UsersTitle { get; }
     string UserLogsTitle { get; }
@@ -144,6 +147,7 @@ public interface ILocalizedText
     string EditTransactionButton { get; }
     string DeleteTransactionButton { get; }
     string NewTransactionButton { get; }
+    string NewPlannedTransactionTitle { get; }
     string NoTransactionsText { get; }
     string TransactionSavedText { get; }
     string TransactionUpdatedText { get; }
@@ -189,6 +193,7 @@ public interface ILocalizedText
     string OnboardingCategorySelectionRequired { get; }
     string ScheduledPaymentsTitle { get; }
     string ScheduledPaymentNameLabel { get; }
+    string ScheduledPaymentRemainingLabel { get; }
     string ScheduledPaymentRepeatLabel { get; }
     string ScheduledPaymentCustomRepeatHint { get; }
     string ScheduledRepeatOnce { get; }
@@ -289,6 +294,7 @@ public sealed class LocalizedText : ILocalizedText
     public string SavingsAmountLabel => Get(nameof(SavingsAmountLabel));
     public string SavingsAmountHint => Get(nameof(SavingsAmountHint));
     public string AddToSavingsButton => Get(nameof(AddToSavingsButton));
+    public string WithdrawFromSavingsButton => Get(nameof(WithdrawFromSavingsButton));
     public string GoalProgressLabel => Get(nameof(GoalProgressLabel));
     public string SavedAmountPrefix => Get(nameof(SavedAmountPrefix));
     public string RemainingAmountPrefix => Get(nameof(RemainingAmountPrefix));
@@ -297,6 +303,8 @@ public sealed class LocalizedText : ILocalizedText
     public string SavingItemAmountHint => Get(nameof(SavingItemAmountHint));
     public string AddSavingItemButton => Get(nameof(AddSavingItemButton));
     public string SavingRateHistoryTitle => Get(nameof(SavingRateHistoryTitle));
+    public string SavingsDeadlineLabel => Get(nameof(SavingsDeadlineLabel));
+    public string SavingsDeadlineHint => Get(nameof(SavingsDeadlineHint));
     public string SettingsTitle => Get(nameof(SettingsTitle));
     public string UsersTitle => Get(nameof(UsersTitle));
     public string UserLogsTitle => Get(nameof(UserLogsTitle));
@@ -381,6 +389,7 @@ public sealed class LocalizedText : ILocalizedText
     public string EditTransactionButton => Get(nameof(EditTransactionButton));
     public string DeleteTransactionButton => Get(nameof(DeleteTransactionButton));
     public string NewTransactionButton => Get(nameof(NewTransactionButton));
+    public string NewPlannedTransactionTitle => Get(nameof(NewPlannedTransactionTitle));
     public string NoTransactionsText => Get(nameof(NoTransactionsText));
     public string TransactionSavedText => Get(nameof(TransactionSavedText));
     public string TransactionUpdatedText => Get(nameof(TransactionUpdatedText));
@@ -426,6 +435,7 @@ public sealed class LocalizedText : ILocalizedText
     public string OnboardingCategorySelectionRequired => Get(nameof(OnboardingCategorySelectionRequired));
     public string ScheduledPaymentsTitle => Get(nameof(ScheduledPaymentsTitle));
     public string ScheduledPaymentNameLabel => Get(nameof(ScheduledPaymentNameLabel));
+    public string ScheduledPaymentRemainingLabel => Get(nameof(ScheduledPaymentRemainingLabel));
     public string ScheduledPaymentRepeatLabel => Get(nameof(ScheduledPaymentRepeatLabel));
     public string ScheduledPaymentCustomRepeatHint => Get(nameof(ScheduledPaymentCustomRepeatHint));
     public string ScheduledRepeatOnce => Get(nameof(ScheduledRepeatOnce));

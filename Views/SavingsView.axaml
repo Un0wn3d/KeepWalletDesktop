@@ -213,7 +213,7 @@
                                                 MinWidth="120"
                                                 Command="{Binding AddToSavingsCommand}" />
                                         <Button Grid.Column="3"
-                                                Content="Ð—Ð½ÑÑ‚Ð¸"
+                                                Content="{Binding Texts.WithdrawFromSavingsButton}"
                                                 Classes="secondary-button"
                                                 MinWidth="120"
                                                 Command="{Binding WithdrawFromSavingsCommand}" />
@@ -237,7 +237,10 @@
                                                                 <Border Width="36"
                                                                         Height="36"
                                                                         CornerRadius="8"
-                                                                        Background="{Binding CategoryAnchorBrush}">
+                                                                        Background="White"
+                                                                        BorderBrush="{DynamicResource Color.BorderSoft}"
+                                                                        BorderThickness="1"
+                                                                        BoxShadow="{DynamicResource Shadow.Card}">
                                                                     <TextBlock Text="{Binding CategoryIcon}"
                                                                                FontFamily="{StaticResource EmojiFontFamily}"
                                                                                FontSize="16"
@@ -384,8 +387,8 @@
                         <TextBox Watermark="{Binding Texts.SavingsAmountHint}"
                                  Text="{Binding SavingsDialogInitialAmountInput}" />
 
-                        <TextBlock Text="Ð”ÐµÐ´Ð»Ð°Ð¹Ð½ (Ð´Ð´.Ð¼Ð¼.Ñ€Ñ€Ñ€Ñ€)" Classes="form-label" />
-                        <TextBox Watermark="31.12.2026"
+                        <TextBlock Text="{Binding Texts.SavingsDeadlineLabel}" Classes="form-label" />
+                        <TextBox Watermark="{Binding Texts.SavingsDeadlineHint}"
                                  Text="{Binding SavingsDialogDeadlineInput}" />
 
                         <TextBlock Text="{Binding Texts.BankAccountsTitle}" Classes="form-label" />
@@ -419,4 +422,3 @@
         </Border>
     </Grid>
 </UserControl>
-

@@ -12,21 +12,21 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="12">
                 <Grid ColumnDefinitions="*, Auto">
-                    <TextBlock Text="Planned payments" Classes="page-title" />
-                    <Button Grid.Column="1" Content="New payment" Classes="primary-button" Command="{Binding AddScheduledPaymentCommand}" />
+                    <TextBlock Text="{Binding Texts.ScheduledPaymentsTitle}" Classes="page-title" />
+                    <Button Grid.Column="1" Content="{Binding Texts.AddScheduledPaymentButton}" Classes="primary-button" Command="{Binding AddScheduledPaymentCommand}" />
                 </Grid>
 
                 <Border Classes="panel-card">
                     <StackPanel Spacing="10">
                         <Grid ColumnDefinitions="34,2*,1.3*,1.2*,1*,1.2*,1.2*,1.2*,Auto" ColumnSpacing="8" Margin="0,2,0,0">
-                            <TextBlock Grid.Column="1" Text="Name" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="2" Text="Remaining" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="3" Text="Category" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="4" Text="Amount" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="5" Text="Date" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="6" Text="Repeat" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="7" Text="Confirm" Classes="muted" FontWeight="SemiBold" />
-                            <TextBlock Grid.Column="8" Text="Delete" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="1" Text="{Binding Texts.ScheduledPaymentNameLabel}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="2" Text="{Binding Texts.ScheduledPaymentRemainingLabel}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="3" Text="{Binding Texts.TransactionCategoryLabel}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="4" Text="{Binding Texts.TransactionAmountLabel}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="5" Text="{Binding Texts.TransactionDateLabel}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="6" Text="{Binding Texts.ScheduledPaymentRepeatLabel}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="7" Text="{Binding Texts.ConfirmScheduledPaymentButton}" Classes="muted" FontWeight="SemiBold" />
+                            <TextBlock Grid.Column="8" Text="{Binding Texts.DeleteTransactionButton}" Classes="muted" FontWeight="SemiBold" />
                         </Grid>
 
                         <ItemsControl ItemsSource="{Binding FilteredScheduledPayments}">
@@ -34,7 +34,13 @@
                                 <DataTemplate x:DataType="vm:ScheduledPaymentItemViewModel">
                                     <Border Classes="list-item-card" Margin="0,2">
                                         <Grid ColumnDefinitions="34,2*,1.3*,1.2*,1*,1.2*,1.2*,1.2*,Auto" ColumnSpacing="8">
-                                            <Border Width="28" Height="28" CornerRadius="8" Background="#E5E7EB">
+                                            <Border Width="28"
+                                                    Height="28"
+                                                    CornerRadius="8"
+                                                    Background="White"
+                                                    BorderBrush="{DynamicResource Color.BorderSoft}"
+                                                    BorderThickness="1"
+                                                    BoxShadow="{DynamicResource Shadow.Card}">
                                                 <TextBlock Text="{Binding CategoryIcon}" FontFamily="{StaticResource EmojiFontFamily}" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" />
                                             </Border>
                                             <TextBlock Grid.Column="1" Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -43,7 +49,7 @@
                                             <TextBlock Grid.Column="4" Text="{Binding AmountDisplay}" FontWeight="SemiBold" VerticalAlignment="Center" />
                                             <TextBlock Grid.Column="5" Text="{Binding DueDateDisplay}" VerticalAlignment="Center" />
                                             <TextBlock Grid.Column="6" Text="{Binding Frequency}" Classes="muted" VerticalAlignment="Center" />
-                                            <Button Grid.Column="7" Content="Confirm" Classes="primary-button" IsEnabled="{Binding IsActive}" Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}" CommandParameter="{Binding .}" />
+                                            <Button Grid.Column="7" Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.ConfirmScheduledPaymentButton}" Classes="primary-button" IsEnabled="{Binding IsActive}" Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}" CommandParameter="{Binding .}" />
                                             <Button Grid.Column="8" Width="38" Height="38" Classes="danger-button" Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteScheduledPaymentCommand}" CommandParameter="{Binding .}">
                                                 <TextBlock Text="&#xE4A6;" FontFamily="{DynamicResource Phosphor-Fill}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                             </Button>

@@ -6,78 +6,112 @@
              d:DesignWidth="520"
              d:DesignHeight="52"
              x:Class="KeepWalletDesktop.Views.Mdules.DateSortModule">
+    <UserControl.Styles>
+        <Style Selector="FlyoutPresenter">
+            <Setter Property="MinWidth" Value="560" />
+            <Setter Property="MaxWidth" Value="660" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Background" Value="{DynamicResource Color.SurfaceAlt}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+    </UserControl.Styles>
+
     <Border Classes="panel-card alt"
             Padding="10"
-            HorizontalAlignment="Left">
-        <StackPanel Orientation="Horizontal" Spacing="8">
+            HorizontalAlignment="Stretch">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="8"
+                    HorizontalAlignment="Center">
             <Button Content="&lt;&lt;"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
                     MinWidth="48"
+                    Background="#F8FAFC"
+                    BorderBrush="#E5E7EB"
                     Click="PreviousButton_Click" />
 
             <Button x:Name="PeriodButton"
                     MinWidth="180"
-                    Content="Останній місяць">
+                    Background="#F8FAFC"
+                    BorderBrush="#E5E7EB"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Content="Цей місяць">
                 <Button.Flyout>
-                    <Flyout Placement="Bottom">
-                        <Border Padding="14"
-                                MinWidth="520"
-                                Background="{DynamicResource Color.SurfaceAlt}">
-                            <Grid ColumnDefinitions="*, 220" ColumnSpacing="18">
+                    <Flyout Placement="Bottom"
+                            VerticalOffset="13">
+                            <Border Padding="10"
+                                    CornerRadius="8"
+                                    Margin="0"
+                                    Background="{DynamicResource Color.SurfaceAlt}">
+                            <Grid ColumnDefinitions="350, 200" ColumnSpacing="12">
                                 <StackPanel Spacing="10">
-                                    <TextBlock Text="Діапазон"
-                                               FontWeight="SemiBold" />
-                                    <Grid ColumnDefinitions="Auto, *"
-                                          RowDefinitions="Auto, Auto"
-                                          ColumnSpacing="8"
-                                          RowSpacing="8">
-                                        <TextBlock Text="З"
-                                                   VerticalAlignment="Center"
-                                                   Classes="muted" />
-                                        <CalendarDatePicker x:Name="FromDatePicker"
-                                                            Grid.Column="1"
-                                                            SelectedDateChanged="DatePicker_SelectedDateChanged" />
-
-                                        <TextBlock Grid.Row="1"
-                                                   Text="По"
-                                                   VerticalAlignment="Center"
-                                                   Classes="muted" />
-                                        <CalendarDatePicker x:Name="ToDatePicker"
-                                                            Grid.Row="1"
-                                                            Grid.Column="1"
-                                                            SelectedDateChanged="DatePicker_SelectedDateChanged" />
-                                    </Grid>
+                                    <Calendar x:Name="RangeCalendar"
+                                              SelectionMode="SingleRange"
+                                              SelectedDatesChanged="RangeCalendar_SelectedDatesChanged" />
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Spacing="6">
                                     <Button Content="Остання година"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastHourButton_Click" />
                                     <Button Content="Останні 2 години"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastTwoHoursButton_Click" />
                                     <Button Content="Останні 3 години"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastThreeHoursButton_Click" />
                                     <Button Content="Останні 6 годин"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastSixHoursButton_Click" />
                                     <Button Content="Останні 12 годин"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastTwelveHoursButton_Click" />
                                     <Button Content="Останній день"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastDayButton_Click" />
                                     <Button Content="Останній тиждень"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastWeekButton_Click" />
-                                    <Button Content="Останній місяць"
+                                    <Button Content="Цей місяць"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastMonthButton_Click" />
                                     <Button Content="Останні пів року"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastHalfYearButton_Click" />
                                     <Button Content="Останній рік"
+                                            HorizontalContentAlignment="Center"
                                             HorizontalAlignment="Stretch"
+                                            Background="#F8FAFC"
+                                            BorderBrush="#E5E7EB"
                                             Click="LastYearButton_Click" />
                                 </StackPanel>
                             </Grid>
@@ -88,6 +122,10 @@
 
             <Button Content="&gt;&gt;"
                     MinWidth="48"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    Background="#F8FAFC"
+                    BorderBrush="#E5E7EB"
                     Click="NextButton_Click" />
         </StackPanel>
     </Border>

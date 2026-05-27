@@ -24,6 +24,33 @@
                             Command="{Binding ExportReportExcelCommand}" />
                 </Grid>
 
+                <Border Classes="panel-card alt">
+                    <Grid ColumnDefinitions="2*, Auto, Auto, 2*" ColumnSpacing="8">
+                        <ComboBox ItemsSource="{Binding ReportViewOptions}"
+                                  SelectedItem="{Binding SelectedReportView}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                    <TextBlock Text="{Binding DisplayName}" TextWrapping="Wrap" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                        <CalendarDatePicker Grid.Column="1"
+                                            SelectedDate="{Binding ReportDateFrom, Mode=TwoWay}" />
+                        <CalendarDatePicker Grid.Column="2"
+                                            SelectedDate="{Binding ReportDateTo, Mode=TwoWay}" />
+                        <ComboBox Grid.Column="3"
+                                  ItemsSource="{Binding ReportCategoryOptions}"
+                                  SelectedItem="{Binding SelectedReportCategory}"
+                                  IsVisible="{Binding IsCategoryPeriodReportView}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                    <TextBlock Text="{Binding DisplayName}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+                </Border>
+
                 <Grid ColumnDefinitions="*, *, *" ColumnSpacing="12">
                     <Border Grid.Column="0" Classes="panel-card alt">
                         <StackPanel Spacing="6">
@@ -44,6 +71,55 @@
                         </StackPanel>
                     </Border>
                 </Grid>
+
+                <Border Classes="panel-card"
+                        IsVisible="{Binding IsCategoryPeriodReportView}">
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Звітність по обраній категорії за період" Classes="card-title" />
+                        <TextBlock Text="{Binding ReportSelectedCategoryExpenseTotal, StringFormat=Сума витрат: {0:N2}}" />
+                        <TextBlock Text="{Binding ReportSelectedCategoryTransactionCount, StringFormat=Кількість транзакцій: {0}}" Classes="muted" />
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="panel-card"
+                        IsVisible="{Binding IsMonthlyPlanReportView}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Планові витрати за обраний місяць" Classes="card-title" />
+                        <ItemsControl ItemsSource="{Binding CategoryDetails}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CategoryDetailItemViewModel">
+                                    <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12" Margin="0,4">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding AmountDisplay, StringFormat=Факт: {0}}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding LimitDisplay, StringFormat=План: {0}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <Border Classes="panel-card"
+                        IsVisible="{Binding IsMonthlyExpensesReportView}">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Помісячні витрати за обраний період" Classes="card-title" />
+                        <ItemsControl ItemsSource="{Binding ReportMonthlyExpenses}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:CategoryLegendItemViewModel">
+                                    <Grid ColumnDefinitions="16, *, Auto" ColumnSpacing="8" Margin="0,4">
+                                        <Border Width="10"
+                                                Height="10"
+                                                CornerRadius="5"
+                                                Background="{Binding ColorBrush}"
+                                                VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="{Binding Name}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding AmountDisplay}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
 
                 <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
                     <Border Classes="panel-card">

@@ -8,6 +8,13 @@
              x:Class="KeepWalletDesktop.Views.Controls.FloatingActionMenu">
 
     <Button Classes="fab-button"
-            Content="+"
-            Command="{Binding CreateTransactionCommand}" />
+            Command="{Binding CreateTransactionCommand}">
+        <TextBlock Text="+"
+                   FontSize="34"
+                   FontWeight="SemiBold"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   TextAlignment="Center"
+                   Margin="0,0,1,5" />
+    </Button>
 </UserControl>

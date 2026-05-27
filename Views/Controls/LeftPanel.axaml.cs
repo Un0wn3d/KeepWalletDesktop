@@ -68,6 +68,14 @@ public partial class LeftPanel : UserControl
         }
     }
 
+    private void btn_AllTransactions(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel vm)
+        {
+            vm.OpenAllTransactionsTabCommand.Execute(null);
+        }
+    }
+
     private void btn_Settings(object? sender, RoutedEventArgs e)
     {
         if (DataContext is MainViewModel vm)

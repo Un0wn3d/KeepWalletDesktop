@@ -8,6 +8,15 @@
              d:DesignHeight="650"
              x:Class="KeepWalletDesktop.Views.CategoriesView"
              x:DataType="vm:MainViewModel">
+    <UserControl.Styles>
+        <Style Selector="Button.category-icon-button">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+    </UserControl.Styles>
+
     <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsCategoriesPage}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" MaxWidth="1120">
@@ -29,6 +38,7 @@
                             <Button Width="40"
                                     Height="40"
                                     Padding="0"
+                                    Classes="category-icon-button"
                                     Click="NewCategoryIconButton_OnClick"
                                     HorizontalContentAlignment="Center"
                                     VerticalContentAlignment="Center">
@@ -75,6 +85,7 @@
                                             <Button Width="40"
                                                     Height="40"
                                                     Padding="0"
+                                                    Classes="category-icon-button"
                                                     Grid.Column="0"
                                                     Click="CategoryIconButton_OnClick"
                                                     HorizontalContentAlignment="Center"
@@ -138,6 +149,7 @@
                                             <Button Width="40"
                                                     Height="40"
                                                     Padding="0"
+                                                    Classes="category-icon-button"
                                                     Grid.Column="0"
                                                     Click="CategoryIconButton_OnClick"
                                                     HorizontalContentAlignment="Center"
@@ -238,5 +250,3 @@
         </ScrollViewer>
     </Border>
 </UserControl>
-
-
