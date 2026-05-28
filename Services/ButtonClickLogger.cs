@@ -1,6 +1,5 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.VisualTree;
 using KeepWalletDesktop.ViewModels;
 using Serilog;
 using System.Linq;
@@ -25,7 +24,7 @@ internal static class ButtonClickLogger
 
     private static void LogButtonClick(Button button, RoutedEventArgs e)
     {
-        var mainViewModel = button.GetVisualRoot() is Window { DataContext: MainViewModel viewModel }
+        var mainViewModel = TopLevel.GetTopLevel(button) is Window { DataContext: MainViewModel viewModel }
             ? viewModel
             : null;
 

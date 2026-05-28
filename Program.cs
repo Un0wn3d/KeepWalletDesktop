@@ -19,5 +19,10 @@ sealed class Program
         => AppBuilder.Configure<App>()
             .UsePlatformDetect()
             .WithInterFont()
+            .With(new X11PlatformOptions
+            {
+                // On Hyprland/XWayland prefer stable GLX path and keep software fallback.
+                RenderingMode = new[] { X11RenderingMode.Glx, X11RenderingMode.Software }
+            })
             .LogToTrace();
 }
