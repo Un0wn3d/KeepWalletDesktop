@@ -1,6 +1,7 @@
 ﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:views="clr-namespace:KeepWalletDesktop.Views"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
@@ -9,8 +10,9 @@
              x:Class="KeepWalletDesktop.Views.GroupsView"
              x:DataType="vm:MainViewModel">
     <Border Grid.Column="1" Margin="10" IsVisible="{Binding IsGroupsPage}">
-        <Grid ColumnDefinitions="360, *" ColumnSpacing="14">
-            <Border>
+        <Grid>
+            <Grid ColumnDefinitions="360, *" ColumnSpacing="14">
+                <Border>
                 <Grid RowDefinitions="Auto, *" RowSpacing="12">
                     <StackPanel Spacing="8">
                         <Border Classes="panel-card alt">
@@ -112,7 +114,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="1" Classes="panel-card">
+                <Border Grid.Column="1" Classes="panel-card">
                 <Grid RowDefinitions="Auto, *" RowSpacing="14">
                     <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="8">
                         <Button Width="52"
@@ -122,15 +124,15 @@
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center">
                             <Grid>
-                                <TextBlock Text="{Binding SelectedAccessGroup.IconGlyph}"
+                                <TextBlock Text="{Binding SelectedAccessGroup.IconGlyph, TargetNullValue=''}"
                                            FontFamily="{StaticResource EmojiFontFamily}"
                                            FontSize="22"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center" />
-                                <Image Source="{Binding SelectedAccessGroup.IconSampleImage}"
+                                <Image Source="{Binding SelectedAccessGroup.IconSampleImage, TargetNullValue={x:Null}}"
                                        Width="34"
                                        Height="34"
-                                       IsVisible="{Binding SelectedAccessGroup.HasIconSampleImage}" />
+                                       IsVisible="{Binding SelectedAccessGroup.HasIconSampleImage, TargetNullValue=False}" />
                             </Grid>
                         </Button>
                         <StackPanel Grid.Column="1" Spacing="6">
@@ -140,7 +142,7 @@
                                     HorizontalContentAlignment="Left"
                                     DoubleTapped="SelectedGroupName_OnDoubleTapped"
                                     IsVisible="{Binding !IsEditingSelectedGroupName}">
-                                <TextBlock Text="{Binding SelectedAccessGroup.Name}"
+                                <TextBlock Text="{Binding SelectedAccessGroup.Name, TargetNullValue=''}"
                                            FontSize="22"
                                            FontWeight="SemiBold" />
                             </Button>
@@ -154,16 +156,16 @@
                                      KeyDown="SelectedGroupNameTextBox_OnKeyDown"
                                      IsVisible="{Binding IsEditingSelectedGroupName}" />
                             <StackPanel Orientation="Horizontal" Spacing="12">
-                                <TextBlock Text="{Binding SelectedAccessGroup.CreatedAtDisplay}" Classes="muted" />
+                                <TextBlock Text="{Binding SelectedAccessGroup.CreatedAtDisplay, TargetNullValue=''}" Classes="muted" />
                                 <Grid>
-                                    <Border Classes="owner-chip" IsVisible="{Binding SelectedAccessGroup.IsOwnerRole}">
-                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName}" />
+                                    <Border Classes="owner-chip" IsVisible="{Binding SelectedAccessGroup.IsOwnerRole, TargetNullValue=False}">
+                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName, TargetNullValue=''}" />
                                     </Border>
-                                    <Border Classes="member-chip" IsVisible="{Binding SelectedAccessGroup.IsMemberRole}">
-                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName}" />
+                                    <Border Classes="member-chip" IsVisible="{Binding SelectedAccessGroup.IsMemberRole, TargetNullValue=False}">
+                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName, TargetNullValue=''}" />
                                     </Border>
-                                    <Border Classes="viewer-chip" IsVisible="{Binding SelectedAccessGroup.IsViewerRole}">
-                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName}" />
+                                    <Border Classes="viewer-chip" IsVisible="{Binding SelectedAccessGroup.IsViewerRole, TargetNullValue=False}">
+                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName, TargetNullValue=''}" />
                                     </Border>
                                 </Grid>
                             </StackPanel>
@@ -304,53 +306,213 @@
                                             Command="{Binding ShareSavingWithGroupCommand}" />
                                 </Grid>
                                 <TextBlock Text="{Binding Texts.GroupAccessAccountsTitle}" FontWeight="SemiBold" />
-                                <ItemsControl ItemsSource="{Binding SelectedGroupBankAccounts}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:BankAccountItemViewModel">
-                                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,3">
-                                                <Button Classes="link-button"
-                                                        HorizontalContentAlignment="Left"
-                                                        Click="OpenGroupBankAccount_OnClick"
-                                                        Content="{Binding Name}" />
-                                                <Button Grid.Column="1"
-                                                        Classes="secondary-button"
-                                                        Click="OpenGroupBankAccount_OnClick"
-                                                        Content="{Binding $parent[UserControl].DataContext.Texts.EditTransactionButton}" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                <Border Classes="panel-card alt">
+                                    <ItemsControl ItemsSource="{Binding SelectedGroupBankAccounts}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:BankAccountItemViewModel">
+                                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10" Margin="0,6">
+                                                    <Button Background="Transparent"
+                                                            BorderThickness="0"
+                                                            Padding="0"
+                                                            HorizontalAlignment="Stretch"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            Click="OpenGroupBankAccount_OnClick"
+                                                            CommandParameter="{Binding .}">
+                                                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Name}"
+                                                                           FontWeight="SemiBold"
+                                                                           Foreground="{DynamicResource Color.Text1}" />
+                                                                <TextBlock Text="{Binding Currency}"
+                                                                           Classes="muted" />
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="1"
+                                                                       Text="{Binding BalanceDisplay}"
+                                                                       FontWeight="SemiBold"
+                                                                       VerticalAlignment="Center"
+                                                                       Foreground="{DynamicResource Color.Text1}" />
+                                                        </Grid>
+                                                    </Button>
+                                                    <Button Grid.Column="1"
+                                                            Width="44"
+                                                            Height="44"
+                                                            Padding="0"
+                                                            HorizontalContentAlignment="Center"
+                                                            VerticalContentAlignment="Center"
+                                                            Classes="secondary-button"
+                                                            Click="OpenGroupBankAccount_OnClick"
+                                                            CommandParameter="{Binding .}">
+                                                        <Viewbox Width="18" Height="18">
+                                                            <TextBlock Text="&#xE34C;"
+                                                                       FontFamily="{DynamicResource Phosphor-Fill}"
+                                                                       TextAlignment="Center"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                        </Viewbox>
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+
                                 <TextBlock Text="{Binding Texts.GroupAccessTransactionsTitle}" FontWeight="SemiBold" />
-                                <ItemsControl ItemsSource="{Binding SelectedGroupTransactions}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate x:DataType="vm:TransactionItemViewModel">
-                                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,3">
-                                                <Button Classes="link-button"
-                                                        HorizontalContentAlignment="Left"
+                                <Border Classes="panel-card alt">
+                                    <ItemsControl ItemsSource="{Binding SelectedGroupTransactions}">
+                                        <ItemsControl.Styles>
+                                            <Style Selector="Button.group-transaction-row-button">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="BorderBrush" Value="Transparent" />
+                                            </Style>
+                                            <Style Selector="Button.group-transaction-row-button:pointerover">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="BorderBrush" Value="Transparent" />
+                                            </Style>
+                                            <Style Selector="Button.group-transaction-row-button:pressed">
+                                                <Setter Property="Background" Value="Transparent" />
+                                                <Setter Property="BorderBrush" Value="Transparent" />
+                                            </Style>
+                                        </ItemsControl.Styles>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:TransactionItemViewModel">
+                                                <Button Background="Transparent"
+                                                        Classes="group-transaction-row-button"
+                                                        BorderThickness="0"
+                                                        Padding="0"
+                                                        Margin="0,4"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Stretch"
                                                         Click="OpenGroupTransaction_OnClick"
-                                                        Content="{Binding DescriptionDisplay}" />
-                                                <Button Grid.Column="1"
-                                                        Classes="secondary-button"
-                                                        Click="OpenGroupTransaction_OnClick"
-                                                        Content="{Binding $parent[UserControl].DataContext.Texts.EditTransactionButton}" />
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
+                                                        CommandParameter="{Binding .}">
+                                                    <Border Classes="list-item-card">
+                                                        <Grid ColumnDefinitions="52, 5*, 2*, 2*"
+                                                              ColumnSpacing="12"
+                                                              VerticalAlignment="Center">
+                                                            <Border Width="40"
+                                                                    Height="40"
+                                                                    CornerRadius="8"
+                                                                    Background="White"
+                                                                    BorderBrush="{DynamicResource Color.BorderSoft}"
+                                                                    BorderThickness="1"
+                                                                    BoxShadow="{DynamicResource Shadow.Card}">
+                                                                <TextBlock Text="{Binding CategoryIcon}"
+                                                                           FontFamily="{StaticResource EmojiFontFamily}"
+                                                                           FontSize="18"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1" Spacing="2">
+                                                                <TextBlock Text="{Binding DescriptionDisplay}"
+                                                                           VerticalAlignment="Center"
+                                                                           FontSize="14"
+                                                                           FontWeight="Medium"
+                                                                           TextWrapping="Wrap" />
+                                                                <TextBlock Text="{Binding TransactionDateDisplay}"
+                                                                           Classes="muted" />
+                                                            </StackPanel>
+                                                            <Border Grid.Column="2"
+                                                                    Background="{Binding CategoryAnchorBrush}"
+                                                                    CornerRadius="20"
+                                                                    Padding="12,6"
+                                                                    VerticalAlignment="Center"
+                                                                    HorizontalAlignment="Center"
+                                                                    MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
+                                                                <TextBlock Text="{Binding CategoryDisplay}"
+                                                                           HorizontalAlignment="Center"
+                                                                           TextAlignment="Center"
+                                                                           TextWrapping="Wrap"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <Grid Grid.Column="3" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding AmountDisplay}"
+                                                                           Foreground="{DynamicResource Color.Success}"
+                                                                           FontWeight="Bold"
+                                                                           IsVisible="{Binding IsIncome}" />
+                                                                <TextBlock Text="{Binding AmountDisplay}"
+                                                                           Foreground="{DynamicResource Color.Danger}"
+                                                                           FontWeight="Bold"
+                                                                           IsVisible="{Binding !IsIncome}" />
+                                                            </Grid>
+                                                        </Grid>
+                                                    </Border>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+
                                 <TextBlock Text="{Binding Texts.GroupAccessSavingsTitle}" FontWeight="SemiBold" />
                                 <ItemsControl ItemsSource="{Binding SelectedGroupSavings}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:SavingOptionViewModel">
-                                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8" Margin="0,3">
-                                                <Button Classes="link-button"
-                                                        HorizontalContentAlignment="Left"
-                                                        Click="OpenGroupSaving_OnClick"
-                                                        Content="{Binding Name}" />
-                                                <Button Grid.Column="1"
-                                                        Classes="secondary-button"
-                                                        Click="OpenGroupSaving_OnClick"
-                                                        Content="{Binding $parent[UserControl].DataContext.Texts.EditTransactionButton}" />
-                                            </Grid>
+                                            <Button Margin="0,4"
+                                                    Padding="0"
+                                                    Background="Transparent"
+                                                    BorderThickness="0"
+                                                    HorizontalAlignment="Stretch"
+                                                    HorizontalContentAlignment="Stretch"
+                                                    Click="OpenGroupSaving_OnClick"
+                                                    CommandParameter="{Binding .}">
+                                                <Border Classes="panel-card alt"
+                                                        HorizontalAlignment="Stretch"
+                                                        BorderThickness="1"
+                                                        BorderBrush="{DynamicResource Color.BorderSoft}">
+                                                    <Grid RowDefinitions="Auto, Auto"
+                                                          RowSpacing="8">
+                                                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
+                                                            <Border Width="42"
+                                                                    Height="42"
+                                                                    CornerRadius="21"
+                                                                    Background="{Binding AccentBrush}">
+                                                                <TextBlock Text="{Binding IconGlyph}"
+                                                                           FontFamily="{StaticResource EmojiFontFamily}"
+                                                                           FontSize="20"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <StackPanel Grid.Column="1"
+                                                                        Spacing="4"
+                                                                        VerticalAlignment="Center">
+                                                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                                                                    <TextBlock Text="{Binding Name}"
+                                                                               FontWeight="SemiBold"
+                                                                               TextTrimming="CharacterEllipsis" />
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Text="{Binding DeadlineDisplay}"
+                                                                               Classes="muted"
+                                                                               FontSize="11"
+                                                                               VerticalAlignment="Center" />
+                                                                </Grid>
+                                                                <Grid ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="5">
+                                                                    <TextBlock Text="{Binding AmountDisplay}"
+                                                                               Classes="muted"
+                                                                               FontWeight="SemiBold" />
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Text="/"
+                                                                               Classes="muted" />
+                                                                    <TextBlock Grid.Column="2"
+                                                                               Text="{Binding TargetAmountDisplay}"
+                                                                               Classes="muted" />
+                                                                </Grid>
+                                                            </StackPanel>
+                                                            <TextBlock Grid.Column="2"
+                                                                       Text="{Binding ProgressDisplay}"
+                                                                       Classes="muted"
+                                                                       FontWeight="SemiBold"
+                                                                       VerticalAlignment="Center" />
+                                                        </Grid>
+
+                                                        <ProgressBar Grid.Row="1"
+                                                                     Minimum="0"
+                                                                     Maximum="100"
+                                                                     Value="{Binding ProgressPercent}"
+                                                                     Height="8"
+                                                                     CornerRadius="4"
+                                                                     Foreground="{Binding AccentBrush}"
+                                                                     Background="#D1D5DB" />
+                                                    </Grid>
+                                                </Border>
+                                            </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
@@ -358,8 +520,272 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
+                </Border>
+            </Grid>
+
+            <Border x:Name="GroupSavingOverlay"
+                    IsVisible="False"
+                    Background="{DynamicResource Color.Overlay}"
+                    PointerPressed="GroupSavingOverlay_OnPointerPressed">
+                <Grid HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="900"
+                      Height="680">
+                    <Border Classes="dialog-card"
+                            PointerPressed="GroupSavingDialog_OnPointerPressed">
+                        <Grid RowDefinitions="Auto,*" RowSpacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <TextBlock Text="{Binding Texts.SavingsTitle}"
+                                           FontSize="20"
+                                           FontWeight="SemiBold" />
+                                <Button Grid.Column="1"
+                                        Width="40"
+                                        Height="40"
+                                        Padding="0"
+                                        Classes="secondary-button"
+                                        Click="CloseGroupSavingOverlay_OnClick">
+                                    <TextBlock Text="&#xE4A6;"
+                                               FontFamily="{DynamicResource Phosphor-Fill}" />
+                                </Button>
+                            </Grid>
+                            <Border Grid.Row="1" Classes="panel-card">
+                                <Grid RowDefinitions="Auto, Auto, *" RowSpacing="14">
+                                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="8">
+                                        <Button Width="52"
+                                                Height="52"
+                                                Padding="0"
+                                                BorderThickness="0"
+                                                Background="{Binding ActiveSavingColorBrush}"
+                                                CornerRadius="26"
+                                                Click="ActiveSavingIcon_OnClick"
+                                                DoubleTapped="ActiveSavingIcon_OnDoubleTapped">
+                                            <TextBlock Text="{Binding ActiveSavingIconGlyph}"
+                                                       FontFamily="{StaticResource EmojiFontFamily}"
+                                                       FontSize="24"
+                                                       TextAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center" />
+                                        </Button>
+                                        <StackPanel Grid.Column="1" Spacing="6">
+                                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="4">
+                                                <Button Padding="0"
+                                                        Background="Transparent"
+                                                        BorderThickness="0"
+                                                        HorizontalContentAlignment="Left"
+                                                        DoubleTapped="SavingName_OnDoubleTapped"
+                                                        IsVisible="{Binding !IsEditingSavingNameField}">
+                                                    <TextBlock Text="{Binding SavingNameInput}"
+                                                               FontSize="22"
+                                                               FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource Color.Text1}"
+                                                               TextWrapping="Wrap" />
+                                                </Button>
+                                                <TextBox Text="{Binding SavingNameEditInput}"
+                                                         FontSize="22"
+                                                         FontWeight="SemiBold"
+                                                         LostFocus="SavingNameEditTextBox_OnLostFocus"
+                                                         IsVisible="{Binding IsEditingSavingNameField}" />
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding ActiveSavingDeadlineDisplay}"
+                                                           Classes="muted"
+                                                           VerticalAlignment="Center"
+                                                           DoubleTapped="SavingDeadline_OnDoubleTapped"
+                                                           IsVisible="{Binding !IsEditingSavingDeadlineField}" />
+                                                <CalendarDatePicker Grid.Column="1"
+                                                                    SelectedDate="{Binding SavingDeadlineEditDate, Mode=TwoWay}"
+                                                                    IsVisible="{Binding IsEditingSavingDeadlineField}" />
+                                            </Grid>
+                                            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto, Auto" ColumnSpacing="4">
+                                                <TextBlock Text="{Binding SavedAmountDisplay}"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Color.Text1}"
+                                                           DoubleTapped="SavingCurrent_OnDoubleTapped"
+                                                           IsVisible="{Binding !IsEditingSavingCurrentField}" />
+                                                <TextBox Text="{Binding SavingCurrentAmountEditInput}"
+                                                         Width="120"
+                                                         HorizontalAlignment="Left"
+                                                         LostFocus="SavingCurrentEditTextBox_OnLostFocus"
+                                                         IsVisible="{Binding IsEditingSavingCurrentField}" />
+                                                <TextBlock Grid.Column="1" Text="/" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Color.Text1}" />
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding SavingGoalAmountEditInput}"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Color.Text1}"
+                                                           DoubleTapped="SavingGoal_OnDoubleTapped"
+                                                           IsVisible="{Binding !IsEditingSavingGoalField}" />
+                                                <TextBox Grid.Column="2"
+                                                         Text="{Binding SavingGoalAmountEditInput}"
+                                                         Width="120"
+                                                         HorizontalAlignment="Left"
+                                                         LostFocus="SavingGoalEditTextBox_OnLostFocus"
+                                                         IsVisible="{Binding IsEditingSavingGoalField}" />
+                                                <TextBlock Grid.Column="3"
+                                                           Text="{Binding ActiveSavingCurrency}"
+                                                           FontSize="16"
+                                                           FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource Color.Text1}"
+                                                           DoubleTapped="SavingCurrency_OnDoubleTapped"
+                                                           IsVisible="{Binding !IsEditingSavingCurrencyField}" />
+                                                <ComboBox Grid.Column="3"
+                                                          Width="92"
+                                                          ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                                          SelectedItem="{Binding SavingCurrencyEditInput}"
+                                                          SelectionChanged="SavingCurrencyComboBox_OnSelectionChanged"
+                                                          IsVisible="{Binding IsEditingSavingCurrencyField}" />
+                                            </Grid>
+                                        </StackPanel>
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding ProgressPercent, StringFormat={}{0:0}%}"
+                                                   FontSize="18"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource Color.Text1}"
+                                                   VerticalAlignment="Center" />
+                                        <Button Grid.Column="3"
+                                                Width="44"
+                                                Height="44"
+                                                Padding="0"
+                                                HorizontalContentAlignment="Center"
+                                                VerticalContentAlignment="Center"
+                                                Classes="secondary-button"
+                                                Command="{Binding SaveGoalCommand}">
+                                            <Viewbox Width="18" Height="18">
+                                                <TextBlock Text="&#xE34C;"
+                                                           FontFamily="{DynamicResource Phosphor-Fill}"
+                                                           TextAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Viewbox>
+                                        </Button>
+                                        <Button Grid.Column="4"
+                                                Width="44"
+                                                Height="44"
+                                                Padding="0"
+                                                HorizontalContentAlignment="Center"
+                                                VerticalContentAlignment="Center"
+                                                Classes="danger-button"
+                                                Command="{Binding DeleteActiveSavingCommand}">
+                                            <Viewbox Width="18" Height="18">
+                                                <TextBlock Text="&#xE4A6;"
+                                                           FontFamily="{DynamicResource Phosphor-Fill}"
+                                                           TextAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center" />
+                                            </Viewbox>
+                                        </Button>
+                                    </Grid>
+                                    <ProgressBar Grid.Row="1"
+                                                 Minimum="0"
+                                                 Maximum="100"
+                                                 Value="{Binding ProgressPercent}"
+                                                 Height="18"
+                                                 CornerRadius="9"
+                                                 Foreground="{Binding ActiveSavingColorBrush}"
+                                                 Background="#D1D5DB" />
+                                    <TabControl Grid.Row="2">
+                                        <TabItem Header="{Binding Texts.SavingsTitle}">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                <StackPanel Spacing="14" Margin="0,12,0,0">
+                                                    <Grid ColumnDefinitions="*, 240, Auto, Auto" ColumnSpacing="12">
+                                                        <TextBox Watermark="{Binding Texts.SavingsAmountHint}"
+                                                                 Text="{Binding AddAmount}"
+                                                                 MinHeight="42" />
+                                                        <ComboBox Grid.Column="1"
+                                                                  ItemsSource="{Binding CompatibleSavingsBankAccounts}"
+                                                                  SelectedItem="{Binding SelectedSavingsBankAccount}"
+                                                                  MinHeight="42">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:BankAccountItemViewModel">
+                                                                    <TextBlock Text="{Binding Name}" />
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                        <Button Grid.Column="2"
+                                                                Content="{Binding Texts.AddToSavingsButton}"
+                                                                Classes="primary-button"
+                                                                MinWidth="120"
+                                                                Command="{Binding AddToSavingsCommand}" />
+                                                        <Button Grid.Column="3"
+                                                                Content="{Binding Texts.WithdrawFromSavingsButton}"
+                                                                Classes="secondary-button"
+                                                                MinWidth="120"
+                                                                Command="{Binding WithdrawFromSavingsCommand}" />
+                                                    </Grid>
+                                                    <Border Classes="panel-card alt">
+                                                        <Grid RowDefinitions="Auto, Auto, *" RowSpacing="10">
+                                                            <TextBlock Text="{Binding Texts.TransactionsSectionTitle}" Classes="card-title" />
+                                                            <TextBlock Grid.Row="1" Text="{Binding Texts.NoTransactionsText}" IsVisible="{Binding HasNoSavingTransactions}" />
+                                                            <ItemsControl Grid.Row="2" ItemsSource="{Binding SavingTransactions}" IsVisible="{Binding HasSavingTransactions}">
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate x:DataType="vm:TransactionItemViewModel">
+                                                                        <Border Classes="list-item-card" Margin="0,4">
+                                                                            <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                                                                                <Border Width="36" Height="36" CornerRadius="8" Background="White" BorderBrush="{DynamicResource Color.BorderSoft}" BorderThickness="1" BoxShadow="{DynamicResource Shadow.Card}">
+                                                                                    <TextBlock Text="{Binding CategoryIcon}" FontFamily="{StaticResource EmojiFontFamily}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                                </Border>
+                                                                                <StackPanel Grid.Column="1" Spacing="2">
+                                                                                    <TextBlock Text="{Binding DescriptionDisplay}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                                                    <TextBlock Text="{Binding TransactionDateDisplay}" Classes="muted" />
+                                                                                </StackPanel>
+                                                                                <TextBlock Grid.Column="2" Text="{Binding ReversedAmountDisplay}" FontWeight="Bold" VerticalAlignment="Center" Foreground="{DynamicResource Color.Text1}" />
+                                                                            </Grid>
+                                                                        </Border>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+                                                        </Grid>
+                                                    </Border>
+                                                </StackPanel>
+                                            </ScrollViewer>
+                                        </TabItem>
+                                        <TabItem Header="{Binding Texts.SavingItemsTitle}">
+                                            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                <StackPanel Spacing="12" Margin="0,12,0,0">
+                                                    <StackPanel.Styles>
+                                                        <Style Selector="CheckBox:disabled"><Setter Property="Opacity" Value="1" /></Style>
+                                                        <Style Selector="CheckBox:disabled /template/ Border#NormalRectangle"><Setter Property="Background" Value="#D1D5DB" /><Setter Property="BorderBrush" Value="#9CA3AF" /></Style>
+                                                        <Style Selector="CheckBox.saving-checkbox-insufficient /template/ Border#NormalRectangle"><Setter Property="Background" Value="#D1D5DB" /><Setter Property="BorderBrush" Value="#9CA3AF" /></Style>
+                                                    </StackPanel.Styles>
+                                                    <Grid ColumnDefinitions="2*, *, Auto" ColumnSpacing="8">
+                                                        <TextBox Watermark="{Binding Texts.SavingItemNameHint}" Text="{Binding SavingItemNameInput}" />
+                                                        <TextBox Grid.Column="1" Watermark="{Binding Texts.SavingItemAmountHint}" Text="{Binding SavingItemAmount}" />
+                                                        <Button Grid.Column="2" Content="{Binding Texts.AddSavingItemButton}" Classes="primary-button" Command="{Binding AddSavingItemCommand}" />
+                                                    </Grid>
+                                                    <ItemsControl ItemsSource="{Binding SavingItems}">
+                                                        <ItemsControl.ItemTemplate>
+                                                            <DataTemplate x:DataType="vm:SavingItemViewModel">
+                                                                <Border Classes="list-item-card" Margin="0,4">
+                                                                    <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="12">
+                                                                        <Grid>
+                                                                            <CheckBox IsChecked="{Binding IsPaid, Mode=OneWay}" IsVisible="{Binding IsFullyFunded}" VerticalAlignment="Center" Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleSavingItemCommand}" CommandParameter="{Binding .}" />
+                                                                            <CheckBox IsChecked="{Binding IsPaid, Mode=OneWay}" IsVisible="{Binding !IsFullyFunded}" Classes="saving-checkbox-insufficient" VerticalAlignment="Center" Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleSavingItemCommand}" CommandParameter="{Binding .}" />
+                                                                        </Grid>
+                                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                                                            <TextBlock Text="{Binding Name}" FontSize="14" FontWeight="SemiBold" TextWrapping="Wrap" />
+                                                                            <TextBlock Text="{Binding ProgressDisplay}" Classes="muted" />
+                                                                        </StackPanel>
+                                                                        <TextBlock Grid.Column="2" Text="{Binding AmountDisplay}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                                                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                                            <Button Content="&#x2191;" Classes="secondary-button" Padding="8,4" Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemUpCommand}" CommandParameter="{Binding .}" />
+                                                                            <Button Content="&#x2193;" Classes="secondary-button" Padding="8,4" Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemDownCommand}" CommandParameter="{Binding .}" />
+                                                                            <Button Content="&#x00D7;" Classes="danger-button" Padding="8,4" Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteSavingItemCommand}" CommandParameter="{Binding .}" />
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </Border>
+                                                            </DataTemplate>
+                                                        </ItemsControl.ItemTemplate>
+                                                    </ItemsControl>
+                                                </StackPanel>
+                                            </ScrollViewer>
+                                        </TabItem>
+                                    </TabControl>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </Grid>
             </Border>
         </Grid>
     </Border>
 </UserControl>
-

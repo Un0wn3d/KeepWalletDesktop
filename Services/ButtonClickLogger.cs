@@ -29,7 +29,7 @@ internal static class ButtonClickLogger
             ? viewModel
             : null;
 
-        UiLog.Information(
+        UiLog.Debug(
             "Button clicked: {ButtonText}; Name={ButtonName}; Classes={ButtonClasses}; Command={Command}; DataContext={ButtonDataContext}; CurrentPage={CurrentPage}",
             GetButtonText(button),
             string.IsNullOrWhiteSpace(button.Name) ? null : button.Name,

@@ -8,7 +8,7 @@
              d:DesignHeight="720"
              x:Class="KeepWalletDesktop.Views.SavingsView"
              x:DataType="vm:MainViewModel">
-    <Grid Grid.Column="1" Margin="10" IsVisible="{Binding IsSavingsPage}">
+    <Grid Grid.Column="1" Margin="10">
         <Grid ColumnDefinitions="360, *" ColumnSpacing="14">
             <Border>
                 <Grid RowDefinitions="Auto, *" RowSpacing="12">

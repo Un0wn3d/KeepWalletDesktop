@@ -217,13 +217,14 @@ public sealed class IconPickerModule
         for (var i = 0; i < colorOptions.Count; i++)
         {
             var colorHex = colorOptions[i];
+            var parsedColor = TryParseColor(colorHex, "#3B82F6");
             var colorButton = new Button
             {
                 Width = 52,
                 Height = 52,
                 Padding = new Thickness(0),
-                Background = new SolidColorBrush(Color.Parse(colorHex)),
-                BorderBrush = new SolidColorBrush(Color.Parse("#9CA3AF")),
+                Background = new SolidColorBrush(parsedColor),
+                BorderBrush = new SolidColorBrush(TryParseColor("#9CA3AF", "#9CA3AF")),
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(26),
                 HorizontalAlignment = HorizontalAlignment.Center,
@@ -242,6 +243,18 @@ public sealed class IconPickerModule
         }
 
         colorScrollViewer.Content = grid;
+    }
+
+    private static Color TryParseColor(string input, string fallback)
+    {
+        try
+        {
+            return Color.Parse(input);
+        }
+        catch
+        {
+            return Color.Parse(fallback);
+        }
     }
 
     public static Control CreateIconContent(CategoryIconOptionViewModel option, double size)

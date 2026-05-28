@@ -219,7 +219,7 @@
                                                                 Padding="12,6"
                                                                 VerticalAlignment="Center"
                                                                 HorizontalAlignment="Center"
-                                                                MinWidth="{Binding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
+                                                                MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
                                                             <TextBlock Text="{Binding CategoryDisplay}"
                                                                        HorizontalAlignment="Center"
                                                                        TextAlignment="Center"

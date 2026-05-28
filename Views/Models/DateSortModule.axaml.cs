@@ -1,6 +1,7 @@
 using System;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using System.Linq;
 using KeepWalletDesktop.ViewModels;
 
@@ -12,6 +13,7 @@ public partial class DateSortModule : UserControl
     private DateTimeOffset _to;
     private DateSortPeriod _period = DateSortPeriod.Month;
     private bool _isUpdatingDates;
+    private DispatcherTimer? _calendarSelectionDebounceTimer;
 
     public DateSortModule()
     {
@@ -54,6 +56,25 @@ public partial class DateSortModule : UserControl
             (_from, _to) = (_to, _from);
         }
 
+        _calendarSelectionDebounceTimer ??= new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(220)
+        };
+        _calendarSelectionDebounceTimer.Stop();
+        _calendarSelectionDebounceTimer.Tick -= CalendarSelectionDebounceTimerOnTick;
+        _calendarSelectionDebounceTimer.Tick += CalendarSelectionDebounceTimerOnTick;
+        _calendarSelectionDebounceTimer.Start();
+    }
+
+    private void CalendarSelectionDebounceTimerOnTick(object? sender, EventArgs e)
+    {
+        if (_calendarSelectionDebounceTimer is null)
+        {
+            return;
+        }
+
+        _calendarSelectionDebounceTimer.Stop();
+        _calendarSelectionDebounceTimer.Tick -= CalendarSelectionDebounceTimerOnTick;
         UpdateControls();
     }
 

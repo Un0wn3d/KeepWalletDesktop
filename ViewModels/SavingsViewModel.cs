@@ -325,7 +325,7 @@ public partial class MainViewModel
                 var itemCost = Math.Max(0, i.Price);
                 var amountForThisItem = i.IsPurchased ? itemCost : remainingAmountForPriority;
                 var isFullyFunded = i.IsPurchased || itemCost <= 0 || amountForThisItem >= itemCost;
-             
+
                 var progress = i.IsPurchased
                     ? 100
                     : itemCost <= 0
@@ -342,7 +342,7 @@ public partial class MainViewModel
                     i.Id, i.Name, itemCost,
                     i.Priority ?? (short)(index + 1),
                     i.IsPurchased,
-                    $"{itemCost:N2} UAH",
+                    $"{itemCost:N2} {ActiveSavingCurrency}",
                     progress,
                     $"{progress:0}%",
                     isFullyFunded);
@@ -468,4 +468,3 @@ public partial class MainViewModel
         return $"залишилося {monthsLeft} місяців ({daysLeft} днів)";
     }
 }
-

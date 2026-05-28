@@ -19,7 +19,7 @@
 
         <views:HomeView Grid.Column="1" />
         <views:BankAccountsView Grid.Column="1" />
-        <views:SavingsView Grid.Column="1" />
+        <views:SavingsView Grid.Column="1" IsVisible="{Binding IsSavingsPage}" />
         <views:GroupsView Grid.Column="1" />
         <views:ScheduledPaymentsView Grid.Column="1" />
         <views:CategoriesView Grid.Column="1" />

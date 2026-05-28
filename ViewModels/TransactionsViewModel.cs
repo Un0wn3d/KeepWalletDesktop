@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace KeepWalletDesktop.ViewModels;
@@ -216,8 +217,26 @@ public partial class MainViewModel
             return;
         }
 
+        if (isLoadingTransactions)
+        {
+            return;
+        }
+
+        // Throttle frequent page-switch storms.
+        if (DateTimeOffset.UtcNow - lastTransactionsLoadedAt < TimeSpan.FromMilliseconds(700))
+        {
+            return;
+        }
+
+        transactionsLoadCts?.Cancel();
+        transactionsLoadCts?.Dispose();
+        var currentLoadCts = new CancellationTokenSource();
+        transactionsLoadCts = currentLoadCts;
+        var cancellationToken = currentLoadCts.Token;
+
         try
         {
+            isLoadingTransactions = true;
             EnsureApiClient();
             if (BankAccounts.Count == 0)
             {
@@ -228,7 +247,11 @@ public partial class MainViewModel
                 "Loading transactions from API for home/all transaction views. CurrentPage={CurrentPage}, BankAccountsCount={BankAccountsCount}",
                 CurrentPage,
                 BankAccounts.Count);
-            var transactions = await _apiClient!.GetTransactionsAsync();
+            var transactions = await _apiClient!.GetTransactionsAsync(cancellationToken);
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return;
+            }
             ViewModelLog.Information("Transactions received from API: Count={Count}", transactions.Count);
             AllTransactions = new ObservableCollection<TransactionItemViewModel>(
                 transactions.Select(t => new TransactionItemViewModel(
@@ -269,6 +292,7 @@ public partial class MainViewModel
                 AllTransactions.Count,
                 homeTransactionSource.Count,
                 mainAccountId);
+            lastTransactionsLoadedAt = DateTimeOffset.UtcNow;
             OnPropertyChanged(nameof(SharedTransactions));
             OnPropertyChanged(nameof(HasSharedTransactions));
         }
@@ -277,10 +301,24 @@ public partial class MainViewModel
             ViewModelLog.Warning(ex, "HTTP error while loading transactions from API");
             ApiStatusMessage = GetApiErrorMessage(ex);
         }
+        catch (OperationCanceledException)
+        {
+            // Expected when a newer transactions load supersedes current one.
+        }
         catch (Exception ex)
         {
             ViewModelLog.Error(ex, "Unexpected error while loading transactions from API");
             ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            isLoadingTransactions = false;
+
+            if (ReferenceEquals(transactionsLoadCts, currentLoadCts))
+            {
+                transactionsLoadCts.Dispose();
+                transactionsLoadCts = null;
+            }
         }
     }
 }

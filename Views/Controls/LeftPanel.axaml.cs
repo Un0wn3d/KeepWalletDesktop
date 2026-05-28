@@ -10,7 +10,7 @@ public partial class LeftPanel : UserControl
     {
         InitializeComponent();
     }
-    
+
     //[RelayCommand]
     private void btn_Home(object? sender, RoutedEventArgs e)
     {

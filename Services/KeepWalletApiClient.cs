@@ -682,7 +682,7 @@ public sealed class KeepWalletApiClient : IDisposable
         var stopwatch = Stopwatch.StartNew();
         var method = request.Method.Method;
 
-        ApiLog.Information(
+        ApiLog.Debug(
             "API start {Operation}: {Method} {Path} (base: {BaseUrl}, attempt: {Attempt})",
             operation,
             method,
@@ -695,7 +695,7 @@ public sealed class KeepWalletApiClient : IDisposable
             var response = await _httpClient.SendAsync(request, cancellationToken);
             stopwatch.Stop();
 
-            var level = response.IsSuccessStatusCode ? Serilog.Events.LogEventLevel.Information : Serilog.Events.LogEventLevel.Warning;
+            var level = response.IsSuccessStatusCode ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Warning;
             ApiLog.Write(
                 level,
                 "API completed {Operation}: {Method} {Path} -> {StatusCode} {ReasonPhrase} in {ElapsedMs} ms (attempt: {Attempt})",

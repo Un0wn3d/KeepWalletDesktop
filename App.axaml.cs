@@ -29,9 +29,9 @@ public partial class App : Application
         SerilogConfig.Initialize();
         ButtonClickLogger.Initialize();
         ThemeManager.Apply(UserSettingsStore.Load().ThemeName);
-        
+
         Log.Information("App is started!");
-        
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -62,7 +62,7 @@ public partial class App : Application
             BindingPlugins.DataValidators.Remove(plugin);
         }
     }
-    
+
     private async Task InitializeAsync()
     {
         // try

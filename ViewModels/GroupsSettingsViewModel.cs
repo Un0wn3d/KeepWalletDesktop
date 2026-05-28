@@ -26,9 +26,9 @@ public partial class MainViewModel
         {
             EnsureApiClient();
             var selectedGroupId = SelectedAccessGroup?.Id;
-            var groups = await _apiClient!.GetGroupsAsync();
+            var apiGroups = await _apiClient!.GetGroupsAsync();
             Groups = new ObservableCollection<GroupItemViewModel>(
-                groups
+                apiGroups
                     .Select(g => new GroupItemViewModel(
                         g.Id,
                         g.Name,
@@ -39,10 +39,6 @@ public partial class MainViewModel
                     .OrderBy(g => g.RoleSortOrder)
                     .ThenBy(g => g.Name));
             SelectedAccessGroup = Groups.FirstOrDefault(g => g.Id == selectedGroupId) ?? Groups.FirstOrDefault();
-            if (SelectedAccessGroup is not null)
-            {
-                await LoadSelectedGroupMembersAsync();
-            }
         }
         catch (HttpRequestException ex)
         {
@@ -158,7 +154,6 @@ public partial class MainViewModel
             SelectedGroupUser = null;
             GroupUserSearchResults = [];
             await LoadGroupsAsync();
-            await LoadSelectedGroupMembersAsync();
         }
         catch (HttpRequestException ex)
         {
@@ -188,7 +183,6 @@ public partial class MainViewModel
             EnsureApiClient();
             await _apiClient!.RemoveGroupMemberAsync(SelectedAccessGroup.Id, member.UserId);
             await LoadGroupsAsync();
-            await LoadSelectedGroupMembersAsync();
         }
         catch (HttpRequestException ex)
         {
@@ -222,7 +216,6 @@ public partial class MainViewModel
                 member.UserId,
                 new UpdateGroupMemberRoleRequestDto(nextRole));
             await LoadGroupsAsync();
-            await LoadSelectedGroupMembersAsync();
         }
         catch (HttpRequestException ex)
         {
@@ -283,7 +276,6 @@ public partial class MainViewModel
             }
 
             await LoadGroupsAsync();
-            await LoadSelectedGroupMembersAsync();
         }
         catch (HttpRequestException ex)
         {
@@ -315,7 +307,6 @@ public partial class MainViewModel
                 SelectedAccessGroup.Id,
                 new TransferGroupOwnerRequestDto(member.UserId));
             await LoadGroupsAsync();
-            await LoadSelectedGroupMembersAsync();
         }
         catch (HttpRequestException ex)
         {

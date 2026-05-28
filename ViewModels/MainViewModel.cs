@@ -18,6 +18,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Text;
 using System.IO;
@@ -78,6 +79,14 @@ public partial class MainViewModel : ViewModelBase
     private DateTimeOffset homeDateRangeFrom = DateTimeOffset.Now.AddMonths(-1);
     private DateTimeOffset homeDateRangeTo = DateTimeOffset.Now;
     private static readonly ILogger ViewModelLog = Log.ForContext<MainViewModel>();
+    private DispatcherTimer? transactionFilterDebounceTimer;
+    private DispatcherTimer? homeRangeDebounceTimer;
+    private DateTimeOffset? pendingHomeRangeFrom;
+    private DateTimeOffset? pendingHomeRangeTo;
+    private bool isApplyingHomeRange;
+    private bool isLoadingTransactions;
+    private DateTimeOffset lastTransactionsLoadedAt = DateTimeOffset.MinValue;
+    private CancellationTokenSource? transactionsLoadCts;
 
     [ObservableProperty]
     private ILocalizedText texts = LocalizedText.Load("ua");
@@ -320,6 +329,7 @@ public partial class MainViewModel : ViewModelBase
     private string activeSavingIconKey = "other";
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActiveSavingColorBrush))]
     private string activeSavingColor = "#3B82F6";
 
     [ObservableProperty]
@@ -674,7 +684,7 @@ public partial class MainViewModel : ViewModelBase
     public string RoleDisplay => $"{Texts.RoleLabel}: {CurrentUserRole}";
     public string AdminUsersCountDisplay => $"{Texts.UsersTitle}: {AdminUsers.Count}";
     public string SavedAmountDisplay => $"{SavedAmount:N2}";
-    public string RemainingAmountDisplay => $"{Texts.RemainingAmountPrefix}: {RemainingAmount:N2} ₴";
+    public string RemainingAmountDisplay => $"{Texts.RemainingAmountPrefix}: {RemainingAmount:N2} {ActiveSavingCurrency}";
     public string ActiveSavingAmountGoalDisplay => $"{SavedAmount:N2}/{GoalAmount:N2} {ActiveSavingCurrency}";
     public string ActiveSavingDeadlineDisplay => BuildSavingDeadlineDisplay(ActiveSavingDeadline);
     public decimal ReportIncomeTotal => AllTransactions.Where(t => t.IsIncome).Sum(t => t.Amount);
@@ -769,13 +779,73 @@ public partial class MainViewModel : ViewModelBase
             (from, to) = (to, from);
         }
 
-        homeDateRangeFrom = from;
-        homeDateRangeTo = to;
-        ViewModelLog.Information(
-            "Home date range changed: From={From:o}, To={To:o}",
-            homeDateRangeFrom,
-            homeDateRangeTo);
-        RefreshHomeTransactionsFromDateRange();
+        var normalizedFrom = from;
+        var normalizedTo = to;
+        if (normalizedFrom.Offset != homeDateRangeFrom.Offset)
+        {
+            normalizedFrom = normalizedFrom.ToOffset(homeDateRangeFrom.Offset);
+        }
+
+        if (normalizedTo.Offset != homeDateRangeTo.Offset)
+        {
+            normalizedTo = normalizedTo.ToOffset(homeDateRangeTo.Offset);
+        }
+
+        // Prevent UI storm: identical range should not trigger full recalculation.
+        if (normalizedFrom.UtcDateTime == homeDateRangeFrom.UtcDateTime &&
+            normalizedTo.UtcDateTime == homeDateRangeTo.UtcDateTime)
+        {
+            return;
+        }
+
+        pendingHomeRangeFrom = from;
+        pendingHomeRangeTo = to;
+
+        homeRangeDebounceTimer ??= new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(350)
+        };
+        homeRangeDebounceTimer.Stop();
+        homeRangeDebounceTimer.Tick -= HomeRangeDebounceTimerOnTick;
+        homeRangeDebounceTimer.Tick += HomeRangeDebounceTimerOnTick;
+        homeRangeDebounceTimer.Start();
+    }
+
+    private void HomeRangeDebounceTimerOnTick(object? sender, EventArgs e)
+    {
+        if (homeRangeDebounceTimer is null || isApplyingHomeRange)
+        {
+            return;
+        }
+
+        homeRangeDebounceTimer.Stop();
+        homeRangeDebounceTimer.Tick -= HomeRangeDebounceTimerOnTick;
+
+        if (!pendingHomeRangeFrom.HasValue || !pendingHomeRangeTo.HasValue)
+        {
+            return;
+        }
+
+        isApplyingHomeRange = true;
+        try
+        {
+            var from = pendingHomeRangeFrom.Value;
+            var to = pendingHomeRangeTo.Value;
+            pendingHomeRangeFrom = null;
+            pendingHomeRangeTo = null;
+
+            homeDateRangeFrom = from;
+            homeDateRangeTo = to;
+            ViewModelLog.Debug(
+                "Home date range changed: From={From:o}, To={To:o}",
+                homeDateRangeFrom,
+                homeDateRangeTo);
+            RefreshHomeTransactionsFromDateRange();
+        }
+        finally
+        {
+            isApplyingHomeRange = false;
+        }
     }
 
     partial void OnCurrentPageChanged(string value)
@@ -923,17 +993,42 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnTransactionSearchTextChanged(string value)
     {
-        ApplyTransactionFilters();
+        ScheduleTransactionFilters();
     }
 
     partial void OnSelectedTransactionTypeFilterChanged(string value)
     {
         UpdateTransactionCategoryFilterOptions();
-        ApplyTransactionFilters();
+        ScheduleTransactionFilters();
     }
 
     partial void OnSelectedTransactionCategoryFilterChanged(CategoryOptionViewModel? value)
     {
+        ScheduleTransactionFilters();
+    }
+
+    private void ScheduleTransactionFilters()
+    {
+        transactionFilterDebounceTimer ??= new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(150)
+        };
+
+        transactionFilterDebounceTimer.Stop();
+        transactionFilterDebounceTimer.Tick -= TransactionFilterDebounceTimerOnTick;
+        transactionFilterDebounceTimer.Tick += TransactionFilterDebounceTimerOnTick;
+        transactionFilterDebounceTimer.Start();
+    }
+
+    private void TransactionFilterDebounceTimerOnTick(object? sender, EventArgs e)
+    {
+        if (transactionFilterDebounceTimer is null)
+        {
+            return;
+        }
+
+        transactionFilterDebounceTimer.Stop();
+        transactionFilterDebounceTimer.Tick -= TransactionFilterDebounceTimerOnTick;
         ApplyTransactionFilters();
     }
 
@@ -944,9 +1039,9 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsMonthlyExpensesReportView));
     }
 
-    partial void OnSelectedReportCategoryChanged(CategoryOptionViewModel? value) => RefreshReportingSelections();
-    partial void OnReportDateFromChanged(DateTime? value) => RefreshReportingSelections();
-    partial void OnReportDateToChanged(DateTime? value) => RefreshReportingSelections();
+    partial void OnSelectedReportCategoryChanged(CategoryOptionViewModel? value) => RefreshReportingMetricsOnly();
+    partial void OnReportDateFromChanged(DateTime? value) => RefreshReportingMetricsOnly();
+    partial void OnReportDateToChanged(DateTime? value) => RefreshReportingMetricsOnly();
 
     partial void OnScheduledPaymentTypeChanged(string value)
     {
@@ -1036,7 +1131,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void OpenHome()
+    private async Task OpenHomeAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -1045,11 +1140,11 @@ public partial class MainViewModel : ViewModelBase
 
         SelectedBankAccount = null;
         CurrentPage = HomePage;
-        _ = LoadTransactionsAsync();
+        await LoadTransactionsAsync();
     }
 
     [RelayCommand]
-    private void OpenSavings()
+    private async Task OpenSavingsAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -1057,13 +1152,12 @@ public partial class MainViewModel : ViewModelBase
         }
 
         CurrentPage = SavingsPage;
-        _ = LoadBankAccountsAsync();
-        _ = LoadTransactionsAsync();
-        _ = LoadSavingsAsync();
+        await LoadBankAccountsAsync();
+        await LoadSavingsAsync();
     }
 
     [RelayCommand]
-    private void OpenBankAccounts()
+    private async Task OpenBankAccountsAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -1071,11 +1165,11 @@ public partial class MainViewModel : ViewModelBase
         }
 
         CurrentPage = BankAccountsPage;
-        _ = LoadBankAccountsAsync();
+        await LoadBankAccountsAsync();
     }
 
     [RelayCommand]
-    private void OpenGroups()
+    private async Task OpenGroupsAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -1083,14 +1177,13 @@ public partial class MainViewModel : ViewModelBase
         }
 
         CurrentPage = GroupsPage;
-        _ = LoadGroupsAsync();
-        _ = LoadBankAccountsAsync();
-        _ = LoadSavingsAsync();
-        _ = LoadTransactionsAsync();
+        await LoadGroupsAsync();
+        await LoadBankAccountsAsync();
+        await LoadSavingsAsync();
     }
 
     [RelayCommand]
-    private void OpenScheduledPayments()
+    private async Task OpenScheduledPaymentsAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -1098,7 +1191,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         CurrentPage = ScheduledPaymentsPage;
-        _ = LoadScheduledPaymentsAsync();
+        await LoadScheduledPaymentsAsync();
     }
 
     [RelayCommand]
@@ -1113,7 +1206,6 @@ public partial class MainViewModel : ViewModelBase
         IsCategoryDetailsOpen = false;
         IsCategorySettingsMode = true;
         await LoadCategoryManagementAsync();
-        await LoadTransactionsAsync();
         await LoadBudgetsAsync();
         UpdateCategoryDetails();
     }
@@ -1131,7 +1223,7 @@ public partial class MainViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void OpenSettings()
+    private async Task OpenSettingsAsync()
     {
         if (!EnsureAuthorizedNavigation())
         {
@@ -1139,7 +1231,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         CurrentPage = SettingsPage;
-        _ = LoadSettingsDataAsync();
+        await LoadSettingsDataAsync();
     }
 
     [RelayCommand]
@@ -2867,11 +2959,38 @@ public partial class MainViewModel : ViewModelBase
         isRefreshingReportingSelections = true;
         try
         {
-        var expenseCategoryOptions = BuildCategoryOptions("expense").ToArray();
-        ReportCategoryOptions = new ObservableCollection<CategoryOptionViewModel>(expenseCategoryOptions);
-        SelectedReportCategory = expenseCategoryOptions.FirstOrDefault(c => c.Code == SelectedReportCategory?.Code)
-            ?? expenseCategoryOptions.FirstOrDefault();
+            var expenseCategoryOptions = BuildCategoryOptions("expense").ToArray();
+            ReportCategoryOptions = new ObservableCollection<CategoryOptionViewModel>(expenseCategoryOptions);
+            SelectedReportCategory = expenseCategoryOptions.FirstOrDefault(c => c.Code == SelectedReportCategory?.Code)
+                ?? expenseCategoryOptions.FirstOrDefault();
+            RefreshReportingMetricsCore();
+        }
+        finally
+        {
+            isRefreshingReportingSelections = false;
+        }
+    }
 
+    private void RefreshReportingMetricsOnly()
+    {
+        if (isRefreshingReportingSelections)
+        {
+            return;
+        }
+
+        isRefreshingReportingSelections = true;
+        try
+        {
+            RefreshReportingMetricsCore();
+        }
+        finally
+        {
+            isRefreshingReportingSelections = false;
+        }
+    }
+
+    private void RefreshReportingMetricsCore()
+    {
         if (!ReportDateFrom.HasValue || !ReportDateTo.HasValue)
         {
             var now = DateTimeOffset.Now;
@@ -2916,11 +3035,6 @@ public partial class MainViewModel : ViewModelBase
             })
             .ToArray();
         ReportMonthlyExpenses = new ObservableCollection<CategoryLegendItemViewModel>(monthly);
-        }
-        finally
-        {
-            isRefreshingReportingSelections = false;
-        }
     }
 
     private void UpdateLanguageOptionTitles()
@@ -3242,6 +3356,16 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateCharts()
     {
+        foreach (var series in Series.OfType<IDisposable>())
+        {
+            series.Dispose();
+        }
+
+        foreach (var series in Chart.OfType<IDisposable>())
+        {
+            series.Dispose();
+        }
+
         var incomeTotal = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)Math.Abs(t.Amount));
         var expenseTotal = LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)Math.Abs(t.Amount));
         var hasData = incomeTotal > 0 || expenseTotal > 0;
@@ -3389,7 +3513,7 @@ public partial class MainViewModel : ViewModelBase
     {
         var visible = LatestExpenses.Take(homeTransactionTakeCount).ToArray();
         VisibleTransactions = new ObservableCollection<TransactionItemViewModel>(visible);
-        ViewModelLog.Debug(
+        ViewModelLog.Verbose(
             "Home visible transactions refreshed: VisibleCount={VisibleCount}, SourceCount={SourceCount}, TakeCount={TakeCount}, From={From:o}, To={To:o}",
             visible.Length,
             LatestExpenses.Count,
@@ -3406,7 +3530,7 @@ public partial class MainViewModel : ViewModelBase
                 .Where(t => t.TransactionDate >= homeDateRangeFrom && t.TransactionDate <= homeDateRangeTo)
                 .OrderByDescending(t => t.TransactionDate));
 
-        ViewModelLog.Information(
+        ViewModelLog.Debug(
             "Home transactions filtered by period: FilteredCount={FilteredCount}, SourceCount={SourceCount}, InitialTakeCount={TakeCount}, From={From:o}, To={To:o}",
             LatestExpenses.Count,
             homeTransactionSource.Count,
@@ -3417,17 +3541,30 @@ public partial class MainViewModel : ViewModelBase
         AvailableBalance = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)t.Amount) -
                            LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)t.Amount);
 
-        ApplyTransactionFilters();
-        UpdateVisibleTransactions();
-        UpdateCharts();
-        OnPropertyChanged(nameof(Money));
-        OnPropertyChanged(nameof(Income));
-        OnPropertyChanged(nameof(Expense));
-        OnPropertyChanged(nameof(HasTransactions));
-        OnPropertyChanged(nameof(HasNoTransactions));
-        OnPropertyChanged(nameof(HasAllTransactions));
-        OnPropertyChanged(nameof(HasExpenseTransactions));
-        OnPropertyChanged(nameof(HasNoExpenseTransactions));
+        Dispatcher.UIThread.Post(() =>
+        {
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+
+            ApplyTransactionFilters();
+            ViewModelLog.Debug("ApplyTransactionFilters: {Ms}ms", sw.ElapsedMilliseconds);
+
+            UpdateVisibleTransactions();
+            ViewModelLog.Debug("UpdateVisibleTransactions: {Ms}ms", sw.ElapsedMilliseconds);
+
+            UpdateCharts();
+            ViewModelLog.Debug("UpdateCharts: {Ms}ms", sw.ElapsedMilliseconds);
+
+            OnPropertyChanged(nameof(Money));
+            OnPropertyChanged(nameof(Income));
+            OnPropertyChanged(nameof(Expense));
+            OnPropertyChanged(nameof(HasTransactions));
+            OnPropertyChanged(nameof(HasNoTransactions));
+            OnPropertyChanged(nameof(HasAllTransactions));
+            OnPropertyChanged(nameof(HasExpenseTransactions));
+            OnPropertyChanged(nameof(HasNoExpenseTransactions));
+
+            ViewModelLog.Debug("RefreshHomeTransactions background post done: {Ms}ms total", sw.ElapsedMilliseconds);
+        }, DispatcherPriority.Background);
     }
 
     private void UpdateTransactionCategoryFilterOptions()
