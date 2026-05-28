@@ -39,6 +39,7 @@
                                     Height="40"
                                     Padding="0"
                                     Classes="category-icon-button"
+                                    Background="{Binding CategoryNewColor}"
                                     Click="NewCategoryIconButton_OnClick"
                                     HorizontalContentAlignment="Center"
                                     VerticalContentAlignment="Center">
@@ -86,6 +87,7 @@
                                                     Height="40"
                                                     Padding="0"
                                                     Classes="category-icon-button"
+                                                    Background="{Binding SelectedColor}"
                                                     Grid.Column="0"
                                                     Click="CategoryIconButton_OnClick"
                                                     HorizontalContentAlignment="Center"
@@ -150,6 +152,7 @@
                                                     Height="40"
                                                     Padding="0"
                                                     Classes="category-icon-button"
+                                                    Background="{Binding SelectedColor}"
                                                     Grid.Column="0"
                                                     Click="CategoryIconButton_OnClick"
                                                     HorizontalContentAlignment="Center"

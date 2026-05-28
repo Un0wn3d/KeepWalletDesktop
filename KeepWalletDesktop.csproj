@@ -35,6 +35,10 @@
       <Compile Remove="obj\**" />
       <EmbeddedResource Remove="obj\**" />
       <None Remove="obj\**" />
+      <AvaloniaXaml Remove="artifacts\**" />
+      <Compile Remove="artifacts\**" />
+      <EmbeddedResource Remove="artifacts\**" />
+      <None Remove="artifacts\**" />
       <Compile Update="Views\Controls\FloatingActionMenu.axaml.cs">
         <DependentUpon>FloatingActionMenu.axaml</DependentUpon>
       </Compile>

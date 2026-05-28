@@ -23,6 +23,7 @@ public sealed record TransactionItemViewModel(
     string? CategoryCode,
     string CategoryDisplay,
     string? CategoryIconKey,
+    string CategoryColor,
     string? Description,
     DateTimeOffset TransactionDate,
     string TypeDisplay)
@@ -44,8 +45,8 @@ public sealed record TransactionItemViewModel(
     public Bitmap? CategoryIconSampleImage => CategoryIconCatalog.GetSampleImage(CategoryIconKey ?? CategoryCode);
     public bool HasCategoryIconSampleImage => CategoryIconSampleImage is not null;
     public IBrush CategoryAnchorBrush => IsIncome
-        ? new SolidColorBrush(Color.FromRgb(209, 250, 229))
-        : new SolidColorBrush(Color.FromRgb(243, 244, 246));
+        ? new SolidColorBrush(Color.Parse(CategoryColor))
+        : new SolidColorBrush(Color.Parse(CategoryColor));
 
     private static string FormatAmount(decimal amount) =>
         decimal.Truncate(amount) == amount
@@ -58,12 +59,19 @@ public sealed record SavingOptionViewModel(
     int Id,
     Guid? GroupId,
     string Name,
+    string IconKey,
+    string Color,
+    string Currency,
     string DeadlineDisplay,
     string AmountDisplay,
     string TargetAmountDisplay,
     double ProgressPercent,
     string ProgressDisplay,
-    bool IsSelected);
+    bool IsSelected)
+{
+    public string IconGlyph => CategoryIconCatalog.GetGlyph(IconKey, "expense");
+    public IBrush AccentBrush => new SolidColorBrush(Avalonia.Media.Color.Parse(string.IsNullOrWhiteSpace(Color) ? "#E5E7EB" : Color));
+}
 
 public sealed record SavingRateHistoryItemViewModel(
     int Id,

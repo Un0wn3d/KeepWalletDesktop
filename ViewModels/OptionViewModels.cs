@@ -66,7 +66,7 @@ public partial class OnboardingCategoryOptionViewModel : ObservableObject
 
 public partial class CategoryManagementItemViewModel : ObservableObject
 {
-    public CategoryManagementItemViewModel(int id, string name, string type, string typeDisplay, string iconKey, bool isSelected)
+    public CategoryManagementItemViewModel(int id, string name, string type, string typeDisplay, string iconKey, string color, bool isSelected)
     {
         Id = id;
         this.name = name;
@@ -74,6 +74,7 @@ public partial class CategoryManagementItemViewModel : ObservableObject
         TypeDisplay = typeDisplay;
         nameInput = name;
         selectedIconKey = iconKey;
+        selectedColor = color;
         this.isSelected = isSelected;
     }
 
@@ -102,6 +103,9 @@ public partial class CategoryManagementItemViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(IconSampleImage))]
     [NotifyPropertyChangedFor(nameof(HasIconSampleImage))]
     private string selectedIconKey;
+
+    [ObservableProperty]
+    private string selectedColor;
 
     public void RefreshIconGlyph()
     {

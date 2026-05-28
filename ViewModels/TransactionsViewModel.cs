@@ -244,6 +244,7 @@ public partial class MainViewModel
                     t.CategoryId.ToString(CultureInfo.InvariantCulture),
                     GetCategoryDisplayName(t.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     GetCategoryIconKey(t.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                    GetCategoryColor(t.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     t.Description,
                     t.TransactionDate.ToLocalTime(),
                     GetTransactionType(t.CategoryId) == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType)));

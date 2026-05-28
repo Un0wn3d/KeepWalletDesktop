@@ -113,7 +113,8 @@ public sealed record ApiCategoryDto(
     int Id,
     string Name,
     string Type,
-    string IconKey);
+    string IconKey,
+    string? Color = null);
 
 public sealed record ApiBudgetDto(
     int Id,
@@ -135,17 +136,20 @@ public sealed record UpsertBudgetRequestDto(
 public sealed record CreateCategoryRequestDto(
     string Name,
     string Type,
-    string? IconKey = null);
+    string? IconKey = null,
+    string? Color = null);
 
 public sealed record UpdateCategoryRequestDto(
     string? Name = null,
-    string? IconKey = null);
+    string? IconKey = null,
+    string? Color = null);
 
 public sealed record UserCategoryPreferenceDto(
     int Id,
     string Name,
     string Type,
     string IconKey,
+    string? Color,
     bool IsSelected);
 
 public sealed record UpdateUserCategoryPreferencesRequestDto(
@@ -158,14 +162,20 @@ public sealed record CreateSavingRequestDto(
     string Name,
     decimal? TargetAmount,
     decimal CurrentAmount,
-    DateOnly? Deadline);
+    DateOnly? Deadline,
+    string Currency = "UAH",
+    string? IconKey = null,
+    string? Color = null);
 
 public sealed record UpdateSavingRequestDto(
     string Name,
     decimal? TargetAmount,
     decimal CurrentAmount,
     DateOnly? Deadline,
-    bool IsCompleted);
+    bool IsCompleted,
+    string Currency = "UAH",
+    string? IconKey = null,
+    string? Color = null);
 
 public sealed record ApiSavingDto(
     int Id,
@@ -175,6 +185,9 @@ public sealed record ApiSavingDto(
     decimal? TargetAmount,
     decimal CurrentAmount,
     DateOnly? Deadline,
+    string Currency,
+    string? IconKey,
+    string? Color,
     bool IsCompleted,
     DateTimeOffset CreatedAt);
 

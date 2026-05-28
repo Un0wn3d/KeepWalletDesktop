@@ -280,6 +280,52 @@ public partial class MainViewModel : ViewModelBase
     private string savingNameInput = "Savings";
 
     [ObservableProperty]
+    private DateOnly? activeSavingDeadline;
+
+    [ObservableProperty]
+    private bool isEditingSavingDetails;
+
+    [ObservableProperty]
+    private string savingNameEditInput = string.Empty;
+
+    [ObservableProperty]
+    private string savingGoalAmountEditInput = "0";
+
+    [ObservableProperty]
+    private string savingCurrentAmountEditInput = "0";
+
+    [ObservableProperty]
+    private string savingCurrencyEditInput = "UAH";
+
+    [ObservableProperty]
+    private DateTime? savingDeadlineEditDate;
+
+    [ObservableProperty]
+    private bool isEditingSavingNameField;
+
+    [ObservableProperty]
+    private bool isEditingSavingGoalField;
+
+    [ObservableProperty]
+    private bool isEditingSavingCurrentField;
+
+    [ObservableProperty]
+    private bool isEditingSavingCurrencyField;
+
+    [ObservableProperty]
+    private bool isEditingSavingDeadlineField;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ActiveSavingIconGlyph))]
+    private string activeSavingIconKey = "other";
+
+    [ObservableProperty]
+    private string activeSavingColor = "#3B82F6";
+
+    [ObservableProperty]
+    private string activeSavingCurrency = "UAH";
+
+    [ObservableProperty]
     private double interestRate;
 
     [ObservableProperty]
@@ -302,6 +348,16 @@ public partial class MainViewModel : ViewModelBase
 
     [ObservableProperty]
     private string savingsDialogDeadlineInput = string.Empty;
+
+    [ObservableProperty]
+    private string savingsDialogCurrency = "UAH";
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SavingsDialogIconGlyph))]
+    private string savingsDialogIconKey = "other";
+
+    [ObservableProperty]
+    private string savingsDialogColor = "#3B82F6";
 
     [ObservableProperty]
     private BankAccountItemViewModel? selectedSavingsBankAccount;
@@ -505,6 +561,9 @@ public partial class MainViewModel : ViewModelBase
     private string categoryNewIconKey = "other";
 
     [ObservableProperty]
+    private string categoryNewColor = "#E5E7EB";
+
+    [ObservableProperty]
     private CategoryManagementItemViewModel? selectedMergeSourceCategory;
 
     [ObservableProperty]
@@ -614,9 +673,10 @@ public partial class MainViewModel : ViewModelBase
     public string EmailDisplay => $"{Texts.EmailLabel}: {CurrentUserEmail}";
     public string RoleDisplay => $"{Texts.RoleLabel}: {CurrentUserRole}";
     public string AdminUsersCountDisplay => $"{Texts.UsersTitle}: {AdminUsers.Count}";
-    public string SavedAmountDisplay => $"{Texts.SavedAmountPrefix}: {SavedAmount:N2} ₴";
+    public string SavedAmountDisplay => $"{SavedAmount:N2}";
     public string RemainingAmountDisplay => $"{Texts.RemainingAmountPrefix}: {RemainingAmount:N2} ₴";
-    public string ActiveSavingAmountGoalDisplay => $"{SavedAmount:N2} ₴ / {GoalAmount:N2} ₴";
+    public string ActiveSavingAmountGoalDisplay => $"{SavedAmount:N2}/{GoalAmount:N2} {ActiveSavingCurrency}";
+    public string ActiveSavingDeadlineDisplay => BuildSavingDeadlineDisplay(ActiveSavingDeadline);
     public decimal ReportIncomeTotal => AllTransactions.Where(t => t.IsIncome).Sum(t => t.Amount);
     public decimal ReportExpenseTotal => AllTransactions.Where(t => !t.IsIncome).Sum(t => t.Amount);
     public decimal ReportBalanceTotal => ReportIncomeTotal - ReportExpenseTotal;
@@ -682,9 +742,22 @@ public partial class MainViewModel : ViewModelBase
             (c.Id != SelectedMergeSourceCategory.Id &&
              string.Equals(c.Type, SelectedMergeSourceCategory.Type, StringComparison.OrdinalIgnoreCase)));
     public IReadOnlyList<CategoryIconOptionViewModel> CategoryIconOptions => CategoryIconCatalog.Options;
+    public IReadOnlyList<string> CategoryColorOptions => SavingColorOptions;
+    public IReadOnlyList<string> SavingColorOptions { get; } =
+    [
+        "#EF4444", "#F97316", "#F59E0B", "#EAB308",
+        "#84CC16", "#22C55E", "#10B981", "#14B8A6",
+        "#06B6D4", "#0EA5E9", "#3B82F6", "#6366F1",
+        "#8B5CF6", "#EC4899", "#6B7280", "#111827"
+    ];
     public string CategoryNewIconGlyph => CategoryIconCatalog.GetGlyph(CategoryNewIconKey, CategoryNewType);
     public Bitmap? CategoryNewIconSampleImage => CategoryIconCatalog.GetSampleImage(CategoryNewIconKey);
     public bool HasCategoryNewIconSampleImage => CategoryNewIconSampleImage is not null;
+    public string SavingsDialogIconGlyph => CategoryIconCatalog.GetGlyph(SavingsDialogIconKey, "expense");
+    public string ActiveSavingIconGlyph => CategoryIconCatalog.GetGlyph(ActiveSavingIconKey, "expense");
+    public IBrush ActiveSavingColorBrush => new SolidColorBrush(Color.Parse(ActiveSavingColor));
+    public IEnumerable<BankAccountItemViewModel> CompatibleSavingsBankAccounts =>
+        BankAccounts.Where(a => string.Equals(a.Currency, ActiveSavingCurrency, StringComparison.OrdinalIgnoreCase));
     public string NewGroupIconGlyph => CategoryIconCatalog.GetGlyph(NewGroupIconKey, "expense");
     public Bitmap? NewGroupIconSampleImage => CategoryIconCatalog.GetSampleImage(NewGroupIconKey);
     public bool HasNewGroupIconSampleImage => NewGroupIconSampleImage is not null;
@@ -737,7 +810,15 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasBankAccounts));
         OnPropertyChanged(nameof(HasNoBankAccounts));
         OnPropertyChanged(nameof(SelectedGroupBankAccounts));
+        OnPropertyChanged(nameof(CompatibleSavingsBankAccounts));
         SelectedSavingsBankAccount ??= value.FirstOrDefault(a => a.IsDefault) ?? value.FirstOrDefault();
+    }
+
+    partial void OnActiveSavingCurrencyChanged(string value)
+    {
+        OnPropertyChanged(nameof(ActiveSavingAmountGoalDisplay));
+        OnPropertyChanged(nameof(CompatibleSavingsBankAccounts));
+        SelectedSavingsBankAccount = CompatibleSavingsBankAccounts.FirstOrDefault();
     }
 
     partial void OnAllTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
@@ -1476,9 +1557,11 @@ public partial class MainViewModel : ViewModelBase
             await _apiClient!.CreateCategoryAsync(new CreateCategoryRequestDto(
                 name,
                 string.Equals(CategoryNewType, "income", StringComparison.OrdinalIgnoreCase) ? "income" : "expense",
-                CategoryNewIconKey));
+                CategoryNewIconKey,
+                CategoryNewColor));
 
             CategoryNewName = string.Empty;
+            CategoryNewColor = "#E5E7EB";
             CategoryStatusMessage = string.Empty;
             await LoadCategoryManagementAsync();
             await LoadCategoriesAsync();
@@ -1617,7 +1700,7 @@ public partial class MainViewModel : ViewModelBase
             await _apiClient!.UpdateUserCategoriesAsync(new UpdateUserCategoryPreferencesRequestDto(selectedIds));
             foreach (var category in Categories)
             {
-                await _apiClient.UpdateCategoryAsync(category.Id, new UpdateCategoryRequestDto(IconKey: category.SelectedIconKey));
+                await _apiClient.UpdateCategoryAsync(category.Id, new UpdateCategoryRequestDto(IconKey: category.SelectedIconKey, Color: category.SelectedColor));
             }
             selectedCategoryIds = selectedIds.ToHashSet();
             CategoryStatusMessage = string.Empty;
@@ -1797,9 +1880,10 @@ public partial class MainViewModel : ViewModelBase
     {
         SavingsDialogNameInput = string.Empty;
         SavingsDialogTargetAmountInput = string.Empty;
-        SavingsDialogInitialAmountInput = string.Empty;
         SavingsDialogDeadlineInput = string.Empty;
-        SelectedSavingsBankAccount ??= BankAccounts.FirstOrDefault(a => a.IsDefault) ?? BankAccounts.FirstOrDefault();
+        SavingsDialogCurrency = OnboardingSelectedCurrency;
+        SavingsDialogIconKey = "other";
+        SavingsDialogColor = "#3B82F6";
         SavingsStatusMessage = string.Empty;
         IsSavingsDialogOpen = true;
     }
@@ -1820,9 +1904,7 @@ public partial class MainViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(SavingsDialogNameInput) ||
             !TryParseOptionalPositiveDecimal(SavingsDialogTargetAmountInput, out var targetAmount) ||
-            !TryParseOptionalPositiveDecimal(SavingsDialogInitialAmountInput, out var initialAmount) ||
-            !TryParseOptionalSavingsDeadline(SavingsDialogDeadlineInput, out var deadline) ||
-            (initialAmount > 0 && SelectedSavingsBankAccount is null))
+            !TryParseOptionalSavingsDeadline(SavingsDialogDeadlineInput, out var deadline))
         {
             SavingsStatusMessage = Texts.TransactionFormValidationText;
             return;
@@ -1836,13 +1918,11 @@ public partial class MainViewModel : ViewModelBase
             var saving = await _apiClient!.CreateSavingAsync(new CreateSavingRequestDto(
                 SavingsDialogNameInput.Trim(),
                 targetAmount > 0 ? targetAmount : null,
-                initialAmount,
-                deadline));
-
-            if (initialAmount > 0 && SelectedSavingsBankAccount is not null)
-            {
-                await CreateSavingsAccountTransactionAsync(initialAmount, SelectedSavingsBankAccount, isDeposit: true, saving.Id, saving.Name);
-            }
+                0,
+                deadline,
+                SavingsDialogCurrency,
+                SavingsDialogIconKey,
+                SavingsDialogColor));
 
             ApplySaving(saving);
             await LoadSavingsAsync();
@@ -1874,12 +1954,37 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
+        if (!IsEditingSavingDetails)
+        {
+            IsEditingSavingDetails = true;
+            IsEditingSavingNameField = true;
+            IsEditingSavingGoalField = true;
+            IsEditingSavingCurrentField = true;
+            IsEditingSavingCurrencyField = true;
+            IsEditingSavingDeadlineField = true;
+            return;
+        }
+
+        if (!decimal.TryParse(SavingGoalAmountEditInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var goalAmountValue) ||
+            goalAmountValue < 0 ||
+            !decimal.TryParse(SavingCurrentAmountEditInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var currentAmountValue) ||
+            currentAmountValue < 0 ||
+            string.IsNullOrWhiteSpace(SavingNameEditInput))
+        {
+            SavingsStatusMessage = Texts.TransactionFormValidationText;
+            return;
+        }
+
         try
         {
             IsApiBusy = true;
             EnsureApiClient();
 
-            decimal? targetAmount = GoalAmount > 0 ? (decimal)GoalAmount : null;
+            decimal? targetAmount = goalAmountValue > 0 ? goalAmountValue : null;
+            var normalizedName = SavingNameEditInput.Trim();
+            var deadline = SavingDeadlineEditDate.HasValue
+                ? DateOnly.FromDateTime(SavingDeadlineEditDate.Value.Date)
+                : (DateOnly?)null;
             ApiSavingDto saving;
 
             if (ActiveSavingId.HasValue)
@@ -1887,23 +1992,35 @@ public partial class MainViewModel : ViewModelBase
                 saving = await _apiClient!.UpdateSavingAsync(
                         ActiveSavingId.Value,
                         new UpdateSavingRequestDto(
-                        string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
+                        string.IsNullOrWhiteSpace(normalizedName) ? "Savings" : normalizedName,
                         targetAmount,
-                        (decimal)SavedAmount,
-                        null,
-                        targetAmount.HasValue && (decimal)SavedAmount >= targetAmount.Value));
+                        currentAmountValue,
+                        deadline,
+                        targetAmount.HasValue && currentAmountValue >= targetAmount.Value,
+                        string.IsNullOrWhiteSpace(SavingCurrencyEditInput) ? "UAH" : SavingCurrencyEditInput.Trim().ToUpperInvariant(),
+                        ActiveSavingIconKey,
+                        ActiveSavingColor));
             }
             else
             {
                 saving = await _apiClient!.CreateSavingAsync(new CreateSavingRequestDto(
-                    string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
+                    string.IsNullOrWhiteSpace(normalizedName) ? "Savings" : normalizedName,
                     targetAmount,
-                    (decimal)SavedAmount,
-                    null));
+                    currentAmountValue,
+                    deadline,
+                    string.IsNullOrWhiteSpace(SavingCurrencyEditInput) ? "UAH" : SavingCurrencyEditInput.Trim().ToUpperInvariant(),
+                    ActiveSavingIconKey,
+                    ActiveSavingColor));
             }
 
             ApplySaving(saving);
             await LoadSavingDetailsAsync(saving.Id);
+            IsEditingSavingDetails = false;
+            IsEditingSavingNameField = false;
+            IsEditingSavingGoalField = false;
+            IsEditingSavingCurrentField = false;
+            IsEditingSavingCurrencyField = false;
+            IsEditingSavingDeadlineField = false;
             SavingsStatusMessage = Texts.TransactionUpdatedText;
         }
         catch (HttpRequestException ex)
@@ -1918,6 +2035,189 @@ public partial class MainViewModel : ViewModelBase
         {
             IsApiBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private void BeginEditSavingName()
+    {
+        IsEditingSavingDetails = true;
+        IsEditingSavingNameField = true;
+    }
+
+    [RelayCommand]
+    private async Task SaveSavingNameOnBlurAsync()
+    {
+        if (!IsEditingSavingNameField || IsApiBusy || !ActiveSavingId.HasValue)
+        {
+            IsEditingSavingNameField = false;
+            return;
+        }
+
+        var normalizedName = SavingNameEditInput?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(normalizedName))
+        {
+            SavingNameEditInput = SavingNameInput;
+            IsEditingSavingNameField = false;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var targetAmount = GoalAmount > 0 ? (decimal?)GoalAmount : null;
+            var deadline = SavingDeadlineEditDate.HasValue ? DateOnly.FromDateTime(SavingDeadlineEditDate.Value.Date) : ActiveSavingDeadline;
+            var updated = await _apiClient!.UpdateSavingAsync(
+                ActiveSavingId.Value,
+                new UpdateSavingRequestDto(
+                    normalizedName,
+                    targetAmount,
+                    (decimal)SavedAmount,
+                    deadline,
+                    targetAmount.HasValue && (decimal)SavedAmount >= targetAmount.Value,
+                    string.IsNullOrWhiteSpace(ActiveSavingCurrency) ? "UAH" : ActiveSavingCurrency,
+                    ActiveSavingIconKey,
+                    ActiveSavingColor));
+            ApplySaving(updated);
+        }
+        catch (Exception ex)
+        {
+            SavingsStatusMessage = ex.Message;
+        }
+        finally
+        {
+            IsEditingSavingNameField = false;
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveSavingGoalOnBlurAsync()
+    {
+        await SaveSavingInlineAsync(closeGoal: true, closeCurrent: false, closeCurrency: false);
+    }
+
+    [RelayCommand]
+    private async Task SaveSavingCurrentOnBlurAsync()
+    {
+        await SaveSavingInlineAsync(closeGoal: false, closeCurrent: true, closeCurrency: false);
+    }
+
+    [RelayCommand]
+    private async Task SaveSavingCurrencyOnSelectAsync()
+    {
+        await SaveSavingInlineAsync(closeGoal: false, closeCurrent: false, closeCurrency: true);
+    }
+
+    private async Task SaveSavingInlineAsync(bool closeGoal, bool closeCurrent, bool closeCurrency)
+    {
+        if (IsApiBusy || !ActiveSavingId.HasValue)
+        {
+            if (closeGoal) IsEditingSavingGoalField = false;
+            if (closeCurrent) IsEditingSavingCurrentField = false;
+            if (closeCurrency) IsEditingSavingCurrencyField = false;
+            return;
+        }
+
+        if (!decimal.TryParse(SavingGoalAmountEditInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var goalAmountValue) ||
+            goalAmountValue < 0 ||
+            !decimal.TryParse(SavingCurrentAmountEditInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var currentAmountValue) ||
+            currentAmountValue < 0)
+        {
+            if (closeGoal) IsEditingSavingGoalField = false;
+            if (closeCurrent) IsEditingSavingCurrentField = false;
+            if (closeCurrency) IsEditingSavingCurrencyField = false;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var targetAmount = goalAmountValue > 0 ? (decimal?)goalAmountValue : null;
+            var deadline = SavingDeadlineEditDate.HasValue ? DateOnly.FromDateTime(SavingDeadlineEditDate.Value.Date) : ActiveSavingDeadline;
+            var updated = await _apiClient!.UpdateSavingAsync(
+                ActiveSavingId.Value,
+                new UpdateSavingRequestDto(
+                    string.IsNullOrWhiteSpace(SavingNameEditInput) ? "Savings" : SavingNameEditInput.Trim(),
+                    targetAmount,
+                    currentAmountValue,
+                    deadline,
+                    targetAmount.HasValue && currentAmountValue >= targetAmount.Value,
+                    string.IsNullOrWhiteSpace(SavingCurrencyEditInput) ? "UAH" : SavingCurrencyEditInput.Trim().ToUpperInvariant(),
+                    ActiveSavingIconKey,
+                    ActiveSavingColor));
+            ApplySaving(updated);
+            await LoadSavingDetailsAsync(updated.Id);
+        }
+        finally
+        {
+            if (closeGoal) IsEditingSavingGoalField = false;
+            if (closeCurrent) IsEditingSavingCurrentField = false;
+            if (closeCurrency) IsEditingSavingCurrencyField = false;
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveSavingIconColorImmediatelyAsync()
+    {
+        if (IsApiBusy || !ActiveSavingId.HasValue)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var targetAmount = GoalAmount > 0 ? (decimal?)GoalAmount : null;
+            var deadline = ActiveSavingDeadline;
+            var updated = await _apiClient!.UpdateSavingAsync(
+                ActiveSavingId.Value,
+                new UpdateSavingRequestDto(
+                    string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
+                    targetAmount,
+                    (decimal)SavedAmount,
+                    deadline,
+                    targetAmount.HasValue && (decimal)SavedAmount >= targetAmount.Value,
+                    string.IsNullOrWhiteSpace(ActiveSavingCurrency) ? "UAH" : ActiveSavingCurrency,
+                    ActiveSavingIconKey,
+                    ActiveSavingColor));
+            ApplySaving(updated);
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private void BeginEditSavingGoalAmount()
+    {
+        IsEditingSavingDetails = true;
+        IsEditingSavingGoalField = true;
+    }
+
+    [RelayCommand]
+    private void BeginEditSavingCurrentAmount()
+    {
+        IsEditingSavingDetails = true;
+        IsEditingSavingCurrentField = true;
+    }
+
+    [RelayCommand]
+    private void BeginEditSavingCurrency()
+    {
+        IsEditingSavingDetails = true;
+        IsEditingSavingCurrencyField = true;
+    }
+
+    [RelayCommand]
+    private void BeginEditSavingDeadline()
+    {
+        IsEditingSavingDetails = true;
+        IsEditingSavingDeadlineField = true;
     }
 
     [RelayCommand]
@@ -1945,6 +2245,12 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
+        if (!string.Equals(SelectedSavingsBankAccount.Currency, ActiveSavingCurrency, StringComparison.OrdinalIgnoreCase))
+        {
+            SavingsStatusMessage = Texts.TransactionFormValidationText;
+            return;
+        }
+
         try
         {
             IsApiBusy = true;
@@ -1966,7 +2272,10 @@ public partial class MainViewModel : ViewModelBase
                         targetAmount,
                         newCurrentAmount,
                         null,
-                        targetAmount.HasValue && newCurrentAmount >= targetAmount.Value));
+                        targetAmount.HasValue && newCurrentAmount >= targetAmount.Value,
+                        ActiveSavingCurrency,
+                        ActiveSavingIconKey,
+                        ActiveSavingColor));
             }
             else
             {
@@ -1974,7 +2283,10 @@ public partial class MainViewModel : ViewModelBase
                     string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
                     targetAmount,
                     newCurrentAmount,
-                    null));
+                    null,
+                    ActiveSavingCurrency,
+                    ActiveSavingIconKey,
+                    ActiveSavingColor));
             }
 
             await CreateSavingsAccountTransactionAsync(
@@ -2323,6 +2635,7 @@ public partial class MainViewModel : ViewModelBase
                 c.Type,
                 GetOnboardingCategoryTypeDisplay(c.Type),
                 c.SelectedIconKey,
+                c.SelectedColor,
                 c.IsSelected)));
     }
 
@@ -2374,6 +2687,7 @@ public partial class MainViewModel : ViewModelBase
                     c.Type,
                     GetOnboardingCategoryTypeDisplay(c.Type),
                     c.IconKey,
+                    c.Color ?? "#E5E7EB",
                     c.IsSelected)));
             SelectedMergeSourceCategory = Categories.FirstOrDefault();
             SelectedMergeTargetCategory = MergeTargetCategories.FirstOrDefault();
@@ -3377,6 +3691,20 @@ public partial class MainViewModel : ViewModelBase
             "other_income" => "income",
             _ => "other"
         };
+    }
+
+    private string GetCategoryColor(string? categoryCode)
+    {
+        if (int.TryParse(categoryCode, NumberStyles.Integer, CultureInfo.InvariantCulture, out var categoryId))
+        {
+            var apiCategory = apiCategories.FirstOrDefault(c => c.Id == categoryId);
+            if (!string.IsNullOrWhiteSpace(apiCategory?.Color))
+            {
+                return apiCategory.Color!;
+            }
+        }
+
+        return "#E5E7EB";
     }
 
     private static int GetCategoryId(string categoryCode)

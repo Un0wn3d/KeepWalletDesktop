@@ -50,10 +50,9 @@
                                                         <Border Width="42"
                                                                 Height="42"
                                                                 CornerRadius="21"
-                                                                Background="{DynamicResource Color.SuccessPanel}">
-                                                            <TextBlock Text="&#xE227;"
-                                                                       FontFamily="{DynamicResource Phosphor-Fill}"
-                                                                       Foreground="{DynamicResource Color.Success}"
+                                                                Background="{Binding AccentBrush}">
+                                                            <TextBlock Text="{Binding IconGlyph}"
+                                                                       FontFamily="{StaticResource EmojiFontFamily}"
                                                                        FontSize="20"
                                                                        HorizontalAlignment="Center"
                                                                        VerticalAlignment="Center" />
@@ -96,7 +95,7 @@
                                                                  Value="{Binding ProgressPercent}"
                                                                  Height="8"
                                                                  CornerRadius="4"
-                                                                 Foreground="{DynamicResource Color.Success}"
+                                                                 Foreground="{Binding AccentBrush}"
                                                                  Background="#D1D5DB" />
                                                 </Grid>
                                             </Border>
@@ -112,30 +111,95 @@
             <Border Grid.Column="1" Classes="panel-card">
                 <Grid RowDefinitions="Auto, Auto, *" RowSpacing="14">
                     <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="8">
-                        <Border Width="52"
+                        <Button Width="52"
                                 Height="52"
+                                Padding="0"
+                                BorderThickness="0"
+                                Background="{Binding ActiveSavingColorBrush}"
                                 CornerRadius="26"
-                                Background="{DynamicResource Color.SuccessPanel}">
-                            <TextBlock Text="&#xE227;"
-                                       FontFamily="{DynamicResource Phosphor-Fill}"
-                                       Foreground="{DynamicResource Color.Success}"
+                                Click="ActiveSavingIcon_OnClick"
+                                DoubleTapped="ActiveSavingIcon_OnDoubleTapped">
+                            <TextBlock Text="{Binding ActiveSavingIconGlyph}"
+                                       FontFamily="{StaticResource EmojiFontFamily}"
                                        FontSize="24"
                                        TextAlignment="Center"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
-                        </Border>
+                        </Button>
 
                         <StackPanel Grid.Column="1" Spacing="6">
-                            <TextBlock Text="{Binding SavingNameInput}"
-                                       FontSize="22"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource Color.Text1}"
-                                       TextWrapping="Wrap" />
-                            <Grid ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="6">
-                                <TextBlock Text="{Binding ActiveSavingAmountGoalDisplay}"
+                            <Grid ColumnDefinitions="*, Auto" ColumnSpacing="4">
+                                <Button Padding="0"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        HorizontalContentAlignment="Left"
+                                        DoubleTapped="SavingName_OnDoubleTapped"
+                                        IsVisible="{Binding !IsEditingSavingNameField}">
+                                    <TextBlock Text="{Binding SavingNameInput}"
+                                               FontSize="22"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource Color.Text1}"
+                                               TextWrapping="Wrap" />
+                                </Button>
+                                <TextBox Text="{Binding SavingNameEditInput}"
+                                         FontSize="22"
+                                         FontWeight="SemiBold"
+                                         LostFocus="SavingNameEditTextBox_OnLostFocus"
+                                         IsVisible="{Binding IsEditingSavingNameField}" />
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding ActiveSavingDeadlineDisplay}"
+                                           Classes="muted"
+                                           VerticalAlignment="Center"
+                                           DoubleTapped="SavingDeadline_OnDoubleTapped"
+                                           IsVisible="{Binding !IsEditingSavingDeadlineField}" />
+                                <CalendarDatePicker Grid.Column="1"
+                                                    SelectedDate="{Binding SavingDeadlineEditDate, Mode=TwoWay}"
+                                                    IsVisible="{Binding IsEditingSavingDeadlineField}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="Auto, Auto, Auto, Auto, Auto" ColumnSpacing="4">
+                                <TextBlock Text="{Binding SavedAmountDisplay}"
                                            FontSize="16"
                                            FontWeight="SemiBold"
-                                           Foreground="{DynamicResource Color.Text1}" />
+                                           Foreground="{DynamicResource Color.Text1}"
+                                           DoubleTapped="SavingCurrent_OnDoubleTapped"
+                                           IsVisible="{Binding !IsEditingSavingCurrentField}" />
+                                <TextBox Text="{Binding SavingCurrentAmountEditInput}"
+                                         Width="120"
+                                         HorizontalAlignment="Left"
+                                         LostFocus="SavingCurrentEditTextBox_OnLostFocus"
+                                         IsVisible="{Binding IsEditingSavingCurrentField}" />
+
+                                <TextBlock Grid.Column="1" Text="/" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource Color.Text1}" />
+
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding SavingGoalAmountEditInput}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Color.Text1}"
+                                           DoubleTapped="SavingGoal_OnDoubleTapped"
+                                           IsVisible="{Binding !IsEditingSavingGoalField}" />
+                                <TextBox Grid.Column="2"
+                                         Text="{Binding SavingGoalAmountEditInput}"
+                                         Width="120"
+                                         HorizontalAlignment="Left"
+                                         LostFocus="SavingGoalEditTextBox_OnLostFocus"
+                                         IsVisible="{Binding IsEditingSavingGoalField}" />
+
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding ActiveSavingCurrency}"
+                                           FontSize="16"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource Color.Text1}"
+                                           DoubleTapped="SavingCurrency_OnDoubleTapped"
+                                           IsVisible="{Binding !IsEditingSavingCurrencyField}" />
+                                <ComboBox Grid.Column="3"
+                                          Width="92"
+                                          ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                          SelectedItem="{Binding SavingCurrencyEditInput}"
+                                          SelectionChanged="SavingCurrencyComboBox_OnSelectionChanged"
+                                          IsVisible="{Binding IsEditingSavingCurrencyField}" />
                             </Grid>
                         </StackPanel>
 
@@ -186,7 +250,7 @@
                                  Value="{Binding ProgressPercent}"
                                  Height="18"
                                  CornerRadius="9"
-                                 Foreground="{DynamicResource Color.Success}"
+                                 Foreground="{Binding ActiveSavingColorBrush}"
                                  Background="#D1D5DB" />
 
                     <TabControl Grid.Row="2">
@@ -198,7 +262,7 @@
                                                  Text="{Binding AddAmount}"
                                                  MinHeight="42" />
                                         <ComboBox Grid.Column="1"
-                                                  ItemsSource="{Binding BankAccounts}"
+                                                  ItemsSource="{Binding CompatibleSavingsBankAccounts}"
                                                   SelectedItem="{Binding SelectedSavingsBankAccount}"
                                                   MinHeight="42">
                                             <ComboBox.ItemTemplate>
@@ -335,17 +399,17 @@
                                                                     Orientation="Horizontal"
                                                                     Spacing="4"
                                                                     VerticalAlignment="Center">
-                                                            <Button Content="â†‘"
+                                                            <Button Content="&#x2191;"
                                                                     Classes="secondary-button"
                                                                     Padding="8,4"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemUpCommand}"
                                                                     CommandParameter="{Binding .}" />
-                                                            <Button Content="â†“"
+                                                            <Button Content="&#x2193;"
                                                                     Classes="secondary-button"
                                                                     Padding="8,4"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.MoveSavingItemDownCommand}"
                                                                     CommandParameter="{Binding .}" />
-                                                            <Button Content="Ã—"
+                                                            <Button Content="&#x00D7;"
                                                                     Classes="danger-button"
                                                                     Padding="8,4"
                                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.DeleteSavingItemCommand}"
@@ -379,28 +443,33 @@
                         <TextBlock Text="{Binding Texts.SavingNameLabel}" Classes="form-label" />
                         <TextBox Text="{Binding SavingsDialogNameInput}" />
 
-                        <TextBlock Text="{Binding Texts.GoalAmountLabel}" Classes="form-label" />
-                        <TextBox Watermark="{Binding Texts.GoalAmountHint}"
-                                 Text="{Binding SavingsDialogTargetAmountInput}" />
+                        <Grid ColumnDefinitions="Auto, *, 140" ColumnSpacing="8">
+                            <TextBlock Text="{Binding Texts.GoalAmountLabel}" Classes="form-label" VerticalAlignment="Center" />
+                            <TextBox Grid.Column="1"
+                                     Watermark="{Binding Texts.GoalAmountHint}"
+                                     Text="{Binding SavingsDialogTargetAmountInput}" />
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                      SelectedItem="{Binding SavingsDialogCurrency}" />
+                        </Grid>
 
-                        <TextBlock Text="{Binding Texts.SavingsAmountLabel}" Classes="form-label" />
-                        <TextBox Watermark="{Binding Texts.SavingsAmountHint}"
-                                 Text="{Binding SavingsDialogInitialAmountInput}" />
-
-                        <TextBlock Text="{Binding Texts.SavingsDeadlineLabel}" Classes="form-label" />
+                        <TextBlock Text="Target date" Classes="form-label" />
                         <TextBox Watermark="{Binding Texts.SavingsDeadlineHint}"
                                  Text="{Binding SavingsDialogDeadlineInput}" />
 
-                        <TextBlock Text="{Binding Texts.BankAccountsTitle}" Classes="form-label" />
-                        <ComboBox ItemsSource="{Binding BankAccounts}"
-                                  SelectedItem="{Binding SelectedSavingsBankAccount}"
-                                  HorizontalAlignment="Stretch">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:BankAccountItemViewModel">
-                                    <TextBlock Text="{Binding Name}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
+                        <TextBlock Text="Icon and color" Classes="form-label" />
+                        <Button Width="52"
+                                Height="52"
+                                CornerRadius="26"
+                                Background="{Binding SavingsDialogColor}"
+                                HorizontalAlignment="Left"
+                                Click="SavingsDialogIconButton_OnClick">
+                            <TextBlock Text="{Binding SavingsDialogIconGlyph}"
+                                       FontFamily="{StaticResource EmojiFontFamily}"
+                                       FontSize="22"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Button>
 
                         <TextBlock Text="{Binding SavingsStatusMessage}"
                                    Classes="message-text"

@@ -22,7 +22,14 @@ public partial class CategoriesView : UserControl
             return;
         }
 
-        iconPicker.Show(button, viewModel.CategoryIconOptions, iconKey => viewModel.CategoryNewIconKey = iconKey, viewModel.Texts.IconSearchHint);
+        iconPicker.Show(
+            button,
+            viewModel.CategoryIconOptions,
+            viewModel.CategoryColorOptions,
+            iconKey => viewModel.CategoryNewIconKey = iconKey,
+            color => viewModel.CategoryNewColor = color,
+            viewModel.Texts.IconSearchHint,
+            circularIcons: false);
     }
 
     private void CategoryIconButton_OnClick(object? sender, RoutedEventArgs e)
@@ -33,7 +40,14 @@ public partial class CategoriesView : UserControl
             return;
         }
 
-        iconPicker.Show(button, viewModel.CategoryIconOptions, iconKey => category.SelectedIconKey = iconKey, viewModel.Texts.IconSearchHint);
+        iconPicker.Show(
+            button,
+            viewModel.CategoryIconOptions,
+            viewModel.CategoryColorOptions,
+            iconKey => category.SelectedIconKey = iconKey,
+            color => category.SelectedColor = color,
+            viewModel.Texts.IconSearchHint,
+            circularIcons: false);
     }
 
     private void CategoryName_OnDoubleTapped(object? sender, TappedEventArgs e)

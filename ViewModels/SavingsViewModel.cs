@@ -31,6 +31,10 @@ public partial class MainViewModel
                 SavingNameInput = "Savings";
                 GoalAmount = 0;
                 SavedAmount = 0;
+                ActiveSavingCurrency = "UAH";
+                ActiveSavingIconKey = "other";
+                ActiveSavingColor = "#3B82F6";
+                ActiveSavingDeadline = null;
                 AddAmount = 0;
                 InterestRate = 0;
                 Savings = [];
@@ -52,9 +56,12 @@ public partial class MainViewModel
                         s.Id,
                         s.GroupId,
                         s.Name,
+                        s.IconKey ?? "other",
+                        s.Color ?? "#3B82F6",
+                        s.Currency,
                         BuildSavingDeadlineDisplay(s.Deadline),
-                        $"{s.CurrentAmount:N2} UAH",
-                        $"{targetAmount:N2} UAH",
+                        $"{s.CurrentAmount:N2}",
+                        $"{targetAmount:N2} {s.Currency}",
                         progress,
                         $"{progress:0}%",
                         s.Id == activeSaving.Id);
@@ -78,6 +85,16 @@ public partial class MainViewModel
         SavingNameInput = saving.Name;
         GoalAmount = (double)(saving.TargetAmount ?? 0);
         SavedAmount = (double)saving.CurrentAmount;
+        ActiveSavingCurrency = saving.Currency;
+        ActiveSavingIconKey = string.IsNullOrWhiteSpace(saving.IconKey) ? "other" : saving.IconKey;
+        ActiveSavingColor = string.IsNullOrWhiteSpace(saving.Color) ? "#3B82F6" : saving.Color;
+        ActiveSavingDeadline = saving.Deadline;
+        SavingNameEditInput = saving.Name;
+        SavingGoalAmountEditInput = (saving.TargetAmount ?? 0).ToString("0.##", CultureInfo.InvariantCulture);
+        SavingCurrentAmountEditInput = saving.CurrentAmount.ToString("0.##", CultureInfo.InvariantCulture);
+        SavingCurrencyEditInput = string.IsNullOrWhiteSpace(saving.Currency) ? "UAH" : saving.Currency;
+        SavingDeadlineEditDate = saving.Deadline?.ToDateTime(TimeOnly.MinValue);
+        SelectedSavingsBankAccount = CompatibleSavingsBankAccounts.FirstOrDefault();
         InterestRate = 0;
         RefreshSavingsProperties();
         RefreshSavingTransactions();
@@ -425,6 +442,7 @@ public partial class MainViewModel
         OnPropertyChanged(nameof(SavedAmountDisplay));
         OnPropertyChanged(nameof(RemainingAmountDisplay));
         OnPropertyChanged(nameof(ActiveSavingAmountGoalDisplay));
+        OnPropertyChanged(nameof(ActiveSavingDeadlineDisplay));
     }
 
     private static string BuildSavingDeadlineDisplay(DateOnly? deadline)

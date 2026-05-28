@@ -19,8 +19,15 @@ public sealed class IconPickerModule
     private readonly Flyout iconFlyout;
     private readonly TextBox iconSearchBox;
     private readonly ScrollViewer iconScrollViewer;
+    private readonly ScrollViewer colorScrollViewer;
+    private readonly TabControl pickerTabs;
+    private readonly Border iconTabHeader;
+    private readonly Border colorTabHeader;
     private IReadOnlyList<CategoryIconOptionViewModel> pickerOptions = [];
+    private IReadOnlyList<string> colorOptions = [];
     private Action<string>? currentSelectIcon;
+    private Action<string>? currentSelectColor;
+    private bool isCircularMode;
 
     public IconPickerModule()
     {
@@ -35,18 +42,45 @@ public sealed class IconPickerModule
             Height = 360,
             VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
         };
+        colorScrollViewer = new ScrollViewer
+        {
+            Width = IconPickerWidth,
+            Height = 360,
+            VerticalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+        };
+        iconTabHeader = new Border
+        {
+            Padding = new Thickness(10, 4),
+            Child = new TextBlock { Text = "Icons", FontWeight = FontWeight.SemiBold }
+        };
+        colorTabHeader = new Border
+        {
+            Padding = new Thickness(10, 4),
+            Child = new TextBlock { Text = "Colors", FontWeight = FontWeight.SemiBold }
+        };
+        pickerTabs = new TabControl
+        {
+            Items =
+            {
+                new TabItem
+                {
+                    Header = iconTabHeader,
+                    Content = new StackPanel
+                    {
+                        Children = { iconSearchBox, iconScrollViewer }
+                    }
+                },
+                new TabItem
+                {
+                    Header = colorTabHeader,
+                    Content = colorScrollViewer
+                }
+            }
+        };
         iconFlyout = new Flyout
         {
             Placement = PlacementMode.Bottom,
-            Content = new StackPanel
-            {
-                Width = IconPickerWidth,
-                Children =
-                {
-                    iconSearchBox,
-                    iconScrollViewer
-                }
-            }
+            Content = pickerTabs
         };
         iconSearchBox.TextChanged += (_, _) => RebuildIconGrid(iconSearchBox.Text ?? string.Empty);
     }
@@ -60,7 +94,33 @@ public sealed class IconPickerModule
     {
         iconSearchBox.Watermark = searchWatermark;
         currentSelectIcon = selectIcon;
+        currentSelectColor = null;
+        isCircularMode = false;
+        colorOptions = [];
+        colorTabHeader.IsVisible = false;
         SetOptions(options, false);
+        iconFlyout.ShowAt(owner);
+        iconSearchBox.Focus();
+    }
+
+    public void Show(
+        Control owner,
+        IReadOnlyList<CategoryIconOptionViewModel> options,
+        IReadOnlyList<string> colors,
+        Action<string> selectIcon,
+        Action<string> selectColor,
+        string searchWatermark,
+        bool circularIcons)
+    {
+        iconSearchBox.Watermark = searchWatermark;
+        currentSelectIcon = selectIcon;
+        currentSelectColor = selectColor;
+        colorOptions = colors;
+        isCircularMode = circularIcons;
+        colorTabHeader.IsVisible = true;
+        SetOptions(options, true);
+        RebuildColorGrid();
+        pickerTabs.SelectedIndex = 0;
         iconFlyout.ShowAt(owner);
         iconSearchBox.Focus();
     }
@@ -115,7 +175,7 @@ public sealed class IconPickerModule
                 Background = Brushes.White,
                 BorderBrush = new SolidColorBrush(Color.Parse("#D1D5DB")),
                 BorderThickness = new Avalonia.Thickness(1),
-                CornerRadius = new CornerRadius(8),
+                CornerRadius = isCircularMode ? new CornerRadius(21) : new CornerRadius(8),
                 HorizontalContentAlignment = HorizontalAlignment.Center,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 Content = CreateIconContent(option, 26)
@@ -133,6 +193,55 @@ public sealed class IconPickerModule
         }
 
         return grid;
+    }
+
+    private void RebuildColorGrid()
+    {
+        const int colorColumns = 4;
+        const int cellSize = 70;
+        var grid = new Grid
+        {
+            Width = IconPickerWidth
+        };
+        for (var i = 0; i < colorColumns; i++)
+        {
+            grid.ColumnDefinitions.Add(new ColumnDefinition(cellSize, GridUnitType.Pixel));
+        }
+
+        var rowCount = Math.Max(1, (int)Math.Ceiling(colorOptions.Count / (double)colorColumns));
+        for (var i = 0; i < rowCount; i++)
+        {
+            grid.RowDefinitions.Add(new RowDefinition(cellSize, GridUnitType.Pixel));
+        }
+
+        for (var i = 0; i < colorOptions.Count; i++)
+        {
+            var colorHex = colorOptions[i];
+            var colorButton = new Button
+            {
+                Width = 52,
+                Height = 52,
+                Padding = new Thickness(0),
+                Background = new SolidColorBrush(Color.Parse(colorHex)),
+                BorderBrush = new SolidColorBrush(Color.Parse("#9CA3AF")),
+                BorderThickness = new Thickness(1),
+                CornerRadius = new CornerRadius(26),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center
+            };
+
+            colorButton.Click += (_, _) =>
+            {
+                currentSelectColor?.Invoke(colorHex);
+                iconFlyout.Hide();
+            };
+
+            Grid.SetColumn(colorButton, i % colorColumns);
+            Grid.SetRow(colorButton, i / colorColumns);
+            grid.Children.Add(colorButton);
+        }
+
+        colorScrollViewer.Content = grid;
     }
 
     public static Control CreateIconContent(CategoryIconOptionViewModel option, double size)
