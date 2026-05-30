@@ -94,6 +94,7 @@ public sealed record SavingItemViewModel(
 
 public sealed record ScheduledPaymentItemViewModel(
     int Id,
+    int RecurringPaymentId,
     string Name,
     Guid AccountId,
     int CategoryId,
@@ -101,34 +102,46 @@ public sealed record ScheduledPaymentItemViewModel(
     string Type,
     string CategoryDisplay,
     string? CategoryIconKey,
+    string CategoryColor,
     string? Description,
-    string DueDateDisplay,
+    string Currency,
+    DateTimeOffset DueDate,
+    TimeSpan RepeatInterval,
     string Frequency,
     bool IsActive,
     string AmountDisplay,
-    string StatusDisplay)
+    string StatusDisplay,
+    string DaysRemainingDisplay)
 {
+    public bool IsIncome => Type == "income";
     public bool IsPaid => !IsActive;
     public string CategoryIcon => CategoryIconCatalog.GetGlyph(CategoryIconKey, Type);
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
-    public string DaysRemainingDisplay
-    {
-        get
+    public string DueDateDisplay => DueDate.ToLocalTime().ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
+    public IBrush CategoryAnchorBrush => new SolidColorBrush(Color.Parse(CategoryColor));
+    public bool IsOverdue => IsActive && DueDate.ToLocalTime().Date < DateTime.Today;
+    public bool IsDueSoon => IsActive && !IsOverdue && (DueDate.ToLocalTime().Date - DateTime.Today).Days <= 3;
+    public bool IsDueLater => IsActive && !IsOverdue &&
+                              (DueDate.ToLocalTime().Date - DateTime.Today).Days > 3 &&
+                              (DueDate.ToLocalTime().Date - DateTime.Today).Days <= 14;
+    public bool IsDueFar => IsActive && !IsOverdue && (DueDate.ToLocalTime().Date - DateTime.Today).Days > 14;
+    public string AmountWithSymbolDisplay => $"{(IsIncome ? "+" : "-")}{FormatAmount(Amount)} {GetCurrencySymbol(Currency)}";
+
+    private static string FormatAmount(decimal amount) =>
+        decimal.Truncate(amount) == amount
+            ? amount.ToString("#,##0", CultureInfo.InvariantCulture)
+            : amount.ToString("#,##0.##", CultureInfo.InvariantCulture);
+
+    private static string GetCurrencySymbol(string currency) =>
+        currency.ToUpperInvariant() switch
         {
-            if (!DateTime.TryParseExact(DueDateDisplay, "dd.MM.yyyy HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var due))
-            {
-                return "-";
-            }
-
-            var days = (due.Date - DateTime.Today).Days;
-            if (days < 0)
-            {
-                return $"Просрочено {-days} дн.";
-            }
-
-            return days == 0 ? "Сьогодні" : $"{days} дн.";
-        }
-    }
+            "UAH" => "₴",
+            "USD" => "$",
+            "EUR" => "€",
+            "PLN" => "zł",
+            "SEK" => "kr",
+            _ => currency
+        };
 }
 
 public sealed record CategoryLegendItemViewModel(

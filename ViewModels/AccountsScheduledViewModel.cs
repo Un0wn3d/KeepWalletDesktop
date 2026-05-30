@@ -33,6 +33,7 @@ public partial class MainViewModel
             ScheduledPayments = new ObservableCollection<ScheduledPaymentItemViewModel>(
                 payments.Select(p => new ScheduledPaymentItemViewModel(
                     p.Id,
+                    p.RecurringPaymentId,
                     p.Name,
                     p.AccountId,
                     p.CategoryId,
@@ -40,12 +41,16 @@ public partial class MainViewModel
                     GetTransactionType(p.CategoryId),
                     GetCategoryDisplayName(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     GetCategoryIconKey(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                    GetCategoryColor(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     p.Description,
-                    p.NextDueDate.ToDateTime(TimeOnly.MinValue).ToString(DateTimeDisplayFormat, CultureInfo.InvariantCulture),
-                    FormatRepeatInterval(p.RepeatInterval),
+                    ResolveScheduledPaymentCurrency(p.AccountId),
+                    p.NextDueDate,
+                    p.RepeatInterval,
+                    FormatRepeatIntervalDisplay(p.RepeatInterval),
                     p.IsActive,
                     $"{p.Amount:N2}",
-                    p.IsActive ? Texts.ScheduledPaymentPendingStatus : Texts.ScheduledPaymentPaidStatus)));
+                    p.IsActive ? Texts.ScheduledPaymentPendingStatus : Texts.ScheduledPaymentPaidStatus,
+                    FormatDaysRemainingDisplay(p.NextDueDate, p.IsActive))));
         }
         catch (HttpRequestException ex)
         {
@@ -250,7 +255,7 @@ public partial class MainViewModel
             !decimal.TryParse(ScheduledPaymentAmountInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var amount) ||
             amount <= 0 ||
             SelectedScheduledPaymentCategory is null ||
-            !TryParseDateOnly(ScheduledPaymentDateInput, out var dueDate))
+            !TryParseTransactionDate(ScheduledPaymentDateInput, out var dueDate))
         {
             ApiStatusMessage = Texts.TransactionFormValidationText;
             return;
@@ -267,9 +272,11 @@ public partial class MainViewModel
 
             var accountId = await EnsureDefaultAccountAsync();
             var categoryId = GetCategoryId(SelectedScheduledPaymentCategory.Code);
-            var repeatInterval = ParseRepeatInterval(IsCustomScheduledRepeat
-                ? ScheduledPaymentCustomRepeatInput
-                : SelectedScheduledRepeatOption?.Code ?? "once");
+            if (!TryBuildScheduledRepeatInterval(out var repeatInterval))
+            {
+                ApiStatusMessage = Texts.TransactionFormValidationText;
+                return;
+            }
 
             await _apiClient!.CreatePlannedTransactionAsync(new CreatePlannedTransactionRequestDto(
                 ScheduledPaymentNameInput.Trim(),
@@ -277,15 +284,15 @@ public partial class MainViewModel
                 categoryId,
                 amount,
                 string.IsNullOrWhiteSpace(ScheduledPaymentDescriptionInput) ? null : ScheduledPaymentDescriptionInput.Trim(),
-                dueDate,
+                dueDate.ToUniversalTime(),
                 repeatInterval));
 
             ScheduledPaymentNameInput = string.Empty;
             ScheduledPaymentAmountInput = string.Empty;
             ScheduledPaymentDescriptionInput = string.Empty;
-            ScheduledPaymentDateInput = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue).ToString(DateTimeDisplayFormat);
+            ScheduledPaymentDateInput = DateTimeOffset.Now.ToString(DateTimeDisplayFormat, CultureInfo.InvariantCulture);
             SelectedScheduledRepeatOption = ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "once");
-            ScheduledPaymentCustomRepeatInput = string.Empty;
+            ResetScheduledCustomRepeatBuilder();
             await LoadScheduledPaymentsAsync();
         }
         catch (HttpRequestException ex)
@@ -312,9 +319,74 @@ public partial class MainViewModel
 
         try
         {
+            if (BankAccounts.Count == 0)
+            {
+                await LoadBankAccountsAsync();
+            }
+
+            var paymentCurrency = BankAccounts
+                .FirstOrDefault(a => a.Id == payment.AccountId)?
+                .Currency;
+
+            if (string.IsNullOrWhiteSpace(paymentCurrency))
+            {
+                ApiStatusMessage = "Не удалось определить валюту запланированной транзакции.";
+                return;
+            }
+
+            var compatibleAccounts = BankAccounts
+                .Where(a => string.Equals(a.Currency, paymentCurrency, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(a => a.Id == payment.AccountId)
+                .ThenByDescending(a => a.IsDefault)
+                .ThenBy(a => a.Name)
+                .ToList();
+
+            if (compatibleAccounts.Count == 0)
+            {
+                ApiStatusMessage = $"Нет доступных счетов в валюте {paymentCurrency}.";
+                return;
+            }
+
+            PendingScheduledPaymentConfirmation = payment;
+            ScheduledPaymentConfirmCurrency = paymentCurrency;
+            ScheduledPaymentConfirmAccounts = new ObservableCollection<BankAccountItemViewModel>(compatibleAccounts);
+            SelectedScheduledPaymentConfirmAccount = compatibleAccounts.FirstOrDefault(a => a.Id == payment.AccountId)
+                ?? compatibleAccounts.FirstOrDefault(a => a.IsDefault)
+                ?? compatibleAccounts.FirstOrDefault();
+            IsScheduledPaymentConfirmDialogOpen = true;
+        }
+        catch (Exception ex)
+        {
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
+    private void CloseScheduledPaymentConfirmDialog()
+    {
+        IsScheduledPaymentConfirmDialogOpen = false;
+        PendingScheduledPaymentConfirmation = null;
+        ScheduledPaymentConfirmAccounts = [];
+        SelectedScheduledPaymentConfirmAccount = null;
+        ScheduledPaymentConfirmCurrency = string.Empty;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmScheduledPaymentWithAccountAsync()
+    {
+        if (IsApiBusy || PendingScheduledPaymentConfirmation is null || SelectedScheduledPaymentConfirmAccount is null)
+        {
+            return;
+        }
+
+        try
+        {
             IsApiBusy = true;
             EnsureApiClient();
-            await _apiClient!.ConfirmPlannedTransactionAsync(payment.Id);
+            await _apiClient!.ConfirmPlannedTransactionAsync(
+                PendingScheduledPaymentConfirmation.Id,
+                new ConfirmPlannedTransactionRequestDto(SelectedScheduledPaymentConfirmAccount.Id));
+            CloseScheduledPaymentConfirmDialog();
             await LoadScheduledPaymentsAsync();
             await LoadTransactionsAsync();
             await LoadBankAccountsAsync();
@@ -331,6 +403,24 @@ public partial class MainViewModel
         {
             IsApiBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task ConfirmScheduledPaymentFromDialogAsync()
+    {
+        if (!EditingTransactionId.HasValue)
+        {
+            return;
+        }
+
+        var payment = ScheduledPayments.FirstOrDefault(p => p.Id == EditingTransactionId.Value);
+        if (payment is null)
+        {
+            return;
+        }
+
+        IsTransactionDialogOpen = false;
+        await ToggleScheduledPaymentAsync(payment);
     }
 
     [RelayCommand]
@@ -362,48 +452,103 @@ public partial class MainViewModel
         }
     }
 
-    private static string FormatRepeatInterval(TimeSpan value) =>
-        value.TotalDays switch
-        {
-            <= 0 => "once",
-            <= 1 => "daily",
-            7 => "weekly",
-            >= 28 and <= 31 => "monthly",
-            >= 365 and <= 366 => "yearly",
-            _ => $"every {Math.Max(1, (int)Math.Round(value.TotalDays))} days"
-        };
-
-    private static TimeSpan ParseRepeatInterval(string value)
+    [RelayCommand]
+    private async Task EditScheduledPaymentAsync(ScheduledPaymentItemViewModel? payment)
     {
-        var normalized = value.Trim().ToLowerInvariant();
-        return normalized switch
+        if (payment is null || IsApiBusy)
         {
-            "daily" or "day" => TimeSpan.FromDays(1),
-            "weekly" or "week" => TimeSpan.FromDays(7),
-            "monthly" or "month" => TimeSpan.FromDays(30),
-            "yearly" or "year" => TimeSpan.FromDays(365),
-            "once" => TimeSpan.Zero,
-            _ => ParseCustomRepeatInterval(normalized)
-        };
-    }
-
-    private static TimeSpan ParseCustomRepeatInterval(string value)
-    {
-        var totalDays = 0;
-        foreach (Match match in Regex.Matches(value, @"(\d+)\s*([a-zа-яіїєґ]+)", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant))
-        {
-            var amount = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
-            var unit = match.Groups[2].Value.ToLowerInvariant();
-            totalDays += unit switch
-            {
-                "day" or "days" or "день" or "дні" or "днів" or "дня" => amount,
-                "week" or "weeks" or "тиждень" or "тижні" or "тижнів" => amount * 7,
-                "month" or "months" or "місяць" or "місяці" or "місяців" or "месяц" or "месяца" or "месяцев" => amount * 30,
-                "year" or "years" or "рік" or "роки" or "років" or "год" or "года" or "лет" => amount * 365,
-                _ => 0
-            };
+            return;
         }
 
-        return TimeSpan.FromDays(Math.Max(0, totalDays));
+        if (apiCategories.Count == 0)
+        {
+            await LoadCategoriesAsync();
+        }
+
+        if (BankAccounts.Count == 0)
+        {
+            await LoadBankAccountsAsync();
+        }
+
+        var account = BankAccounts.FirstOrDefault(a => a.Id == payment.AccountId);
+        if (account is not null)
+        {
+            SelectedBankAccount = account;
+            TransactionCurrencyInput = account.Currency;
+        }
+
+        ActiveTransaction = null;
+        EditingTransactionId = payment.Id;
+        EditingScheduledPaymentId = payment.RecurringPaymentId;
+        TransactionType = payment.Type;
+        TransactionAmountInput = payment.Amount.ToString("0.##", CultureInfo.InvariantCulture);
+        TransactionDescriptionInput = payment.Description ?? string.Empty;
+        IsTransactionSharedInput = false;
+        SelectedTransactionShareGroup = null;
+        UpdateTransactionCategoryOptions(payment.CategoryId.ToString(CultureInfo.InvariantCulture));
+        ApplyScheduledRepeatSelection(payment.RepeatInterval);
+
+        var dueDate = payment.DueDate.ToLocalTime();
+        TransactionDateInput = dueDate.ToString(DateDisplayFormat, CultureInfo.InvariantCulture);
+        TransactionSelectedDate = dueDate;
+        TransactionSelectedTime = dueDate.TimeOfDay;
+        TransactionTimeInput = dueDate.ToString("HH:mm", CultureInfo.InvariantCulture);
+
+        IsAllTransactionsDialogOpen = false;
+        IsTransactionDialogOpen = true;
+        ApiStatusMessage = string.Empty;
+    }
+
+    private string FormatRepeatIntervalDisplay(TimeSpan value) =>
+        value.TotalDays switch
+        {
+            <= 0 => Texts.ScheduledRepeatOnce,
+            <= 1 => Texts.ScheduledRepeatDaily,
+            7 => Texts.ScheduledRepeatWeekly,
+            >= 28 and <= 31 => Texts.ScheduledRepeatMonthly,
+            >= 365 and <= 366 => Texts.ScheduledRepeatYearly,
+            _ => BuildCustomRepeatDisplay(Math.Max(1, (int)Math.Round(value.TotalDays)))
+        };
+
+    private string BuildCustomRepeatDisplay(int totalDays)
+    {
+        var years = totalDays / 365;
+        totalDays %= 365;
+        var months = totalDays / 30;
+        totalDays %= 30;
+        var weeks = totalDays / 7;
+        totalDays %= 7;
+        var days = totalDays;
+
+        var parts = new[]
+        {
+            years > 0 ? $"{years} {(years == 1 ? Texts.ScheduledRepeatYearUnit : Texts.ScheduledRepeatYearsUnit)}" : null,
+            months > 0 ? $"{months} {(months == 1 ? Texts.ScheduledRepeatMonthUnit : Texts.ScheduledRepeatMonthsUnit)}" : null,
+            weeks > 0 ? $"{weeks} {(weeks == 1 ? Texts.ScheduledRepeatWeekUnit : Texts.ScheduledRepeatWeeksUnit)}" : null,
+            days > 0 ? $"{days} {(days == 1 ? Texts.ScheduledRepeatDayUnit : Texts.ScheduledRepeatDaysUnit)}" : null
+        }.Where(x => x is not null);
+
+        return string.Join(" ", parts!);
+    }
+
+    private string ResolveScheduledPaymentCurrency(Guid accountId) =>
+        BankAccounts.FirstOrDefault(a => a.Id == accountId)?.Currency ?? "UAH";
+
+    private string FormatDaysRemainingDisplay(DateTimeOffset dueDate, bool isActive)
+    {
+        if (!isActive)
+        {
+            return Texts.ScheduledPaymentPaidStatus;
+        }
+
+        var days = (dueDate.ToLocalTime().Date - DateTime.Today).Days;
+        if (days < 0)
+        {
+            return $"{Texts.ScheduledPaymentsOverduePrefix} {-days} {Texts.ScheduledPaymentsDayShort}";
+        }
+
+        return days == 0
+            ? Texts.ScheduledPaymentsToday
+            : $"{days} {Texts.ScheduledPaymentsDayShort}";
     }
 }

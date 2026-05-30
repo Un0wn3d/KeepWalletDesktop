@@ -504,9 +504,23 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty planned transaction response.");
     }
 
-    public async Task<ApiTransactionDto> ConfirmPlannedTransactionAsync(int transactionId, CancellationToken cancellationToken = default)
+    public async Task<ApiTransactionDto> UpdatePlannedTransactionAsync(
+        int transactionId,
+        CreatePlannedTransactionRequestDto request,
+        CancellationToken cancellationToken = default)
     {
-        using var response = await SendAuthorizedAsync(HttpMethod.Post, $"/api/planned-transactions/{transactionId}/confirm", cancellationToken);
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, $"/api/planned-transactions/{transactionId}", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiTransactionDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty planned transaction response.");
+    }
+
+    public async Task<ApiTransactionDto> ConfirmPlannedTransactionAsync(
+        int transactionId,
+        ConfirmPlannedTransactionRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Post, $"/api/planned-transactions/{transactionId}/confirm", request, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
         return await response.Content.ReadFromJsonAsync<ApiTransactionDto>(JsonOptions, cancellationToken)
             ?? throw new InvalidOperationException("API returned an empty transaction response.");

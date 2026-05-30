@@ -193,6 +193,11 @@ public partial class DateSortModule : UserControl
     {
         if (DataContext is MainViewModel viewModel)
         {
+            if (viewModel.IsScheduledPaymentsPage)
+            {
+                return;
+            }
+
             viewModel.ApplyHomeDateRange(_from, _to);
         }
     }

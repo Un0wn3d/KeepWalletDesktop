@@ -170,20 +170,99 @@
                                     </DataTemplate>
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
-                            <TextBox Watermark="{Binding Texts.ScheduledPaymentCustomRepeatHint}"
-                                     Text="{Binding ScheduledPaymentCustomRepeatInput}"
-                                     IsVisible="{Binding IsCustomScheduledRepeat}" />
+                            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="8"
+                                  IsVisible="{Binding IsCustomScheduledRepeat}">
+                                <Grid ColumnDefinitions="110,*" ColumnSpacing="8">
+                                    <TextBox Text="{Binding ScheduledCustomPrimaryValueInput}"
+                                             Classes="auth-input" />
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding ScheduledCustomRepeatUnitOptions}"
+                                              SelectedItem="{Binding SelectedScheduledCustomPrimaryUnit}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Grid.Column="1"
+                                      ColumnDefinitions="110,*"
+                                      ColumnSpacing="8"
+                                      IsVisible="{Binding HasScheduledCustomSecondaryUnit}">
+                                    <TextBox Text="{Binding ScheduledCustomSecondaryValueInput}"
+                                             Classes="auth-input" />
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding ScheduledCustomSecondaryUnitOptions}"
+                                              SelectedItem="{Binding SelectedScheduledCustomSecondaryUnit}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Grid.Row="1"
+                                      ColumnDefinitions="110,*"
+                                      ColumnSpacing="8"
+                                      IsVisible="{Binding HasScheduledCustomTertiaryUnit}">
+                                    <TextBox Text="{Binding ScheduledCustomTertiaryValueInput}"
+                                             Classes="auth-input" />
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding ScheduledCustomTertiaryUnitOptions}"
+                                              SelectedItem="{Binding SelectedScheduledCustomTertiaryUnit}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                                <Grid Grid.Row="1"
+                                      Grid.Column="1"
+                                      ColumnDefinitions="110,*"
+                                      ColumnSpacing="8"
+                                      IsVisible="{Binding HasScheduledCustomQuaternaryUnit}">
+                                    <TextBox Text="{Binding ScheduledCustomQuaternaryValueInput}"
+                                             Classes="auth-input" />
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding ScheduledCustomQuaternaryUnitOptions}"
+                                              SelectedItem="{Binding SelectedScheduledCustomQuaternaryUnit}">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </Grid>
+                            </Grid>
                         </StackPanel>
 
-                        <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="8" Margin="0,8,0,0">
+                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="8" Margin="0,8,0,0">
                             <Button Content="{Binding Texts.DeleteTransactionButton}"
                                     Classes="danger-button"
-                                    Command="{Binding DeleteTransactionCommand}" />
+                                    Command="{Binding DeleteTransactionDialogCommand}" />
                             <Button Grid.Column="2"
+                                    Width="44"
+                                    Height="44"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Classes="primary-button"
+                                    IsVisible="{Binding CanConfirmScheduledPaymentFromDialog}"
+                                    Command="{Binding ConfirmScheduledPaymentFromDialogCommand}">
+                                <Viewbox Width="18" Height="18">
+                                    <TextBlock Text="&#xE34C;"
+                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                               TextAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Viewbox>
+                            </Button>
+                            <Button Grid.Column="3"
                                     Content="{Binding Texts.CancelButton}"
                                     Classes="secondary-button"
                                     Command="{Binding CloseTransactionDialogCommand}" />
-                            <Button Grid.Column="3"
+                            <Button Grid.Column="4"
                                     Content="{Binding SaveTransactionButtonText}"
                                     Classes="primary-button"
                                     Command="{Binding SaveTransactionCommand}" />

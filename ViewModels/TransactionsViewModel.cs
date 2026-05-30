@@ -47,6 +47,7 @@ public partial class MainViewModel
         {
             IsApiBusy = true;
             EnsureApiClient();
+            var shouldReloadScheduledPayments = false;
             if (apiCategories.Count == 0)
             {
                 await LoadCategoriesAsync();
@@ -56,8 +57,31 @@ public partial class MainViewModel
             var categoryId = GetCategoryId(SelectedTransactionCategory.Code);
             var groupId = IsTransactionSharedInput ? SelectedTransactionShareGroup?.Id : null;
             var transactionName = string.IsNullOrWhiteSpace(TransactionDescriptionInput) ? null : TransactionDescriptionInput.Trim();
+            var hasScheduledRepeat = TryBuildScheduledRepeatInterval(out var repeatInterval);
 
-            if (EditingTransactionId.HasValue)
+            if (EditingScheduledPaymentId.HasValue && EditingTransactionId.HasValue)
+            {
+                if (!hasScheduledRepeat)
+                {
+                    ApiStatusMessage = Texts.TransactionFormValidationText;
+                    return;
+                }
+                shouldReloadScheduledPayments = true;
+
+                await _apiClient!.UpdatePlannedTransactionAsync(
+                    EditingTransactionId.Value,
+                    new CreatePlannedTransactionRequestDto(
+                        transactionName ?? Texts.NewTransactionButton,
+                        accountId,
+                        categoryId,
+                        amount,
+                        null,
+                        transactionDate.ToUniversalTime(),
+                        repeatInterval));
+
+                ApiStatusMessage = Texts.TransactionUpdatedText;
+            }
+            else if (EditingTransactionId.HasValue)
             {
                 await _apiClient!.UpdateTransactionAsync(
                     EditingTransactionId.Value,
@@ -75,9 +99,12 @@ public partial class MainViewModel
             }
             else if (IsPlannedTransactionMode)
             {
-                var repeatInterval = ParseRepeatInterval(IsCustomScheduledRepeat
-                    ? ScheduledPaymentCustomRepeatInput
-                    : SelectedScheduledRepeatOption?.Code ?? "once");
+                if (!hasScheduledRepeat)
+                {
+                    ApiStatusMessage = Texts.TransactionFormValidationText;
+                    return;
+                }
+                shouldReloadScheduledPayments = true;
 
                 await _apiClient!.CreatePlannedTransactionAsync(
                     new CreatePlannedTransactionRequestDto(
@@ -86,7 +113,7 @@ public partial class MainViewModel
                         categoryId,
                         amount,
                         null,
-                        DateOnly.FromDateTime(transactionDate.Date),
+                        transactionDate.ToUniversalTime(),
                         repeatInterval));
 
                 ApiStatusMessage = Texts.TransactionSavedText;
@@ -111,6 +138,10 @@ public partial class MainViewModel
             ResetTransactionForm();
             await LoadTransactionsAsync();
             await LoadBankAccountsAsync();
+            if (shouldReloadScheduledPayments)
+            {
+                await LoadScheduledPaymentsAsync();
+            }
         }
         catch (HttpRequestException ex)
         {
@@ -208,6 +239,45 @@ public partial class MainViewModel
         {
             IsApiBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private async Task DeleteTransactionDialogAsync()
+    {
+        if (IsEditingScheduledPayment && EditingTransactionId.HasValue)
+        {
+            if (IsApiBusy)
+            {
+                return;
+            }
+
+            try
+            {
+                IsApiBusy = true;
+                EnsureApiClient();
+                await _apiClient!.DeletePlannedTransactionAsync(EditingTransactionId.Value);
+                ApiStatusMessage = Texts.TransactionDeletedText;
+                IsTransactionDialogOpen = false;
+                ResetTransactionForm();
+                await LoadScheduledPaymentsAsync();
+            }
+            catch (HttpRequestException ex)
+            {
+                ApiStatusMessage = GetApiErrorMessage(ex);
+            }
+            catch (Exception ex)
+            {
+                ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+            }
+            finally
+            {
+                IsApiBusy = false;
+            }
+
+            return;
+        }
+
+        await DeleteTransactionAsync(null);
     }
 
     private async Task LoadTransactionsAsync()

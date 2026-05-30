@@ -202,10 +202,28 @@ public interface ILocalizedText
     string ScheduledRepeatMonthly { get; }
     string ScheduledRepeatYearly { get; }
     string ScheduledRepeatCustom { get; }
+    string ScheduledRepeatYearUnit { get; }
+    string ScheduledRepeatYearsUnit { get; }
+    string ScheduledRepeatMonthUnit { get; }
+    string ScheduledRepeatMonthsUnit { get; }
+    string ScheduledRepeatWeekUnit { get; }
+    string ScheduledRepeatWeeksUnit { get; }
+    string ScheduledRepeatDayUnit { get; }
+    string ScheduledRepeatDaysUnit { get; }
     string AddScheduledPaymentButton { get; }
     string ConfirmScheduledPaymentButton { get; }
     string ScheduledPaymentPendingStatus { get; }
     string ScheduledPaymentPaidStatus { get; }
+    string ScheduledPaymentsTotalCardTitle { get; }
+    string ScheduledPaymentsPaidThisMonthCardTitle { get; }
+    string ScheduledPaymentsUnpaidCardTitle { get; }
+    string ScheduledPaymentsOverdueCardTitle { get; }
+    string ScheduledPaymentsFilterAll { get; }
+    string ScheduledPaymentsFilterFuture { get; }
+    string ScheduledPaymentsFilterOverdue { get; }
+    string ScheduledPaymentsToday { get; }
+    string ScheduledPaymentsDayShort { get; }
+    string ScheduledPaymentsOverduePrefix { get; }
     string ThemeLabel { get; }
     string Theme1Name { get; }
     string Theme2Name { get; }
@@ -444,10 +462,28 @@ public sealed class LocalizedText : ILocalizedText
     public string ScheduledRepeatMonthly => Get(nameof(ScheduledRepeatMonthly));
     public string ScheduledRepeatYearly => Get(nameof(ScheduledRepeatYearly));
     public string ScheduledRepeatCustom => Get(nameof(ScheduledRepeatCustom));
+    public string ScheduledRepeatYearUnit => Get(nameof(ScheduledRepeatYearUnit));
+    public string ScheduledRepeatYearsUnit => Get(nameof(ScheduledRepeatYearsUnit));
+    public string ScheduledRepeatMonthUnit => Get(nameof(ScheduledRepeatMonthUnit));
+    public string ScheduledRepeatMonthsUnit => Get(nameof(ScheduledRepeatMonthsUnit));
+    public string ScheduledRepeatWeekUnit => Get(nameof(ScheduledRepeatWeekUnit));
+    public string ScheduledRepeatWeeksUnit => Get(nameof(ScheduledRepeatWeeksUnit));
+    public string ScheduledRepeatDayUnit => Get(nameof(ScheduledRepeatDayUnit));
+    public string ScheduledRepeatDaysUnit => Get(nameof(ScheduledRepeatDaysUnit));
     public string AddScheduledPaymentButton => Get(nameof(AddScheduledPaymentButton));
     public string ConfirmScheduledPaymentButton => Get(nameof(ConfirmScheduledPaymentButton));
     public string ScheduledPaymentPendingStatus => Get(nameof(ScheduledPaymentPendingStatus));
     public string ScheduledPaymentPaidStatus => Get(nameof(ScheduledPaymentPaidStatus));
+    public string ScheduledPaymentsTotalCardTitle => Get(nameof(ScheduledPaymentsTotalCardTitle));
+    public string ScheduledPaymentsPaidThisMonthCardTitle => Get(nameof(ScheduledPaymentsPaidThisMonthCardTitle));
+    public string ScheduledPaymentsUnpaidCardTitle => Get(nameof(ScheduledPaymentsUnpaidCardTitle));
+    public string ScheduledPaymentsOverdueCardTitle => Get(nameof(ScheduledPaymentsOverdueCardTitle));
+    public string ScheduledPaymentsFilterAll => Get(nameof(ScheduledPaymentsFilterAll));
+    public string ScheduledPaymentsFilterFuture => Get(nameof(ScheduledPaymentsFilterFuture));
+    public string ScheduledPaymentsFilterOverdue => Get(nameof(ScheduledPaymentsFilterOverdue));
+    public string ScheduledPaymentsToday => Get(nameof(ScheduledPaymentsToday));
+    public string ScheduledPaymentsDayShort => Get(nameof(ScheduledPaymentsDayShort));
+    public string ScheduledPaymentsOverduePrefix => Get(nameof(ScheduledPaymentsOverduePrefix));
     public string ThemeLabel => Get(nameof(ThemeLabel));
     public string Theme1Name => Get(nameof(Theme1Name));
     public string Theme2Name => Get(nameof(Theme2Name));

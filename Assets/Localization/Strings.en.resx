@@ -495,6 +495,30 @@
   <data name="ScheduledRepeatCustom" xml:space="preserve">
     <value>Custom</value>
   </data>
+  <data name="ScheduledRepeatYearUnit" xml:space="preserve">
+    <value>year</value>
+  </data>
+  <data name="ScheduledRepeatYearsUnit" xml:space="preserve">
+    <value>years</value>
+  </data>
+  <data name="ScheduledRepeatMonthUnit" xml:space="preserve">
+    <value>month</value>
+  </data>
+  <data name="ScheduledRepeatMonthsUnit" xml:space="preserve">
+    <value>months</value>
+  </data>
+  <data name="ScheduledRepeatWeekUnit" xml:space="preserve">
+    <value>week</value>
+  </data>
+  <data name="ScheduledRepeatWeeksUnit" xml:space="preserve">
+    <value>weeks</value>
+  </data>
+  <data name="ScheduledRepeatDayUnit" xml:space="preserve">
+    <value>day</value>
+  </data>
+  <data name="ScheduledRepeatDaysUnit" xml:space="preserve">
+    <value>days</value>
+  </data>
   <data name="AddScheduledPaymentButton" xml:space="preserve">
     <value>Add scheduled payment</value>
   </data>
@@ -506,6 +530,36 @@
   </data>
   <data name="ScheduledPaymentPaidStatus" xml:space="preserve">
     <value>Paid</value>
+  </data>
+  <data name="ScheduledPaymentsTotalCardTitle" xml:space="preserve">
+    <value>Scheduled</value>
+  </data>
+  <data name="ScheduledPaymentsPaidThisMonthCardTitle" xml:space="preserve">
+    <value>Paid this month</value>
+  </data>
+  <data name="ScheduledPaymentsUnpaidCardTitle" xml:space="preserve">
+    <value>Unpaid</value>
+  </data>
+  <data name="ScheduledPaymentsOverdueCardTitle" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="ScheduledPaymentsFilterAll" xml:space="preserve">
+    <value>All</value>
+  </data>
+  <data name="ScheduledPaymentsFilterFuture" xml:space="preserve">
+    <value>Upcoming</value>
+  </data>
+  <data name="ScheduledPaymentsFilterOverdue" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="ScheduledPaymentsToday" xml:space="preserve">
+    <value>Today</value>
+  </data>
+  <data name="ScheduledPaymentsDayShort" xml:space="preserve">
+    <value>d</value>
+  </data>
+  <data name="ScheduledPaymentsOverduePrefix" xml:space="preserve">
+    <value>Overdue</value>
   </data>
   <data name="ThemeLabel" xml:space="preserve">
     <value>Theme</value>

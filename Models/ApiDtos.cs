@@ -209,8 +209,10 @@ public sealed record CreatePlannedTransactionRequestDto(
     int CategoryId,
     decimal Amount,
     string? Description,
-    DateOnly NextDueDate,
+    DateTimeOffset NextDueDate,
     TimeSpan RepeatInterval);
+
+public sealed record ConfirmPlannedTransactionRequestDto(Guid AccountId);
 
 public sealed record ApiPlannedTransactionDto(
     int Id,
@@ -222,7 +224,7 @@ public sealed record ApiPlannedTransactionDto(
     string? Description,
     DateTimeOffset TransactionDate,
     TimeSpan RepeatInterval,
-    DateOnly NextDueDate,
+    DateTimeOffset NextDueDate,
     bool IsActive);
 
 public sealed record CreateBankAccountRequestDto(

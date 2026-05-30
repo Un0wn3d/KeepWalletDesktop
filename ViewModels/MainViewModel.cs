@@ -196,6 +196,11 @@ public partial class MainViewModel : ViewModelBase
     [ObservableProperty]
     private int? editingTransactionId;
 
+    [ObservableProperty]
+    private int? editingScheduledPaymentId;
+
+    private bool isSyncingTransactionDateState;
+
     private Guid? defaultAccountId;
 
     [ObservableProperty]
@@ -478,13 +483,29 @@ public partial class MainViewModel : ViewModelBase
     private ObservableCollection<ScheduledPaymentItemViewModel> scheduledPayments = [];
 
     [ObservableProperty]
+    private bool isScheduledPaymentConfirmDialogOpen;
+
+    [ObservableProperty]
+    private ScheduledPaymentItemViewModel? pendingScheduledPaymentConfirmation;
+
+    [ObservableProperty]
+    private ObservableCollection<BankAccountItemViewModel> scheduledPaymentConfirmAccounts = [];
+
+    [ObservableProperty]
+    private BankAccountItemViewModel? selectedScheduledPaymentConfirmAccount;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ScheduledPaymentConfirmTitle))]
+    private string scheduledPaymentConfirmCurrency = string.Empty;
+
+    [ObservableProperty]
     private string scheduledPaymentNameInput = string.Empty;
 
     [ObservableProperty]
     private string scheduledPaymentAmountInput = string.Empty;
 
     [ObservableProperty]
-    private string scheduledPaymentDateInput = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue).ToString(DateTimeDisplayFormat);
+    private string scheduledPaymentDateInput = DateTimeOffset.Now.ToString(DateTimeDisplayFormat);
 
     [ObservableProperty]
     private string scheduledPaymentFrequencyInput = "once";
@@ -496,25 +517,103 @@ public partial class MainViewModel : ViewModelBase
     private CategoryOptionViewModel? selectedScheduledRepeatOption;
 
     [ObservableProperty]
-    private string scheduledPaymentCustomRepeatInput = string.Empty;
+    private ObservableCollection<CategoryOptionViewModel> scheduledCustomRepeatUnitOptions = [];
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledCustomPrimaryUnit;
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledCustomSecondaryUnit;
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledCustomTertiaryUnit;
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledCustomQuaternaryUnit;
+
+    [ObservableProperty]
+    private string scheduledCustomPrimaryValueInput = "1";
+
+    [ObservableProperty]
+    private string scheduledCustomSecondaryValueInput = string.Empty;
+
+    [ObservableProperty]
+    private string scheduledCustomTertiaryValueInput = string.Empty;
+
+    [ObservableProperty]
+    private string scheduledCustomQuaternaryValueInput = string.Empty;
 
     [ObservableProperty]
     private string scheduledPaymentsFilter = "all";
 
+    [ObservableProperty]
+    private ObservableCollection<CategoryOptionViewModel> scheduledPaymentCurrencyFilterOptions = [];
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledPaymentCurrencyFilter;
+
+    [ObservableProperty]
+    private ObservableCollection<CategoryOptionViewModel> scheduledPaymentCategoryFilterOptions = [];
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledPaymentCategoryFilter;
+
+    [ObservableProperty]
+    private ObservableCollection<CategoryOptionViewModel> scheduledPaymentTypeFilterOptions = [];
+
+    [ObservableProperty]
+    private CategoryOptionViewModel? selectedScheduledPaymentTypeFilter;
+
     public bool IsCustomScheduledRepeat => string.Equals(SelectedScheduledRepeatOption?.Code, "custom", StringComparison.OrdinalIgnoreCase);
+    public IEnumerable<CategoryOptionViewModel> ScheduledCustomSecondaryUnitOptions => BuildScheduledCustomRepeatUnitOptions(SelectedScheduledCustomPrimaryUnit?.Code);
+    public IEnumerable<CategoryOptionViewModel> ScheduledCustomTertiaryUnitOptions => BuildScheduledCustomRepeatUnitOptions(SelectedScheduledCustomSecondaryUnit?.Code);
+    public IEnumerable<CategoryOptionViewModel> ScheduledCustomQuaternaryUnitOptions => BuildScheduledCustomRepeatUnitOptions(SelectedScheduledCustomTertiaryUnit?.Code);
+    public bool HasScheduledCustomSecondaryUnit => IsCustomScheduledRepeat && !string.Equals(SelectedScheduledCustomPrimaryUnit?.Code, "day", StringComparison.OrdinalIgnoreCase);
+    public bool HasScheduledCustomTertiaryUnit => HasScheduledCustomSecondaryUnit && !string.Equals(SelectedScheduledCustomSecondaryUnit?.Code, "day", StringComparison.OrdinalIgnoreCase);
+    public bool HasScheduledCustomQuaternaryUnit => HasScheduledCustomTertiaryUnit && !string.Equals(SelectedScheduledCustomTertiaryUnit?.Code, "day", StringComparison.OrdinalIgnoreCase);
     public int ScheduledPaymentsTotalCount => ScheduledPayments.Count;
+    public int ScheduledPaymentsPaidThisMonthCount => AllTransactions.Count(IsPaidScheduledPaymentThisMonth);
+    public int ScheduledPaymentsUnpaidCount => ScheduledPayments.Count(p =>
+        p.IsActive && p.DueDate.ToLocalTime().Date >= DateTime.Today);
     public int ScheduledPaymentsOverdueCount => ScheduledPayments.Count(p =>
-        p.IsActive && TryParseScheduledDueDate(p.DueDateDisplay, out var dueDate) && dueDate.Date < DateTime.Today);
+        p.IsActive && p.DueDate.ToLocalTime().Date < DateTime.Today);
     public int ScheduledPaymentsUpcomingCount => ScheduledPayments.Count(p =>
-        p.IsActive && TryParseScheduledDueDate(p.DueDateDisplay, out var dueDate) && dueDate.Date >= DateTime.Today);
+        p.IsActive && p.DueDate.ToLocalTime().Date >= DateTime.Today);
+    public string ScheduledPaymentConfirmTitle => $"{Texts.ConfirmScheduledPaymentButton} · {ScheduledPaymentConfirmCurrency}";
     public IEnumerable<ScheduledPaymentItemViewModel> FilteredScheduledPayments => ScheduledPayments
-        .Where(p => ScheduledPaymentsFilter switch
+        .Where(MatchesScheduledPaymentsFilter)
+        .Where(MatchesScheduledPaymentsTypeFilter)
+        .Where(MatchesScheduledPaymentsCurrencyFilter)
+        .Where(MatchesScheduledPaymentsCategoryFilter)
+        .OrderBy(p => p.DueDate);
+    public bool IsAllScheduledPaymentsFilterSelected => string.Equals(ScheduledPaymentsFilter, "all", StringComparison.OrdinalIgnoreCase);
+    public bool IsFutureScheduledPaymentsFilterSelected => string.Equals(ScheduledPaymentsFilter, "future", StringComparison.OrdinalIgnoreCase);
+    public bool IsOverdueScheduledPaymentsFilterSelected => string.Equals(ScheduledPaymentsFilter, "overdue", StringComparison.OrdinalIgnoreCase);
+    public bool HasScheduledPaymentTypeFilter => ScheduledPaymentTypeFilterOptions.Count > 2;
+
+    private bool MatchesScheduledPaymentsFilter(ScheduledPaymentItemViewModel payment) =>
+        ScheduledPaymentsFilter switch
         {
-            "expense" => p.Type == "expense",
-            "income" => p.Type == "income",
-            "overdue" => p.IsActive && TryParseScheduledDueDate(p.DueDateDisplay, out var dueDate) && dueDate.Date < DateTime.Today,
+            "future" => payment.IsActive && payment.DueDate.ToLocalTime().Date >= DateTime.Today,
+            "overdue" => payment.IsActive && payment.DueDate.ToLocalTime().Date < DateTime.Today,
             _ => true
-        });
+        };
+
+    private bool MatchesScheduledPaymentsCurrencyFilter(ScheduledPaymentItemViewModel payment) =>
+        SelectedScheduledPaymentCurrencyFilter is null ||
+        SelectedScheduledPaymentCurrencyFilter.Code == "all" ||
+        string.Equals(payment.Currency, SelectedScheduledPaymentCurrencyFilter.Code, StringComparison.OrdinalIgnoreCase);
+
+    private bool MatchesScheduledPaymentsTypeFilter(ScheduledPaymentItemViewModel payment) =>
+        SelectedScheduledPaymentTypeFilter is null ||
+        SelectedScheduledPaymentTypeFilter.Code == "all" ||
+        string.Equals(payment.Type, SelectedScheduledPaymentTypeFilter.Code, StringComparison.OrdinalIgnoreCase);
+
+    private bool MatchesScheduledPaymentsCategoryFilter(ScheduledPaymentItemViewModel payment) =>
+        SelectedScheduledPaymentCategoryFilter is null ||
+        SelectedScheduledPaymentCategoryFilter.Code == "all" ||
+        payment.CategoryId.ToString(CultureInfo.InvariantCulture) == SelectedScheduledPaymentCategoryFilter.Code;
+
 
     [ObservableProperty]
     private string scheduledPaymentType = "expense";
@@ -593,6 +692,7 @@ public partial class MainViewModel : ViewModelBase
         InitializeLanguages();
         InitializeThemes(userSettings.ThemeName);
         InitializeScheduledRepeatOptions();
+        InitializeScheduledCustomRepeatOptions();
         InitializeReportingOptions();
         LoadServerSettingsFromBaseUrl();
         ResetAuthorizedUser();
@@ -674,6 +774,17 @@ public partial class MainViewModel : ViewModelBase
             return Math.Clamp((longest * 8) + 28, 120, 260);
         }
     }
+    public double ScheduledPaymentCategoryPillWidth
+    {
+        get
+        {
+            var longest = ScheduledPayments
+                .Select(t => t.CategoryDisplay?.Length ?? 0)
+                .DefaultIfEmpty(12)
+                .Max();
+            return Math.Clamp((longest * 8) + 28, 120, 260);
+        }
+    }
     public bool HasExpenseTransactions => LatestExpenses.Any(t => !t.IsIncome);
     public bool HasNoExpenseTransactions => !HasExpenseTransactions;
     public double RemainingAmount => Math.Max(0, GoalAmount - SavedAmount);
@@ -698,19 +809,24 @@ public partial class MainViewModel : ViewModelBase
     public bool IsOnboardingAccountSetupVisible => !IsCategorySettingsMode;
     public string AuthFooterPrompt => IsRegisterMode ? Texts.AlreadyRegisteredPrompt : Texts.NotRegisteredPrompt;
     public string AuthFooterAction => IsRegisterMode ? Texts.SwitchToLoginLink : Texts.SwitchToRegisterLink;
-    public bool IsEditingTransaction => EditingTransactionId.HasValue;
+    public bool IsEditingScheduledPayment => EditingScheduledPaymentId.HasValue;
+    public bool IsEditingTransaction => EditingTransactionId.HasValue && !IsEditingScheduledPayment;
     public bool IsExpenseTransactionTypeSelected => string.Equals(TransactionType, "expense", StringComparison.OrdinalIgnoreCase);
     public bool IsIncomeTransactionTypeSelected => string.Equals(TransactionType, "income", StringComparison.OrdinalIgnoreCase);
     public bool IsPlannedTransactionMode =>
-        !IsEditingTransaction &&
-        TryBuildTransactionDateTime(TransactionSelectedDate, TransactionSelectedTime, out var transactionDate) &&
-        transactionDate.Date > DateTimeOffset.Now.Date;
-    public string TransactionDialogTitle => IsEditingTransaction
+        IsEditingScheduledPayment ||
+        (!IsEditingTransaction &&
+         TryBuildTransactionDateTime(TransactionSelectedDate, TransactionSelectedTime, out var transactionDate) &&
+         transactionDate.Date > DateTimeOffset.Now.Date);
+    public string TransactionDialogTitle => IsEditingScheduledPayment
+        ? Texts.NewPlannedTransactionTitle
+        : IsEditingTransaction
         ? Texts.TransactionDetailsTitle
         : IsPlannedTransactionMode
             ? Texts.NewPlannedTransactionTitle
             : Texts.NewTransactionButton;
-    public string SaveTransactionButtonText => IsEditingTransaction ? Texts.UpdateTransactionButton : Texts.SaveTransactionButton;
+    public string SaveTransactionButtonText => IsEditingTransaction || IsEditingScheduledPayment ? Texts.UpdateTransactionButton : Texts.SaveTransactionButton;
+    public bool CanConfirmScheduledPaymentFromDialog => IsEditingScheduledPayment;
     public string TransactionTypeDisplay => TransactionType == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType;
     public string TransactionTimelineTitle => Texts.TransactionTimelineTitle;
 
@@ -895,6 +1011,7 @@ public partial class MainViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(SelectedGroupTransactions));
         OnPropertyChanged(nameof(TransactionCategoryPillWidth));
+        OnPropertyChanged(nameof(ScheduledPaymentsPaidThisMonthCount));
         RefreshSavingTransactions();
         RefreshReportingSelections();
     }
@@ -968,6 +1085,16 @@ public partial class MainViewModel : ViewModelBase
     partial void OnEditingTransactionIdChanged(int? value)
     {
         OnPropertyChanged(nameof(IsEditingTransaction));
+        OnPropertyChanged(nameof(IsEditingScheduledPayment));
+        OnPropertyChanged(nameof(IsPlannedTransactionMode));
+        OnPropertyChanged(nameof(TransactionDialogTitle));
+        OnPropertyChanged(nameof(SaveTransactionButtonText));
+    }
+
+    partial void OnEditingScheduledPaymentIdChanged(int? value)
+    {
+        OnPropertyChanged(nameof(IsEditingTransaction));
+        OnPropertyChanged(nameof(IsEditingScheduledPayment));
         OnPropertyChanged(nameof(IsPlannedTransactionMode));
         OnPropertyChanged(nameof(TransactionDialogTitle));
         OnPropertyChanged(nameof(SaveTransactionButtonText));
@@ -1056,17 +1183,70 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedScheduledRepeatOptionChanged(CategoryOptionViewModel? value)
     {
         OnPropertyChanged(nameof(IsCustomScheduledRepeat));
+        OnPropertyChanged(nameof(HasScheduledCustomSecondaryUnit));
+        OnPropertyChanged(nameof(HasScheduledCustomTertiaryUnit));
+        OnPropertyChanged(nameof(HasScheduledCustomQuaternaryUnit));
+
+        if (string.Equals(value?.Code, "custom", StringComparison.OrdinalIgnoreCase) &&
+            SelectedScheduledCustomPrimaryUnit is null)
+        {
+            ResetScheduledCustomRepeatBuilder();
+        }
+    }
+
+    partial void OnSelectedScheduledCustomPrimaryUnitChanged(CategoryOptionViewModel? value)
+    {
+        CoerceScheduledCustomRepeatSelection(1);
+        OnPropertyChanged(nameof(ScheduledCustomSecondaryUnitOptions));
+        OnPropertyChanged(nameof(HasScheduledCustomSecondaryUnit));
+        OnPropertyChanged(nameof(HasScheduledCustomTertiaryUnit));
+        OnPropertyChanged(nameof(HasScheduledCustomQuaternaryUnit));
+    }
+
+    partial void OnSelectedScheduledCustomSecondaryUnitChanged(CategoryOptionViewModel? value)
+    {
+        CoerceScheduledCustomRepeatSelection(2);
+        OnPropertyChanged(nameof(ScheduledCustomTertiaryUnitOptions));
+        OnPropertyChanged(nameof(HasScheduledCustomTertiaryUnit));
+        OnPropertyChanged(nameof(HasScheduledCustomQuaternaryUnit));
+    }
+
+    partial void OnSelectedScheduledCustomTertiaryUnitChanged(CategoryOptionViewModel? value)
+    {
+        CoerceScheduledCustomRepeatSelection(3);
+        OnPropertyChanged(nameof(ScheduledCustomQuaternaryUnitOptions));
+        OnPropertyChanged(nameof(HasScheduledCustomQuaternaryUnit));
+    }
+
+    partial void OnSelectedScheduledCustomQuaternaryUnitChanged(CategoryOptionViewModel? value)
+    {
+        CoerceScheduledCustomRepeatSelection(4);
     }
 
     partial void OnTransactionSelectedDateChanged(DateTimeOffset? value)
     {
+        if (isSyncingTransactionDateState)
+        {
+            OnPropertyChanged(nameof(IsPlannedTransactionMode));
+            OnPropertyChanged(nameof(TransactionDialogTitle));
+            return;
+        }
+
         if (value.HasValue)
         {
-            TransactionDate = value.Value.LocalDateTime;
-            TransactionDateInput = value.Value.ToString(DateDisplayFormat, CultureInfo.InvariantCulture);
-            TransactionSelectedDay = value.Value.Day;
-            TransactionSelectedMonth = value.Value.Month;
-            TransactionSelectedYear = value.Value.Year;
+            isSyncingTransactionDateState = true;
+            try
+            {
+                TransactionDate = value.Value.LocalDateTime;
+                TransactionDateInput = value.Value.ToString(DateDisplayFormat, CultureInfo.InvariantCulture);
+                TransactionSelectedDay = value.Value.Day;
+                TransactionSelectedMonth = value.Value.Month;
+                TransactionSelectedYear = value.Value.Year;
+            }
+            finally
+            {
+                isSyncingTransactionDateState = false;
+            }
         }
 
         OnPropertyChanged(nameof(IsPlannedTransactionMode));
@@ -1075,13 +1255,22 @@ public partial class MainViewModel : ViewModelBase
 
     partial void OnTransactionDateChanged(DateTime? value)
     {
-        if (!value.HasValue)
+        if (!value.HasValue || isSyncingTransactionDateState)
         {
             return;
         }
 
-        var offset = TransactionSelectedDate?.Offset ?? DateTimeOffset.Now.Offset;
-        TransactionSelectedDate = new DateTimeOffset(value.Value, offset);
+        isSyncingTransactionDateState = true;
+        try
+        {
+            var localDate = value.Value;
+            var offset = TransactionSelectedDate?.Offset ?? TimeZoneInfo.Local.GetUtcOffset(localDate);
+            TransactionSelectedDate = new DateTimeOffset(DateTime.SpecifyKind(localDate, DateTimeKind.Unspecified), offset);
+        }
+        finally
+        {
+            isSyncingTransactionDateState = false;
+        }
     }
 
     partial void OnTransactionSelectedTimeChanged(TimeSpan? value)
@@ -2614,7 +2803,7 @@ public partial class MainViewModel : ViewModelBase
         ScheduledPaymentNameInput = string.Empty;
         ScheduledPaymentAmountInput = string.Empty;
         ScheduledPaymentDescriptionInput = string.Empty;
-        ScheduledPaymentDateInput = DateOnly.FromDateTime(DateTime.Today).ToDateTime(TimeOnly.MinValue).ToString(DateTimeDisplayFormat);
+        ScheduledPaymentDateInput = DateTimeOffset.Now.ToString(DateTimeDisplayFormat);
         ScheduledPaymentFrequencyInput = "once";
         ScheduledPaymentType = "expense";
         AvailableBalance = 0;
@@ -2934,6 +3123,19 @@ public partial class MainViewModel : ViewModelBase
         SelectedScheduledRepeatOption = ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "once");
     }
 
+    private void InitializeScheduledCustomRepeatOptions()
+    {
+        ScheduledCustomRepeatUnitOptions =
+        [
+            new CategoryOptionViewModel("year", "Years"),
+            new CategoryOptionViewModel("month", "Months"),
+            new CategoryOptionViewModel("week", "Weeks"),
+            new CategoryOptionViewModel("day", "Days")
+        ];
+
+        ResetScheduledCustomRepeatBuilder();
+    }
+
     private void InitializeReportingOptions()
     {
         var now = DateTimeOffset.Now;
@@ -3073,10 +3275,281 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    private void ResetScheduledCustomRepeatBuilder()
+    {
+        SelectedScheduledCustomPrimaryUnit = ScheduledCustomRepeatUnitOptions.FirstOrDefault(x => x.Code == "day");
+        SelectedScheduledCustomSecondaryUnit = null;
+        SelectedScheduledCustomTertiaryUnit = null;
+        SelectedScheduledCustomQuaternaryUnit = null;
+        ScheduledCustomPrimaryValueInput = "1";
+        ScheduledCustomSecondaryValueInput = string.Empty;
+        ScheduledCustomTertiaryValueInput = string.Empty;
+        ScheduledCustomQuaternaryValueInput = string.Empty;
+    }
+
+    private IEnumerable<CategoryOptionViewModel> BuildScheduledCustomRepeatUnitOptions(string? parentUnitCode)
+    {
+        if (string.IsNullOrWhiteSpace(parentUnitCode))
+        {
+            return [];
+        }
+
+        var index = GetScheduledCustomRepeatUnitOrder(parentUnitCode);
+        return index < 0
+            ? []
+            : ScheduledCustomRepeatUnitOptions.Where(x => GetScheduledCustomRepeatUnitOrder(x.Code) > index).ToArray();
+    }
+
+    private void CoerceScheduledCustomRepeatSelection(int level)
+    {
+        if (level <= 1)
+        {
+            var secondaryOptions = ScheduledCustomSecondaryUnitOptions.ToArray();
+            if (!HasScheduledCustomSecondaryUnit)
+            {
+                SelectedScheduledCustomSecondaryUnit = null;
+                ScheduledCustomSecondaryValueInput = string.Empty;
+            }
+            else if (SelectedScheduledCustomSecondaryUnit is null || secondaryOptions.All(x => x.Code != SelectedScheduledCustomSecondaryUnit.Code))
+            {
+                SelectedScheduledCustomSecondaryUnit = secondaryOptions.FirstOrDefault();
+            }
+        }
+
+        if (level <= 2)
+        {
+            var tertiaryOptions = ScheduledCustomTertiaryUnitOptions.ToArray();
+            if (!HasScheduledCustomTertiaryUnit)
+            {
+                SelectedScheduledCustomTertiaryUnit = null;
+                ScheduledCustomTertiaryValueInput = string.Empty;
+            }
+            else if (SelectedScheduledCustomTertiaryUnit is null || tertiaryOptions.All(x => x.Code != SelectedScheduledCustomTertiaryUnit.Code))
+            {
+                SelectedScheduledCustomTertiaryUnit = tertiaryOptions.FirstOrDefault();
+            }
+        }
+
+        if (level <= 3)
+        {
+            var quaternaryOptions = ScheduledCustomQuaternaryUnitOptions.ToArray();
+            if (!HasScheduledCustomQuaternaryUnit)
+            {
+                SelectedScheduledCustomQuaternaryUnit = null;
+                ScheduledCustomQuaternaryValueInput = string.Empty;
+            }
+            else if (SelectedScheduledCustomQuaternaryUnit is null || quaternaryOptions.All(x => x.Code != SelectedScheduledCustomQuaternaryUnit.Code))
+            {
+                SelectedScheduledCustomQuaternaryUnit = quaternaryOptions.FirstOrDefault();
+            }
+        }
+    }
+
+    private void ApplyScheduledRepeatSelection(TimeSpan repeatInterval)
+    {
+        var normalizedDays = Math.Max(0, (int)Math.Round(repeatInterval.TotalDays));
+        SelectedScheduledRepeatOption = normalizedDays switch
+        {
+            0 => ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "once"),
+            1 => ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "daily"),
+            7 => ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "weekly"),
+            >= 28 and <= 31 => ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "monthly"),
+            >= 365 and <= 366 => ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "yearly"),
+            _ => ScheduledRepeatOptions.FirstOrDefault(x => x.Code == "custom")
+        };
+
+        if (!string.Equals(SelectedScheduledRepeatOption?.Code, "custom", StringComparison.OrdinalIgnoreCase))
+        {
+            ResetScheduledCustomRepeatBuilder();
+            return;
+        }
+
+        ApplyScheduledCustomRepeatFromDays(normalizedDays);
+    }
+
+    private void ApplyScheduledCustomRepeatFromDays(int totalDays)
+    {
+        var primaryUnit = totalDays >= 365 ? "year" : totalDays >= 30 ? "month" : totalDays >= 7 ? "week" : "day";
+        var remainder = totalDays;
+
+        ResetScheduledCustomRepeatBuilder();
+        SelectedScheduledCustomPrimaryUnit = ScheduledCustomRepeatUnitOptions.FirstOrDefault(x => x.Code == primaryUnit);
+
+        var allowedUnits = GetAllowedScheduledCustomRepeatUnits(primaryUnit);
+        var parts = DecomposeScheduledCustomRepeatParts(remainder, allowedUnits);
+        ApplyScheduledCustomRepeatParts(parts);
+    }
+
+    private bool TryBuildScheduledRepeatInterval(out TimeSpan repeatInterval)
+    {
+        if (!IsCustomScheduledRepeat)
+        {
+            repeatInterval = ParseStandardScheduledRepeatInterval(SelectedScheduledRepeatOption?.Code ?? "once");
+            return true;
+        }
+
+        if (!TryBuildScheduledCustomRepeatInterval(out repeatInterval))
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool TryBuildScheduledCustomRepeatInterval(out TimeSpan repeatInterval)
+    {
+        repeatInterval = TimeSpan.Zero;
+
+        if (SelectedScheduledCustomPrimaryUnit is null ||
+            !TryParseScheduledCustomRepeatValue(ScheduledCustomPrimaryValueInput, out var primaryValue) ||
+            primaryValue <= 0)
+        {
+            return false;
+        }
+
+        var totalDays = primaryValue * GetScheduledCustomRepeatUnitDays(SelectedScheduledCustomPrimaryUnit.Code);
+
+        if (!TryAccumulateScheduledCustomRepeatPart(SelectedScheduledCustomSecondaryUnit, ScheduledCustomSecondaryValueInput, ref totalDays) ||
+            !TryAccumulateScheduledCustomRepeatPart(SelectedScheduledCustomTertiaryUnit, ScheduledCustomTertiaryValueInput, ref totalDays) ||
+            !TryAccumulateScheduledCustomRepeatPart(SelectedScheduledCustomQuaternaryUnit, ScheduledCustomQuaternaryValueInput, ref totalDays))
+        {
+            return false;
+        }
+
+        if (totalDays <= 0)
+        {
+            return false;
+        }
+
+        repeatInterval = TimeSpan.FromDays(totalDays);
+        ApplyNormalizedScheduledCustomRepeat(totalDays, SelectedScheduledCustomPrimaryUnit.Code);
+        return true;
+    }
+
+    private void ApplyNormalizedScheduledCustomRepeat(int totalDays, string primaryUnitCode)
+    {
+        var parts = DecomposeScheduledCustomRepeatParts(totalDays, GetAllowedScheduledCustomRepeatUnits(primaryUnitCode));
+        ApplyScheduledCustomRepeatParts(parts);
+    }
+
+    private void ApplyScheduledCustomRepeatParts(IReadOnlyList<(string UnitCode, int Value)> parts)
+    {
+        ResetScheduledCustomRepeatBuilder();
+
+        if (parts.Count == 0)
+        {
+            return;
+        }
+
+        SelectedScheduledCustomPrimaryUnit = ScheduledCustomRepeatUnitOptions.FirstOrDefault(x => x.Code == parts[0].UnitCode);
+        ScheduledCustomPrimaryValueInput = parts[0].Value.ToString(CultureInfo.InvariantCulture);
+
+        if (parts.Count > 1)
+        {
+            SelectedScheduledCustomSecondaryUnit = ScheduledCustomRepeatUnitOptions.FirstOrDefault(x => x.Code == parts[1].UnitCode);
+            ScheduledCustomSecondaryValueInput = parts[1].Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (parts.Count > 2)
+        {
+            SelectedScheduledCustomTertiaryUnit = ScheduledCustomRepeatUnitOptions.FirstOrDefault(x => x.Code == parts[2].UnitCode);
+            ScheduledCustomTertiaryValueInput = parts[2].Value.ToString(CultureInfo.InvariantCulture);
+        }
+
+        if (parts.Count > 3)
+        {
+            SelectedScheduledCustomQuaternaryUnit = ScheduledCustomRepeatUnitOptions.FirstOrDefault(x => x.Code == parts[3].UnitCode);
+            ScheduledCustomQuaternaryValueInput = parts[3].Value.ToString(CultureInfo.InvariantCulture);
+        }
+    }
+
+    private static IReadOnlyList<string> GetAllowedScheduledCustomRepeatUnits(string primaryUnitCode)
+    {
+        return primaryUnitCode switch
+        {
+            "year" => ["year", "month", "week", "day"],
+            "month" => ["month", "week", "day"],
+            "week" => ["week", "day"],
+            _ => ["day"]
+        };
+    }
+
+    private static List<(string UnitCode, int Value)> DecomposeScheduledCustomRepeatParts(int totalDays, IReadOnlyList<string> allowedUnits)
+    {
+        var parts = new List<(string UnitCode, int Value)>();
+        var remainder = totalDays;
+
+        foreach (var unitCode in allowedUnits)
+        {
+            var unitDays = GetScheduledCustomRepeatUnitDays(unitCode);
+            var value = remainder / unitDays;
+            if (value <= 0)
+            {
+                continue;
+            }
+
+            parts.Add((unitCode, value));
+            remainder %= unitDays;
+        }
+
+        if (parts.Count == 0)
+        {
+            parts.Add(("day", Math.Max(1, totalDays)));
+        }
+
+        return parts;
+    }
+
+    private static bool TryAccumulateScheduledCustomRepeatPart(CategoryOptionViewModel? unit, string rawValue, ref int totalDays)
+    {
+        if (unit is null || string.IsNullOrWhiteSpace(rawValue))
+        {
+            return true;
+        }
+
+        if (!TryParseScheduledCustomRepeatValue(rawValue, out var value) || value < 0)
+        {
+            return false;
+        }
+
+        totalDays += value * GetScheduledCustomRepeatUnitDays(unit.Code);
+        return true;
+    }
+
+    private static bool TryParseScheduledCustomRepeatValue(string rawValue, out int value) =>
+        int.TryParse(rawValue.Trim(), NumberStyles.Integer, CultureInfo.InvariantCulture, out value);
+
+    private static int GetScheduledCustomRepeatUnitOrder(string unitCode) => unitCode switch
+    {
+        "year" => 0,
+        "month" => 1,
+        "week" => 2,
+        "day" => 3,
+        _ => -1
+    };
+
+    private static int GetScheduledCustomRepeatUnitDays(string unitCode) => unitCode switch
+    {
+        "year" => 365,
+        "month" => 30,
+        "week" => 7,
+        _ => 1
+    };
+
+    private static TimeSpan ParseStandardScheduledRepeatInterval(string value) => value switch
+    {
+        "daily" => TimeSpan.FromDays(1),
+        "weekly" => TimeSpan.FromDays(7),
+        "monthly" => TimeSpan.FromDays(30),
+        "yearly" => TimeSpan.FromDays(365),
+        _ => TimeSpan.Zero
+    };
+
     private void ResetTransactionForm()
     {
         ActiveTransaction = null;
         EditingTransactionId = null;
+        EditingScheduledPaymentId = null;
         TransactionType = "expense";
         TransactionAmountInput = string.Empty;
         TransactionCurrencyInput = "UAH";
@@ -3088,12 +3561,13 @@ public partial class MainViewModel : ViewModelBase
         TransactionSelectedDate = now;
         TransactionSelectedTime = now.TimeOfDay;
         TransactionTimeInput = now.ToString("HH:mm");
+        ResetScheduledCustomRepeatBuilder();
         UpdateTransactionCategoryOptions();
     }
 
     private void UpdateTransactionSelectedDateFromParts()
     {
-        if (TransactionSelectedYear < 1 || TransactionSelectedMonth is < 1 or > 12)
+        if (isSyncingTransactionDateState || TransactionSelectedYear < 1 || TransactionSelectedMonth is < 1 or > 12)
         {
             return;
         }
@@ -3105,15 +3579,23 @@ public partial class MainViewModel : ViewModelBase
             return;
         }
 
-        var current = TransactionSelectedDate ?? DateTimeOffset.Now;
-        TransactionSelectedDate = new DateTimeOffset(
-            TransactionSelectedYear,
-            TransactionSelectedMonth,
-            clampedDay,
-            current.Hour,
-            current.Minute,
-            current.Second,
-            current.Offset);
+        isSyncingTransactionDateState = true;
+        try
+        {
+            var current = TransactionSelectedDate ?? DateTimeOffset.Now;
+            TransactionSelectedDate = new DateTimeOffset(
+                TransactionSelectedYear,
+                TransactionSelectedMonth,
+                clampedDay,
+                current.Hour,
+                current.Minute,
+                current.Second,
+                current.Offset);
+        }
+        finally
+        {
+            isSyncingTransactionDateState = false;
+        }
     }
 
     private void ResetBankAccountForm()
@@ -3951,23 +4433,107 @@ public partial class MainViewModel : ViewModelBase
 
         var date = selectedDate.Value.Date;
         var time = selectedTime.Value;
-        value = new DateTimeOffset(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, DateTimeOffset.Now.Offset);
+        var localDateTime = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, 0, DateTimeKind.Unspecified);
+        value = new DateTimeOffset(localDateTime, TimeZoneInfo.Local.GetUtcOffset(localDateTime));
         return true;
     }
 
     partial void OnScheduledPaymentsChanged(ObservableCollection<ScheduledPaymentItemViewModel> value)
     {
+        var hasIncome = value.Any(p => string.Equals(p.Type, "income", StringComparison.OrdinalIgnoreCase));
+        var hasExpense = value.Any(p => string.Equals(p.Type, "expense", StringComparison.OrdinalIgnoreCase));
+
+        var scheduledPaymentTypeOptions = new List<CategoryOptionViewModel>
+        {
+            new("all", Texts.ScheduledPaymentsFilterAll)
+        };
+
+        if (hasExpense)
+        {
+            scheduledPaymentTypeOptions.Add(new CategoryOptionViewModel("expense", Texts.TransactionExpenseType));
+        }
+
+        if (hasIncome)
+        {
+            scheduledPaymentTypeOptions.Add(new CategoryOptionViewModel("income", Texts.TransactionIncomeType));
+        }
+
+        ScheduledPaymentTypeFilterOptions = new ObservableCollection<CategoryOptionViewModel>(scheduledPaymentTypeOptions);
+        SelectedScheduledPaymentTypeFilter = ScheduledPaymentTypeFilterOptions
+            .FirstOrDefault(x => x.Code == (SelectedScheduledPaymentTypeFilter?.Code ?? "all"))
+            ?? ScheduledPaymentTypeFilterOptions.FirstOrDefault();
+
+        ScheduledPaymentCurrencyFilterOptions = new ObservableCollection<CategoryOptionViewModel>(
+        [
+            new CategoryOptionViewModel("all", Texts.ScheduledPaymentsFilterAll),
+            .. value.Select(p => p.Currency)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .OrderBy(c => c)
+                .Select(c => new CategoryOptionViewModel(c, c))
+        ]);
+        SelectedScheduledPaymentCurrencyFilter = ScheduledPaymentCurrencyFilterOptions
+            .FirstOrDefault(x => x.Code == (SelectedScheduledPaymentCurrencyFilter?.Code ?? "all"))
+            ?? ScheduledPaymentCurrencyFilterOptions.FirstOrDefault();
+
+        ScheduledPaymentCategoryFilterOptions = new ObservableCollection<CategoryOptionViewModel>(
+        [
+            new CategoryOptionViewModel("all", Texts.ScheduledPaymentsFilterAll),
+            .. value.GroupBy(p => p.CategoryId)
+                .OrderBy(g => g.First().CategoryDisplay)
+                .Select(g => new CategoryOptionViewModel(g.Key.ToString(CultureInfo.InvariantCulture), g.First().CategoryDisplay))
+        ]);
+        SelectedScheduledPaymentCategoryFilter = ScheduledPaymentCategoryFilterOptions
+            .FirstOrDefault(x => x.Code == (SelectedScheduledPaymentCategoryFilter?.Code ?? "all"))
+            ?? ScheduledPaymentCategoryFilterOptions.FirstOrDefault();
+
         OnPropertyChanged(nameof(ScheduledPaymentsTotalCount));
+        OnPropertyChanged(nameof(ScheduledPaymentsPaidThisMonthCount));
+        OnPropertyChanged(nameof(ScheduledPaymentsUnpaidCount));
         OnPropertyChanged(nameof(ScheduledPaymentsOverdueCount));
         OnPropertyChanged(nameof(ScheduledPaymentsUpcomingCount));
+        OnPropertyChanged(nameof(ScheduledPaymentCategoryPillWidth));
+        OnPropertyChanged(nameof(HasScheduledPaymentTypeFilter));
         OnPropertyChanged(nameof(FilteredScheduledPayments));
     }
 
     partial void OnScheduledPaymentsFilterChanged(string value)
     {
         OnPropertyChanged(nameof(FilteredScheduledPayments));
+        OnPropertyChanged(nameof(IsAllScheduledPaymentsFilterSelected));
+        OnPropertyChanged(nameof(IsFutureScheduledPaymentsFilterSelected));
+        OnPropertyChanged(nameof(IsOverdueScheduledPaymentsFilterSelected));
     }
 
-    private static bool TryParseScheduledDueDate(string rawValue, out DateTime value) =>
-        DateTime.TryParseExact(rawValue, DateTimeDisplayFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out value);
+    partial void OnSelectedScheduledPaymentCurrencyFilterChanged(CategoryOptionViewModel? value)
+    {
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+    }
+
+    partial void OnSelectedScheduledPaymentTypeFilterChanged(CategoryOptionViewModel? value)
+    {
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+    }
+
+    partial void OnSelectedScheduledPaymentCategoryFilterChanged(CategoryOptionViewModel? value)
+    {
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+    }
+
+    private bool IsPaidScheduledPaymentThisMonth(TransactionItemViewModel transaction)
+    {
+        var localTransactionDate = transaction.TransactionDate.ToLocalTime();
+        var now = DateTimeOffset.Now;
+        if (localTransactionDate.Year != now.Year || localTransactionDate.Month != now.Month)
+        {
+            return false;
+        }
+
+        return ScheduledPayments.Any(payment =>
+            payment.RecurringPaymentId > 0 &&
+            payment.AccountId == transaction.AccountId &&
+            payment.Amount == transaction.Amount &&
+            (string.Equals(payment.Name, transaction.Description, StringComparison.OrdinalIgnoreCase) ||
+             (!string.IsNullOrWhiteSpace(payment.Description) &&
+              string.Equals(payment.Description, transaction.Description, StringComparison.OrdinalIgnoreCase))));
+    }
 }

@@ -12,37 +12,39 @@
                 
             <!-- Icon -->
             <StackPanel Grid.Row="0" Margin="0,0,0,10">
-                <Image Source="../../Assets/icon.png" />
+                <!-- <Image Source="../../Assets/cardholder.svg" /> -->
             </StackPanel>
             
             <StackPanel Grid.Row="1" HorizontalAlignment="Center" Spacing="2" >
                 <Button Click="btn_Home">
-                    <Label Classes="nav-icon"
-                           Content="&#xE2C2;" 
-                           >
+                    <Label Classes="nav-icon" Content="&#xE2C2;" >
                     </Label>
                 </Button>
                 <Button Click="btn_BankAccounts">
                     <Label Classes="nav-icon" Content="&#xE1D2;"></Label>
                 </Button>
-                <Button Click="btn_Savings">
-                    <Label Classes="nav-icon" Content="&#xEA04;"></Label>
-                </Button>
-                <Button Click="btn_Groups">
-                    <Label Classes="nav-icon" Content="&#xE68E;"></Label>
-                </Button>
                 <Button Click="btn_ScheduledPayments">
                     <Label Classes="nav-icon" Content="&#xE10A;"></Label>
                 </Button>
+                <Button Click="btn_Savings">
+                    <Label Classes="nav-icon" Content="&#xEA04;"></Label>
+                </Button>
+                <Button Click="btn_AllTransactions">
+                    <Label Classes="nav-icon" Content="&#xE2DE;"></Label>
+                </Button>
+                
+                
+                <Button Click="btn_Groups">
+                    <Label Classes="nav-icon" Content="&#xE68E;"></Label>
+                </Button>
+                
                 <Button Click="btn_Categories">
                     <Label Classes="nav-icon" Content="&#xE464;"></Label>
                 </Button>
                 <Button Click="btn_Reporting">
                     <Label Classes="nav-icon" Content="&#xE59A;"></Label>
                 </Button>
-                <Button Click="btn_AllTransactions">
-                    <Label Classes="nav-icon" Content="&#xE2DE;"></Label>
-                </Button>
+                
             </StackPanel>
 
             <!-- Buttons -->
