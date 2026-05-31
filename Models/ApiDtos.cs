@@ -153,7 +153,13 @@ public sealed record UserCategoryPreferenceDto(
     bool IsSelected);
 
 public sealed record UpdateUserCategoryPreferencesRequestDto(
-    IReadOnlyList<int> SelectedCategoryIds);
+    IReadOnlyList<int> SelectedCategoryIds,
+    IReadOnlyList<UserCategoryPreferenceUpdateDto>? Preferences = null);
+
+public sealed record UserCategoryPreferenceUpdateDto(
+    int CategoryId,
+    string? IconKey = null,
+    string? Color = null);
 
 public sealed record MergeCategoryRequestDto(
     int TargetCategoryId);
@@ -248,6 +254,4 @@ public sealed record ApiBankAccountDto(
     string Name,
     string Currency,
     decimal Balance,
-    bool IsDefault,
-    DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt);
+    bool IsDefault);

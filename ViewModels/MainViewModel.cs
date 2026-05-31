@@ -480,6 +480,20 @@ public partial class MainViewModel : ViewModelBase
     private string bankAccountStatusMessage = string.Empty;
 
     [ObservableProperty]
+    private bool isMissingBankAccountPromptOpen;
+
+    [ObservableProperty]
+    private string missingBankAccountPromptMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool isDeleteCategoryPromptOpen;
+
+    [ObservableProperty]
+    private string deleteCategoryPromptMessage = string.Empty;
+
+    private CategoryManagementItemViewModel? pendingDeleteCategory;
+
+    [ObservableProperty]
     private ObservableCollection<ScheduledPaymentItemViewModel> scheduledPayments = [];
 
     [ObservableProperty]
@@ -1637,6 +1651,14 @@ public partial class MainViewModel : ViewModelBase
             await LoadCategoriesAsync();
             await LoadUserCategoryPreferencesAsync();
             await LoadGroupsAsync();
+            await LoadBankAccountsAsync();
+            if (BankAccounts.Count == 0)
+            {
+                IsCategorySettingsMode = false;
+                await PrepareOnboardingAsync();
+                return;
+            }
+
             await LoadTransactionsAsync();
         }
         catch (HttpRequestException ex)
@@ -1749,6 +1771,11 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task CreateTransactionAsync()
     {
+        if (!await EnsureBankAccountExistsAsync(Texts.MissingBankAccountTransactionPrompt))
+        {
+            return;
+        }
+
         BeginCreateTransaction();
         await LoadCategoriesAsync();
         IsAllTransactionsDialogOpen = false;
@@ -1978,11 +2005,7 @@ public partial class MainViewModel : ViewModelBase
         {
             IsApiBusy = true;
             EnsureApiClient();
-            await _apiClient!.UpdateUserCategoriesAsync(new UpdateUserCategoryPreferencesRequestDto(selectedIds));
-            foreach (var category in Categories)
-            {
-                await _apiClient.UpdateCategoryAsync(category.Id, new UpdateCategoryRequestDto(IconKey: category.SelectedIconKey, Color: category.SelectedColor));
-            }
+            await _apiClient!.UpdateUserCategoriesAsync(CreateCategoryPreferencesRequest(selectedIds));
             selectedCategoryIds = selectedIds.ToHashSet();
             CategoryStatusMessage = string.Empty;
             await LoadCategoriesAsync();
@@ -2002,19 +2025,56 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
+    private UpdateUserCategoryPreferencesRequestDto CreateCategoryPreferencesRequest(IReadOnlyList<int> selectedIds)
+    {
+        var preferences = Categories
+            .Select(category => new UserCategoryPreferenceUpdateDto(
+                category.Id,
+                category.SelectedIconKey,
+                category.SelectedColor))
+            .ToArray();
+
+        return new UpdateUserCategoryPreferencesRequestDto(selectedIds, preferences);
+    }
+
     [RelayCommand]
-    private async Task DeleteCategoryAsync(CategoryManagementItemViewModel? category)
+    private void DeleteCategory(CategoryManagementItemViewModel? category)
     {
         if (IsApiBusy || category is null)
         {
             return;
         }
 
+        pendingDeleteCategory = category;
+        DeleteCategoryPromptMessage = string.Format(CultureInfo.CurrentCulture, Texts.DeleteCategoryPromptMessage, category.Name);
+        IsDeleteCategoryPromptOpen = true;
+    }
+
+    [RelayCommand]
+    private void CancelDeleteCategory()
+    {
+        pendingDeleteCategory = null;
+        DeleteCategoryPromptMessage = string.Empty;
+        IsDeleteCategoryPromptOpen = false;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmDeleteCategoryAsync()
+    {
+        if (IsApiBusy || pendingDeleteCategory is null)
+        {
+            return;
+        }
+
+        var category = pendingDeleteCategory;
         try
         {
             IsApiBusy = true;
+            IsDeleteCategoryPromptOpen = false;
             EnsureApiClient();
             await _apiClient!.DeleteCategoryAsync(category.Id);
+            pendingDeleteCategory = null;
+            DeleteCategoryPromptMessage = string.Empty;
             CategoryStatusMessage = string.Empty;
             await LoadCategoryManagementAsync();
             await LoadCategoriesAsync();
@@ -2154,6 +2214,21 @@ public partial class MainViewModel : ViewModelBase
         {
             IsApiBusy = false;
         }
+    }
+
+    [RelayCommand]
+    private void ConfirmCreateBankAccountFromPrompt()
+    {
+        IsMissingBankAccountPromptOpen = false;
+        MissingBankAccountPromptMessage = string.Empty;
+        BeginCreateBankAccount();
+    }
+
+    [RelayCommand]
+    private void CancelCreateBankAccountFromPrompt()
+    {
+        IsMissingBankAccountPromptOpen = false;
+        MissingBankAccountPromptMessage = string.Empty;
     }
 
     [RelayCommand]
@@ -3610,6 +3685,23 @@ public partial class MainViewModel : ViewModelBase
         BankAccountStatusMessage = string.Empty;
     }
 
+    private async Task<bool> EnsureBankAccountExistsAsync(string promptMessage)
+    {
+        if (BankAccounts.Count == 0 && IsApiAuthorized)
+        {
+            await LoadBankAccountsAsync();
+        }
+
+        if (BankAccounts.Count > 0)
+        {
+            return true;
+        }
+
+        MissingBankAccountPromptMessage = promptMessage;
+        IsMissingBankAccountPromptOpen = true;
+        return false;
+    }
+
     private void RefreshTransactionItems()
     {
         if (AllTransactions.Count == 0)
@@ -3696,6 +3788,11 @@ public partial class MainViewModel : ViewModelBase
     [RelayCommand]
     private async Task OpenCategoryDetailsAsync()
     {
+        if (!await EnsureBankAccountExistsAsync(Texts.MissingBankAccountCategoryExpensesPrompt))
+        {
+            return;
+        }
+
         IsCategorySettingsMode = false;
         await LoadTransactionsAsync();
         await LoadBudgetsAsync();

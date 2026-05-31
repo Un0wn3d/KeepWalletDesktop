@@ -20,15 +20,6 @@
     <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsCategoriesPage}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" MaxWidth="1120">
-                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="16">
-                    <TextBlock Text="{Binding Texts.OnboardingCategoriesTitle}"
-                               Classes="page-title" />
-                    <Button Grid.Column="1"
-                            Content="{Binding Texts.SaveServerSettingsButton}"
-                            Classes="primary-button"
-                            Command="{Binding SaveCategoriesCommand}" />
-                </Grid>
-
                 <Border Classes="panel-card alt">
                     <StackPanel Spacing="12">
                         <TextBlock Text="{Binding Texts.OnboardingAddCategoryTitle}"
@@ -114,7 +105,9 @@
                                                          IsVisible="{Binding IsEditingName}" />
                                             </StackPanel>
                                             <ToggleSwitch Grid.Column="2"
-                                                          IsChecked="{Binding IsSelected}" />
+                                                          IsChecked="{Binding IsSelected}"
+                                                          Checked="CategorySelection_OnChanged"
+                                                          Unchecked="CategorySelection_OnChanged" />
                                             <Button Grid.Column="3"
                                                     Width="44"
                                                     Height="44"
@@ -179,7 +172,9 @@
                                                          IsVisible="{Binding IsEditingName}" />
                                             </StackPanel>
                                             <ToggleSwitch Grid.Column="2"
-                                                          IsChecked="{Binding IsSelected}" />
+                                                          IsChecked="{Binding IsSelected}"
+                                                          Checked="CategorySelection_OnChanged"
+                                                          Unchecked="CategorySelection_OnChanged" />
                                             <Button Grid.Column="3"
                                                     Width="44"
                                                     Height="44"

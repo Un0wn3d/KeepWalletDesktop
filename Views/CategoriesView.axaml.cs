@@ -44,10 +44,34 @@ public partial class CategoriesView : UserControl
             button,
             viewModel.CategoryIconOptions,
             viewModel.CategoryColorOptions,
-            iconKey => category.SelectedIconKey = iconKey,
-            color => category.SelectedColor = color,
+            iconKey =>
+            {
+                category.SelectedIconKey = iconKey;
+                SaveCategoriesImmediately(viewModel);
+            },
+            color =>
+            {
+                category.SelectedColor = color;
+                SaveCategoriesImmediately(viewModel);
+            },
             viewModel.Texts.IconSearchHint,
             circularIcons: false);
+    }
+
+    private void CategorySelection_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel)
+        {
+            SaveCategoriesImmediately(viewModel);
+        }
+    }
+
+    private static void SaveCategoriesImmediately(MainViewModel viewModel)
+    {
+        if (viewModel.SaveCategoriesCommand.CanExecute(null))
+        {
+            viewModel.SaveCategoriesCommand.Execute(null);
+        }
     }
 
     private void CategoryName_OnDoubleTapped(object? sender, TappedEventArgs e)

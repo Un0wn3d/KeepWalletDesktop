@@ -191,6 +191,13 @@ public interface ILocalizedText
     string OnboardingCategoryNameRequired { get; }
     string OnboardingAccountNameRequired { get; }
     string OnboardingCategorySelectionRequired { get; }
+    string MissingBankAccountPromptTitle { get; }
+    string MissingBankAccountTransactionPrompt { get; }
+    string MissingBankAccountCategoryExpensesPrompt { get; }
+    string DeleteCategoryPromptTitle { get; }
+    string DeleteCategoryPromptMessage { get; }
+    string YesButton { get; }
+    string NoButton { get; }
     string ScheduledPaymentsTitle { get; }
     string ScheduledPaymentNameLabel { get; }
     string ScheduledPaymentRemainingLabel { get; }
@@ -451,6 +458,13 @@ public sealed class LocalizedText : ILocalizedText
     public string OnboardingCategoryNameRequired => Get(nameof(OnboardingCategoryNameRequired));
     public string OnboardingAccountNameRequired => Get(nameof(OnboardingAccountNameRequired));
     public string OnboardingCategorySelectionRequired => Get(nameof(OnboardingCategorySelectionRequired));
+    public string MissingBankAccountPromptTitle => Get(nameof(MissingBankAccountPromptTitle));
+    public string MissingBankAccountTransactionPrompt => Get(nameof(MissingBankAccountTransactionPrompt));
+    public string MissingBankAccountCategoryExpensesPrompt => Get(nameof(MissingBankAccountCategoryExpensesPrompt));
+    public string DeleteCategoryPromptTitle => Get(nameof(DeleteCategoryPromptTitle));
+    public string DeleteCategoryPromptMessage => Get(nameof(DeleteCategoryPromptMessage));
+    public string YesButton => Get(nameof(YesButton));
+    public string NoButton => Get(nameof(NoButton));
     public string ScheduledPaymentsTitle => Get(nameof(ScheduledPaymentsTitle));
     public string ScheduledPaymentNameLabel => Get(nameof(ScheduledPaymentNameLabel));
     public string ScheduledPaymentRemainingLabel => Get(nameof(ScheduledPaymentRemainingLabel));

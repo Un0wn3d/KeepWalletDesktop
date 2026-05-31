@@ -462,6 +462,27 @@
   <data name="OnboardingCategorySelectionRequired" xml:space="preserve">
     <value>Select at least one category.</value>
   </data>
+  <data name="MissingBankAccountPromptTitle" xml:space="preserve">
+    <value>No bank account yet</value>
+  </data>
+  <data name="MissingBankAccountTransactionPrompt" xml:space="preserve">
+    <value>There is no bank account for adding a transaction. Do you want to create a new bank account?</value>
+  </data>
+  <data name="MissingBankAccountCategoryExpensesPrompt" xml:space="preserve">
+    <value>There is no bank account for viewing expenses by category. Do you want to create a new bank account?</value>
+  </data>
+  <data name="DeleteCategoryPromptTitle" xml:space="preserve">
+    <value>Delete category?</value>
+  </data>
+  <data name="DeleteCategoryPromptMessage" xml:space="preserve">
+    <value>Category “{0}” will be deleted for all app users. This action cannot be undone. Continue?</value>
+  </data>
+  <data name="YesButton" xml:space="preserve">
+    <value>Yes</value>
+  </data>
+  <data name="NoButton" xml:space="preserve">
+    <value>No</value>
+  </data>
   <data name="ScheduledPaymentsTitle" xml:space="preserve">
     <value>Scheduled payments</value>
   </data>

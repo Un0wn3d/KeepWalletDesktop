@@ -462,6 +462,27 @@
   <data name="OnboardingCategorySelectionRequired" xml:space="preserve">
     <value>Виберіть хоча б одну категорію.</value>
   </data>
+  <data name="MissingBankAccountPromptTitle" xml:space="preserve">
+    <value>Банківський рахунок не створено</value>
+  </data>
+  <data name="MissingBankAccountTransactionPrompt" xml:space="preserve">
+    <value>Немає банківського рахунку для додавання транзакції. Хочете створити новий банківський рахунок?</value>
+  </data>
+  <data name="MissingBankAccountCategoryExpensesPrompt" xml:space="preserve">
+    <value>Немає банківського рахунку для перегляду витрат за категоріями. Хочете створити новий банківський рахунок?</value>
+  </data>
+  <data name="DeleteCategoryPromptTitle" xml:space="preserve">
+    <value>Видалити категорію?</value>
+  </data>
+  <data name="DeleteCategoryPromptMessage" xml:space="preserve">
+    <value>Категорія «{0}» буде видалена для всіх користувачів застосунку. Цю дію не можна скасувати. Продовжити?</value>
+  </data>
+  <data name="YesButton" xml:space="preserve">
+    <value>Так</value>
+  </data>
+  <data name="NoButton" xml:space="preserve">
+    <value>Ні</value>
+  </data>
   <data name="ScheduledPaymentsTitle" xml:space="preserve">
     <value>Заплановані платежі</value>
   </data>

@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Input;
 using KeepWalletDesktop.ViewModels;
 
@@ -37,5 +38,14 @@ public partial class AppShellView : UserControl
 
         viewModel.CloseCategoryDetailsCommand.Execute(null);
         e.Handled = true;
+    }
+
+    private void CategorySettings_OnChanged(object? sender, RoutedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel &&
+            viewModel.SaveCategoriesCommand.CanExecute(null))
+        {
+            viewModel.SaveCategoriesCommand.Execute(null);
+        }
     }
 }
