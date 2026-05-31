@@ -41,6 +41,8 @@ public partial class CategoryOptionViewModel : ObservableObject
     private string displayName;
 }
 
+public sealed record BankAccountFilterOptionViewModel(Guid? AccountId, string DisplayName);
+
 public partial class OnboardingCategoryOptionViewModel : ObservableObject
 {
     public OnboardingCategoryOptionViewModel(int id, string name, string type, string typeDisplay, bool isSelected)

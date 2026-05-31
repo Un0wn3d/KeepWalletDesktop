@@ -60,6 +60,11 @@ public partial class CategoriesView : UserControl
 
     private void CategorySelection_OnChanged(object? sender, RoutedEventArgs e)
     {
+        if (sender is ToggleSwitch { DataContext: CategoryManagementItemViewModel category } toggle)
+        {
+            category.IsSelected = toggle.IsChecked == true;
+        }
+
         if (DataContext is MainViewModel viewModel)
         {
             SaveCategoriesImmediately(viewModel);

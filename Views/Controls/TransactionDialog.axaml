@@ -72,7 +72,8 @@
         </UserControl.Styles>
         <Border Grid.ColumnSpan="2"
                 IsVisible="{Binding IsTransactionDialogOpen}"
-                Background="{DynamicResource Color.Overlay}">
+                Background="{DynamicResource Color.Overlay}"
+                PointerPressed="DialogOverlay_OnPointerPressed">
             <Grid HorizontalAlignment="Center"
                   VerticalAlignment="Center"
                   Width="480">

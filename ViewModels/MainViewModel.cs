@@ -255,6 +255,12 @@ public partial class MainViewModel : ViewModelBase
     private string selectedTransactionTypeFilter = "all";
 
     [ObservableProperty]
+    private BankAccountFilterOptionViewModel? selectedTransactionAccountFilter;
+
+    [ObservableProperty]
+    private ObservableCollection<BankAccountFilterOptionViewModel> transactionAccountFilterOptions = [];
+
+    [ObservableProperty]
     private CategoryOptionViewModel? selectedTransactionCategoryFilter;
 
     [ObservableProperty]
@@ -764,6 +770,8 @@ public partial class MainViewModel : ViewModelBase
     public string SaveBankAccountButtonText => IsEditingBankAccount ? Texts.UpdateTransactionButton : Texts.SaveServerSettingsButton;
     public bool HasBankAccounts => BankAccounts.Count > 0;
     public bool HasNoBankAccounts => !HasBankAccounts;
+    public bool HasSavings => Savings.Count > 0;
+    public bool HasNoSavings => !HasSavings;
     public bool HasTransactions => LatestExpenses.Count > 0;
     public bool HasNoTransactions => !HasTransactions;
     public bool HasSavingTransactions => SavingTransactions.Count > 0;
@@ -785,7 +793,7 @@ public partial class MainViewModel : ViewModelBase
                 .Select(t => t.CategoryDisplay?.Length ?? 0)
                 .DefaultIfEmpty(12)
                 .Max();
-            return Math.Clamp((longest * 8) + 28, 120, 260);
+            return Math.Clamp((longest * 8) + 28, 100, 180);
         }
     }
     public double ScheduledPaymentCategoryPillWidth
@@ -893,6 +901,8 @@ public partial class MainViewModel : ViewModelBase
     public string CategoryNewIconGlyph => CategoryIconCatalog.GetGlyph(CategoryNewIconKey, CategoryNewType);
     public Bitmap? CategoryNewIconSampleImage => CategoryIconCatalog.GetSampleImage(CategoryNewIconKey);
     public bool HasCategoryNewIconSampleImage => CategoryNewIconSampleImage is not null;
+    public bool IsNewCategoryExpenseTypeSelected => string.Equals(CategoryNewType, "expense", StringComparison.OrdinalIgnoreCase);
+    public bool IsNewCategoryIncomeTypeSelected => string.Equals(CategoryNewType, "income", StringComparison.OrdinalIgnoreCase);
     public string SavingsDialogIconGlyph => CategoryIconCatalog.GetGlyph(SavingsDialogIconKey, "expense");
     public string ActiveSavingIconGlyph => CategoryIconCatalog.GetGlyph(ActiveSavingIconKey, "expense");
     public IBrush ActiveSavingColorBrush => new SolidColorBrush(Color.Parse(ActiveSavingColor));
@@ -1011,6 +1021,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasNoBankAccounts));
         OnPropertyChanged(nameof(SelectedGroupBankAccounts));
         OnPropertyChanged(nameof(CompatibleSavingsBankAccounts));
+        UpdateTransactionAccountFilterOptions();
         SelectedSavingsBankAccount ??= value.FirstOrDefault(a => a.IsDefault) ?? value.FirstOrDefault();
     }
 
@@ -1039,6 +1050,8 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSavingsChanged(ObservableCollection<SavingOptionViewModel> value)
     {
         OnPropertyChanged(nameof(SelectedGroupSavings));
+        OnPropertyChanged(nameof(HasSavings));
+        OnPropertyChanged(nameof(HasNoSavings));
     }
 
     partial void OnVisibleTransactionsChanged(ObservableCollection<TransactionItemViewModel> value)
@@ -1094,6 +1107,8 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(CategoryNewIconGlyph));
         OnPropertyChanged(nameof(CategoryNewIconSampleImage));
         OnPropertyChanged(nameof(HasCategoryNewIconSampleImage));
+        OnPropertyChanged(nameof(IsNewCategoryExpenseTypeSelected));
+        OnPropertyChanged(nameof(IsNewCategoryIncomeTypeSelected));
     }
 
     partial void OnEditingTransactionIdChanged(int? value)
@@ -1140,6 +1155,11 @@ public partial class MainViewModel : ViewModelBase
     partial void OnSelectedTransactionTypeFilterChanged(string value)
     {
         UpdateTransactionCategoryFilterOptions();
+        ScheduleTransactionFilters();
+    }
+
+    partial void OnSelectedTransactionAccountFilterChanged(BankAccountFilterOptionViewModel? value)
+    {
         ScheduleTransactionFilters();
     }
 
@@ -1861,12 +1881,27 @@ public partial class MainViewModel : ViewModelBase
         {
             IsApiBusy = true;
             EnsureApiClient();
+            var iconKey = CategoryNewIconKey;
+            var color = CategoryNewColor;
 
-            await _apiClient!.CreateCategoryAsync(new CreateCategoryRequestDto(
+            var category = await _apiClient!.CreateCategoryAsync(new CreateCategoryRequestDto(
                 name,
                 string.Equals(CategoryNewType, "income", StringComparison.OrdinalIgnoreCase) ? "income" : "expense",
-                CategoryNewIconKey,
-                CategoryNewColor));
+                iconKey,
+                color));
+
+            var selectedIds = Categories
+                .Where(c => c.IsSelected)
+                .Select(c => c.Id)
+                .Append(category.Id)
+                .Distinct()
+                .ToArray();
+            var preferences = Categories
+                .Select(c => new UserCategoryPreferenceUpdateDto(c.Id, c.SelectedIconKey, c.SelectedColor, c.IsSelected))
+                .Append(new UserCategoryPreferenceUpdateDto(category.Id, iconKey, color, true))
+                .ToArray();
+            await _apiClient.UpdateUserCategoriesAsync(new UpdateUserCategoryPreferencesRequestDto(selectedIds, preferences));
+            selectedCategoryIds = selectedIds.ToHashSet();
 
             CategoryNewName = string.Empty;
             CategoryNewColor = "#E5E7EB";
@@ -1894,7 +1929,6 @@ public partial class MainViewModel : ViewModelBase
         CategoryNewType = string.Equals(type, "income", StringComparison.OrdinalIgnoreCase)
             ? "income"
             : "expense";
-        CategoryNewIconKey = CategoryNewType == "income" ? "income" : "other";
     }
 
     [RelayCommand]
@@ -1909,10 +1943,13 @@ public partial class MainViewModel : ViewModelBase
         {
             IsApiBusy = true;
             EnsureApiClient();
-            await _apiClient!.UpdateCategoryAsync(category.Id, new UpdateCategoryRequestDto(IconKey: category.SelectedIconKey));
+            await _apiClient!.UpdateCategoryAsync(category.Id, new UpdateCategoryRequestDto(
+                IconKey: category.SelectedIconKey,
+                Color: category.SelectedColor));
             CategoryStatusMessage = string.Empty;
             await LoadCategoryManagementAsync();
             await LoadCategoriesAsync();
+            await LoadUserCategoryPreferencesAsync();
             await LoadTransactionsAsync();
         }
         catch (HttpRequestException ex)
@@ -2009,6 +2046,7 @@ public partial class MainViewModel : ViewModelBase
             selectedCategoryIds = selectedIds.ToHashSet();
             CategoryStatusMessage = string.Empty;
             await LoadCategoriesAsync();
+            await LoadUserCategoryPreferencesAsync();
             await LoadTransactionsAsync();
         }
         catch (HttpRequestException ex)
@@ -2031,7 +2069,8 @@ public partial class MainViewModel : ViewModelBase
             .Select(category => new UserCategoryPreferenceUpdateDto(
                 category.Id,
                 category.SelectedIconKey,
-                category.SelectedColor))
+                category.SelectedColor,
+                category.IsSelected))
             .ToArray();
 
         return new UpdateUserCategoryPreferencesRequestDto(selectedIds, preferences);
@@ -2654,10 +2693,9 @@ public partial class MainViewModel : ViewModelBase
 
             AddAmount = 0;
             ApplySaving(saving);
-            await LoadSavingsAsync();
-            await LoadSavingDetailsAsync(saving.Id);
-            await LoadBankAccountsAsync();
             await LoadTransactionsAsync();
+            await LoadSavingsAsync(saving.Id);
+            await LoadBankAccountsAsync();
             SavingsStatusMessage = Texts.TransactionUpdatedText;
         }
         catch (HttpRequestException ex)
@@ -2687,10 +2725,7 @@ public partial class MainViewModel : ViewModelBase
         }
 
         var transactionType = isDeposit ? "expense" : "income";
-        var categoryId = ResolveSavingsTransferCategoryId(transactionType);
-        var description = isDeposit
-            ? $"Накопичення: {savingName}"
-            : $"Зняття з накопичення: {savingName}";
+        var categoryId = await ResolveSavingsTransferCategoryIdAsync(transactionType);
 
         await _apiClient!.CreateTransactionAsync(new CreateTransactionRequestDto(
             account.Id,
@@ -2699,25 +2734,29 @@ public partial class MainViewModel : ViewModelBase
             savingId,
             null,
             amount,
-            description,
+            savingName,
             DateTimeOffset.Now.ToUniversalTime()));
     }
 
-    private int ResolveSavingsTransferCategoryId(string transactionType)
+    private async Task<int> ResolveSavingsTransferCategoryIdAsync(string transactionType)
     {
+        var categoryNames = new[]
+            {
+                Texts.SavingsTransferCategoryName,
+                "Накопичення",
+                "Savings"
+            }
+            .Where(name => !string.IsNullOrWhiteSpace(name))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
         if (apiCategories.Count > 0)
         {
             var candidates = apiCategories
                 .Where(c => string.Equals(c.Type, transactionType, StringComparison.OrdinalIgnoreCase))
                 .ToArray();
             var preferred = candidates.FirstOrDefault(c =>
-                    c.Name.Contains("накоп", StringComparison.OrdinalIgnoreCase) ||
-                    c.Name.Contains("скарб", StringComparison.OrdinalIgnoreCase) ||
-                    c.Name.Contains("saving", StringComparison.OrdinalIgnoreCase))
-                ?? candidates.FirstOrDefault(c =>
-                    c.Name.Contains("інші", StringComparison.OrdinalIgnoreCase) ||
-                    c.Name.Contains("other", StringComparison.OrdinalIgnoreCase))
-                ?? candidates.FirstOrDefault();
+                categoryNames.Any(name => string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase)));
 
             if (preferred is not null)
             {
@@ -2725,9 +2764,14 @@ public partial class MainViewModel : ViewModelBase
             }
         }
 
-        return transactionType == "income"
-            ? GetCategoryId("other_income")
-            : GetCategoryId("other_expense");
+        var created = await _apiClient!.CreateCategoryAsync(new CreateCategoryRequestDto(
+            Texts.SavingsTransferCategoryName,
+            transactionType,
+            "savings",
+            "#3B82F6"));
+
+        await LoadCategoriesAsync();
+        return created.Id;
     }
 
     private static bool TryParseOptionalPositiveDecimal(string rawValue, out decimal value)
@@ -2889,6 +2933,8 @@ public partial class MainViewModel : ViewModelBase
         FilteredTransactions = [];
         TransactionSearchText = string.Empty;
         SelectedTransactionTypeFilter = "all";
+        SelectedTransactionAccountFilter = null;
+        TransactionAccountFilterOptions = [];
         SelectedTransactionCategoryFilter = null;
         TransactionCategoryFilterOptions = [];
         categoryLimits.Clear();
@@ -2902,7 +2948,15 @@ public partial class MainViewModel : ViewModelBase
         OnboardingStatusMessage = string.Empty;
         CategoryStatusMessage = string.Empty;
         ResetTransactionForm();
-        UpdateCharts();
+        if (!IsApiAuthorized)
+        {
+            Series = [];
+            Chart = [];
+            ExpenseCategoryLegend = [];
+            OnPropertyChanged(nameof(Series));
+            OnPropertyChanged(nameof(Chart));
+            OnPropertyChanged(nameof(ExpenseCategoryLegend));
+        }
         OnPropertyChanged(nameof(RemainingAmount));
         OnPropertyChanged(nameof(ProgressPercent));
         OnPropertyChanged(nameof(Money));
@@ -2943,6 +2997,7 @@ public partial class MainViewModel : ViewModelBase
         OnPropertyChanged(nameof(SaveTransactionButtonText));
         RefreshOnboardingCategoryTypeDisplays();
         RefreshCategoryTypeDisplays();
+        UpdateTransactionAccountFilterOptions();
         UpdateTransactionCategoryOptions(SelectedTransactionCategory?.Code);
         UpdateTransactionCategoryFilterOptions();
         RefreshTransactionItems();
@@ -3018,11 +3073,26 @@ public partial class MainViewModel : ViewModelBase
         try
         {
             EnsureApiClient();
-            apiCategories = await _apiClient!.GetCategoriesAsync();
+            if (IsApiAuthorized)
+            {
+                var userCategories = await _apiClient!.GetUserCategoriesAsync();
+                apiCategories = userCategories
+                    .Select(c => new ApiCategoryDto(c.Id, c.Name, c.Type, c.IconKey, c.Color))
+                    .ToArray();
+                selectedCategoryIds = userCategories
+                    .Where(c => c.IsSelected)
+                    .Select(c => c.Id)
+                    .ToHashSet();
+            }
+            else
+            {
+                apiCategories = await _apiClient!.GetCategoriesAsync();
+            }
         }
         catch
         {
             apiCategories = [];
+            selectedCategoryIds = null;
         }
 
         UpdateTransactionCategoryOptions(SelectedTransactionCategory?.Code);
@@ -3742,21 +3812,24 @@ public partial class MainViewModel : ViewModelBase
             {
                 TypeDisplay = t.Type == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType,
                 CategoryDisplay = GetCategoryDisplayName(t.CategoryCode),
-                CategoryIconKey = GetCategoryIconKey(t.CategoryCode)
+                CategoryIconKey = GetCategoryIconKey(t.CategoryCode),
+                CategoryColor = GetCategoryColor(t.CategoryCode)
             }));
         LatestExpenses = new ObservableCollection<TransactionItemViewModel>(
             LatestExpenses.Select(t => t with
             {
                 TypeDisplay = t.Type == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType,
                 CategoryDisplay = GetCategoryDisplayName(t.CategoryCode),
-                CategoryIconKey = GetCategoryIconKey(t.CategoryCode)
+                CategoryIconKey = GetCategoryIconKey(t.CategoryCode),
+                CategoryColor = GetCategoryColor(t.CategoryCode)
             }));
         homeTransactionSource = homeTransactionSource
             .Select(t => t with
             {
                 TypeDisplay = t.Type == "income" ? Texts.TransactionIncomeType : Texts.TransactionExpenseType,
                 CategoryDisplay = GetCategoryDisplayName(t.CategoryCode),
-                CategoryIconKey = GetCategoryIconKey(t.CategoryCode)
+                CategoryIconKey = GetCategoryIconKey(t.CategoryCode),
+                CategoryColor = GetCategoryColor(t.CategoryCode)
             })
             .ToArray();
         ApplyTransactionFilters();
@@ -3963,19 +4036,8 @@ public partial class MainViewModel : ViewModelBase
 
     private void UpdateCharts()
     {
-        foreach (var series in Series.OfType<IDisposable>())
-        {
-            series.Dispose();
-        }
-
-        foreach (var series in Chart.OfType<IDisposable>())
-        {
-            series.Dispose();
-        }
-
         var incomeTotal = LatestExpenses.Where(t => t.IsIncome).Sum(t => (double)Math.Abs(t.Amount));
         var expenseTotal = LatestExpenses.Where(t => !t.IsIncome).Sum(t => (double)Math.Abs(t.Amount));
-        var hasData = incomeTotal > 0 || expenseTotal > 0;
         var chartCurrency = SelectedBankAccount?.Currency
             ?? LatestExpenses.Select(t => t.Currency).FirstOrDefault(c => !string.IsNullOrWhiteSpace(c))
             ?? "UAH";
@@ -3986,36 +4048,37 @@ public partial class MainViewModel : ViewModelBase
             .ThenBy(g => GetCategoryDisplayName(g.Key))
             .ToArray();
 
-        Series =
-            expenseGroups
-                .Select((g, index) =>
-                {
-                    var palette = GetExpenseChartPalette();
-                    var color = palette[index % palette.Length];
-                    var amount = Math.Abs(g.Sum(t => t.Amount));
-                    return new PieSeries<double>
+        if (expenseGroups.Length > 0 || !IsApiAuthorized)
+        {
+            Series =
+                expenseGroups
+                    .Select((g, index) =>
                     {
-                        Values = [(double)amount],
-                        Name = GetCategoryDisplayName(g.Key),
-                        Fill = new SolidColorPaint(SKColor.Parse(color)),
-                        Stroke = null
-                    };
-                })
-                .Cast<ISeries>()
-                .ToArray();
+                        var color = GetExpenseCategoryChartColor(g, g.Key, index);
+                        var amount = Math.Abs(g.Sum(t => t.Amount));
+                        return new PieSeries<double>
+                        {
+                            Values = [(double)amount],
+                            Name = GetCategoryDisplayName(g.Key),
+                            Fill = new SolidColorPaint(SKColor.Parse(color)),
+                            Stroke = null
+                        };
+                    })
+                    .Cast<ISeries>()
+                    .ToArray();
 
-        ExpenseCategoryLegend = new ObservableCollection<CategoryLegendItemViewModel>(
-            expenseGroups.Select((g, index) =>
-            {
-                var palette = GetExpenseChartPalette();
-                var color = palette[index % palette.Length];
-                var amount = Math.Abs(g.Sum(t => t.Amount));
-                return new CategoryLegendItemViewModel(
-                    GetCategoryDisplayName(g.Key),
-                    amount,
-                    new SolidColorBrush(Color.Parse(color)),
-                    $"{amount:N2} {chartCurrency}");
-            }));
+            ExpenseCategoryLegend = new ObservableCollection<CategoryLegendItemViewModel>(
+                expenseGroups.Select((g, index) =>
+                {
+                    var color = GetExpenseCategoryChartColor(g, g.Key, index);
+                    var amount = Math.Abs(g.Sum(t => t.Amount));
+                    return new CategoryLegendItemViewModel(
+                        GetCategoryDisplayName(g.Key),
+                        amount,
+                        new SolidColorBrush(Color.Parse(color)),
+                        $"{amount:N2} {chartCurrency}");
+                }));
+        }
 
         UpdateCategoryDetails();
 
@@ -4116,6 +4179,49 @@ public partial class MainViewModel : ViewModelBase
             ? Theme2ExpenseChartPalette
             : ExpenseChartPalette;
 
+    private string GetExpenseCategoryChartColor(IEnumerable<TransactionItemViewModel> transactions, string? categoryCode, int index)
+    {
+        var palette = GetExpenseChartPalette();
+        var fallback = palette[index % palette.Length];
+
+        var transactionColor = transactions
+            .Select(t => t.CategoryColor)
+            .FirstOrDefault(color => TryNormalizeChartColor(color, out _));
+        if (TryNormalizeChartColor(transactionColor, out var normalizedTransactionColor))
+        {
+            return normalizedTransactionColor;
+        }
+
+        if (int.TryParse(categoryCode, NumberStyles.Integer, CultureInfo.InvariantCulture, out var categoryId))
+        {
+            var apiCategory = apiCategories.FirstOrDefault(c => c.Id == categoryId);
+            if (TryNormalizeChartColor(apiCategory?.Color, out var categoryColor))
+            {
+                return categoryColor;
+            }
+        }
+
+        return fallback;
+    }
+
+    private static bool TryNormalizeChartColor(string? rawColor, out string color)
+    {
+        color = string.Empty;
+        if (string.IsNullOrWhiteSpace(rawColor))
+        {
+            return false;
+        }
+
+        var normalized = rawColor.Trim();
+        if (!SKColor.TryParse(normalized, out _) || !Color.TryParse(normalized, out _))
+        {
+            return false;
+        }
+
+        color = normalized;
+        return true;
+    }
+
     private void UpdateVisibleTransactions()
     {
         var visible = LatestExpenses.Take(homeTransactionTakeCount).ToArray();
@@ -4186,10 +4292,24 @@ public partial class MainViewModel : ViewModelBase
             ?? options.FirstOrDefault();
     }
 
+    private void UpdateTransactionAccountFilterOptions()
+    {
+        var selectedAccountId = SelectedTransactionAccountFilter?.AccountId;
+        var options = BankAccounts
+            .Select(account => new BankAccountFilterOptionViewModel(account.Id, account.Name))
+            .ToList();
+        options.Insert(0, new BankAccountFilterOptionViewModel(null, Texts.AllAccountsFilter));
+
+        TransactionAccountFilterOptions = new ObservableCollection<BankAccountFilterOptionViewModel>(options);
+        SelectedTransactionAccountFilter = options.FirstOrDefault(x => x.AccountId == selectedAccountId)
+            ?? options.FirstOrDefault();
+    }
+
     private void ApplyTransactionFilters()
     {
         var search = TransactionSearchText.Trim();
         var categoryCode = SelectedTransactionCategoryFilter?.Code;
+        var accountId = SelectedTransactionAccountFilter?.AccountId;
         var filtered = LatestExpenses.AsEnumerable();
         filteredTransactionTakeCount = AllTransactionsPageSize;
 
@@ -4201,6 +4321,11 @@ public partial class MainViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(categoryCode) && categoryCode != "all")
         {
             filtered = filtered.Where(t => string.Equals(t.CategoryCode, categoryCode, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (accountId.HasValue)
+        {
+            filtered = filtered.Where(t => t.AccountId == accountId.Value);
         }
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -4258,8 +4383,7 @@ public partial class MainViewModel : ViewModelBase
         var limit = categoryLimits.TryGetValue(categoryCode, out var storedLimit)
             ? storedLimit
             : 0;
-        var color = ExpenseChartPalette[index % ExpenseChartPalette.Length];
-        var skColor = SKColor.Parse(color);
+        var color = GetExpenseCategoryChartColor(transactions, categoryCode, index);
 
         return new CategoryDetailItemViewModel(
             categoryCode,
@@ -4350,7 +4474,7 @@ public partial class MainViewModel : ViewModelBase
         {
             return apiCategories
                 .Where(c => string.Equals(c.Type, transactionType, StringComparison.OrdinalIgnoreCase))
-                .Where(c => selectedCategoryIds is null || selectedCategoryIds.Count == 0 || selectedCategoryIds.Contains(c.Id))
+                .Where(c => selectedCategoryIds is null || selectedCategoryIds.Contains(c.Id))
                 .Select(c => new CategoryOptionViewModel(c.Id.ToString(CultureInfo.InvariantCulture), c.Name))
                 .ToArray();
         }
@@ -4442,9 +4566,10 @@ public partial class MainViewModel : ViewModelBase
         if (int.TryParse(categoryCode, NumberStyles.Integer, CultureInfo.InvariantCulture, out var categoryId))
         {
             var apiCategory = apiCategories.FirstOrDefault(c => c.Id == categoryId);
-            if (!string.IsNullOrWhiteSpace(apiCategory?.Color))
+            var categoryColor = apiCategory?.Color?.Trim();
+            if (Color.TryParse(categoryColor, out _))
             {
-                return apiCategory.Color!;
+                return categoryColor!;
             }
         }
 

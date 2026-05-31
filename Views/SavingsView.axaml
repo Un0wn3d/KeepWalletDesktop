@@ -109,7 +109,9 @@
             </Border>
 
             <Border Grid.Column="1" Classes="panel-card">
-                <Grid RowDefinitions="Auto, Auto, *" RowSpacing="14">
+                <Grid>
+                <Grid RowDefinitions="Auto, Auto, *" RowSpacing="14"
+                      IsVisible="{Binding HasSavings}">
                     <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="8">
                         <Button Width="52"
                                 Height="52"
@@ -139,6 +141,7 @@
                                                FontSize="22"
                                                FontWeight="SemiBold"
                                                Foreground="{DynamicResource Color.Text1}"
+                                               TextTrimming="CharacterEllipsis"
                                                TextWrapping="Wrap" />
                                 </Button>
                                 <TextBox Text="{Binding SavingNameEditInput}"
@@ -150,6 +153,7 @@
                                 <TextBlock Grid.Column="1"
                                            Text="{Binding ActiveSavingDeadlineDisplay}"
                                            Classes="muted"
+                                           TextTrimming="CharacterEllipsis"
                                            VerticalAlignment="Center"
                                            DoubleTapped="SavingDeadline_OnDoubleTapped"
                                            IsVisible="{Binding !IsEditingSavingDeadlineField}" />
@@ -163,6 +167,7 @@
                                            FontSize="16"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource Color.Text1}"
+                                           TextWrapping="Wrap"
                                            DoubleTapped="SavingCurrent_OnDoubleTapped"
                                            IsVisible="{Binding !IsEditingSavingCurrentField}" />
                                 <TextBox Text="{Binding SavingCurrentAmountEditInput}"
@@ -178,6 +183,7 @@
                                            FontSize="16"
                                            FontWeight="SemiBold"
                                            Foreground="{DynamicResource Color.Text1}"
+                                           TextWrapping="Wrap"
                                            DoubleTapped="SavingGoal_OnDoubleTapped"
                                            IsVisible="{Binding !IsEditingSavingGoalField}" />
                                 <TextBox Grid.Column="2"
@@ -321,6 +327,8 @@
                                                                 <TextBlock Grid.Column="2"
                                                                            Text="{Binding ReversedAmountDisplay}"
                                                                            FontWeight="Bold"
+                                                                           TextAlignment="Right"
+                                                                           TextWrapping="Wrap"
                                                                            VerticalAlignment="Center"
                                                                            Foreground="{DynamicResource Color.Text1}" />
                                                             </Grid>
@@ -425,69 +433,21 @@
                         </TabItem>
                     </TabControl>
                 </Grid>
+                <StackPanel IsVisible="{Binding HasNoSavings}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="14">
+                    <TextBlock Text="{Binding Texts.NoSavingsText}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center" />
+                    <Button Content="{Binding Texts.CreateSavingsButton}"
+                            Classes="primary-button"
+                            HorizontalAlignment="Center"
+                            Command="{Binding CreateNewSavingsCommand}" />
+                </StackPanel>
+                </Grid>
             </Border>
         </Grid>
-        <Border Grid.ColumnSpan="2"
-                IsVisible="{Binding IsSavingsDialogOpen}"
-                Background="{DynamicResource Color.Overlay}">
-            <Grid HorizontalAlignment="Center"
-                  VerticalAlignment="Center"
-                  Width="460">
-                <Border Classes="dialog-card">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{Binding Texts.CreateSavingsButton}"
-                                   HorizontalAlignment="Center"
-                                   FontSize="24"
-                                   FontWeight="Bold" />
-
-                        <TextBlock Text="{Binding Texts.SavingNameLabel}" Classes="form-label" />
-                        <TextBox Text="{Binding SavingsDialogNameInput}" />
-
-                        <Grid ColumnDefinitions="Auto, *, 140" ColumnSpacing="8">
-                            <TextBlock Text="{Binding Texts.GoalAmountLabel}" Classes="form-label" VerticalAlignment="Center" />
-                            <TextBox Grid.Column="1"
-                                     Watermark="{Binding Texts.GoalAmountHint}"
-                                     Text="{Binding SavingsDialogTargetAmountInput}" />
-                            <ComboBox Grid.Column="2"
-                                      ItemsSource="{Binding OnboardingCurrencyOptions}"
-                                      SelectedItem="{Binding SavingsDialogCurrency}" />
-                        </Grid>
-
-                        <TextBlock Text="Target date" Classes="form-label" />
-                        <TextBox Watermark="{Binding Texts.SavingsDeadlineHint}"
-                                 Text="{Binding SavingsDialogDeadlineInput}" />
-
-                        <TextBlock Text="Icon and color" Classes="form-label" />
-                        <Button Width="52"
-                                Height="52"
-                                CornerRadius="26"
-                                Background="{Binding SavingsDialogColor}"
-                                HorizontalAlignment="Left"
-                                Click="SavingsDialogIconButton_OnClick">
-                            <TextBlock Text="{Binding SavingsDialogIconGlyph}"
-                                       FontFamily="{StaticResource EmojiFontFamily}"
-                                       FontSize="22"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                        </Button>
-
-                        <TextBlock Text="{Binding SavingsStatusMessage}"
-                                   Classes="message-text"
-                                   TextWrapping="Wrap" />
-
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Spacing="8">
-                            <Button Content="{Binding Texts.SaveServerSettingsButton}"
-                                    Classes="primary-button"
-                                    Command="{Binding SaveNewSavingsCommand}" />
-                            <Button Content="{Binding Texts.CancelButton}"
-                                    Classes="secondary-button"
-                                    Command="{Binding CloseSavingsDialogCommand}" />
-                        </StackPanel>
-                    </StackPanel>
-                </Border>
-            </Grid>
-        </Border>
     </Grid>
 </UserControl>

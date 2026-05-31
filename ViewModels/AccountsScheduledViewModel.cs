@@ -44,7 +44,7 @@ public partial class MainViewModel
                     GetCategoryColor(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
                     p.Description,
                     ResolveScheduledPaymentCurrency(p.AccountId),
-                    p.NextDueDate,
+                    ToScheduledPaymentDueDate(p.NextDueDate),
                     p.RepeatInterval,
                     FormatRepeatIntervalDisplay(p.RepeatInterval),
                     p.IsActive,
@@ -222,6 +222,12 @@ public partial class MainViewModel
             return;
         }
 
+        if (BankAccounts.Count <= 1)
+        {
+            BankAccountStatusMessage = Texts.LastBankAccountRequired;
+            return;
+        }
+
         try
         {
             IsApiBusy = true;
@@ -284,7 +290,7 @@ public partial class MainViewModel
                 categoryId,
                 amount,
                 string.IsNullOrWhiteSpace(ScheduledPaymentDescriptionInput) ? null : ScheduledPaymentDescriptionInput.Trim(),
-                dueDate.ToUniversalTime(),
+                DateOnly.FromDateTime(dueDate.LocalDateTime.Date),
                 repeatInterval));
 
             ScheduledPaymentNameInput = string.Empty;
@@ -495,6 +501,7 @@ public partial class MainViewModel
         TransactionTimeInput = dueDate.ToString("HH:mm", CultureInfo.InvariantCulture);
 
         IsAllTransactionsDialogOpen = false;
+        IsScheduledPaymentConfirmDialogOpen = false;
         IsTransactionDialogOpen = true;
         ApiStatusMessage = string.Empty;
     }
@@ -534,14 +541,17 @@ public partial class MainViewModel
     private string ResolveScheduledPaymentCurrency(Guid accountId) =>
         BankAccounts.FirstOrDefault(a => a.Id == accountId)?.Currency ?? "UAH";
 
-    private string FormatDaysRemainingDisplay(DateTimeOffset dueDate, bool isActive)
+    private static DateTimeOffset ToScheduledPaymentDueDate(DateOnly dueDate) =>
+        new(dueDate.ToDateTime(TimeOnly.MinValue), TimeZoneInfo.Local.GetUtcOffset(DateTime.Now));
+
+    private string FormatDaysRemainingDisplay(DateOnly dueDate, bool isActive)
     {
         if (!isActive)
         {
             return Texts.ScheduledPaymentPaidStatus;
         }
 
-        var days = (dueDate.ToLocalTime().Date - DateTime.Today).Days;
+        var days = (dueDate.ToDateTime(TimeOnly.MinValue) - DateTime.Today).Days;
         if (days < 0)
         {
             return $"{Texts.ScheduledPaymentsOverduePrefix} {-days} {Texts.ScheduledPaymentsDayShort}";

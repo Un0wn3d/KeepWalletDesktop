@@ -42,7 +42,10 @@ public interface ILocalizedText
     string BankAccountDefaultLabel { get; }
     string NewBankAccountButton { get; }
     string BankAccountDetailsTitle { get; }
+    string LastBankAccountRequired { get; }
     string SavingsTitle { get; }
+    string NoSavingsText { get; }
+    string AllAccountsFilter { get; }
     string AvailableBalanceLabel { get; }
     string SavingNameLabel { get; }
     string GoalAmountLabel { get; }
@@ -53,6 +56,7 @@ public interface ILocalizedText
     string SavingsAmountHint { get; }
     string AddToSavingsButton { get; }
     string WithdrawFromSavingsButton { get; }
+    string SavingsTransferCategoryName { get; }
     string GoalProgressLabel { get; }
     string SavedAmountPrefix { get; }
     string RemainingAmountPrefix { get; }
@@ -309,7 +313,10 @@ public sealed class LocalizedText : ILocalizedText
     public string BankAccountDefaultLabel => Get(nameof(BankAccountDefaultLabel));
     public string NewBankAccountButton => Get(nameof(NewBankAccountButton));
     public string BankAccountDetailsTitle => Get(nameof(BankAccountDetailsTitle));
+    public string LastBankAccountRequired => Get(nameof(LastBankAccountRequired));
     public string SavingsTitle => Get(nameof(SavingsTitle));
+    public string NoSavingsText => Get(nameof(NoSavingsText));
+    public string AllAccountsFilter => Get(nameof(AllAccountsFilter));
     public string AvailableBalanceLabel => Get(nameof(AvailableBalanceLabel));
     public string SavingNameLabel => Get(nameof(SavingNameLabel));
     public string GoalAmountLabel => Get(nameof(GoalAmountLabel));
@@ -320,6 +327,7 @@ public sealed class LocalizedText : ILocalizedText
     public string SavingsAmountHint => Get(nameof(SavingsAmountHint));
     public string AddToSavingsButton => Get(nameof(AddToSavingsButton));
     public string WithdrawFromSavingsButton => Get(nameof(WithdrawFromSavingsButton));
+    public string SavingsTransferCategoryName => Get(nameof(SavingsTransferCategoryName));
     public string GoalProgressLabel => Get(nameof(GoalProgressLabel));
     public string SavedAmountPrefix => Get(nameof(SavedAmountPrefix));
     public string RemainingAmountPrefix => Get(nameof(RemainingAmountPrefix));

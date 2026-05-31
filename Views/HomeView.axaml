@@ -186,32 +186,39 @@
                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.EditTransactionCommand}"
                                                     CommandParameter="{Binding .}">
                                                 <Border Classes="list-item-card">
-                                                    <Grid ColumnDefinitions="52, 5*, 2*, 2*"
-                                                          ColumnSpacing="12"
+                                                    <Grid ColumnSpacing="12"
                                                           VerticalAlignment="Center">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="52" />
+                                                            <ColumnDefinition Width="5*" MinWidth="100" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                        </Grid.ColumnDefinitions>
                                                         <Border Width="40"
                                                                 Height="40"
                                                                 CornerRadius="8"
-                                                                Background="White"
-                                                                BorderBrush="{DynamicResource Color.BorderSoft}"
-                                                                BorderThickness="1"
-                                                                BoxShadow="{DynamicResource Shadow.Card}">
+                                                                Background="{Binding CategoryAnchorBrush}">
                                                             <Grid>
                                                                 <TextBlock Text="{Binding CategoryIcon}"
                                                                            FontFamily="{StaticResource EmojiFontFamily}"
+                                                                           Foreground="{DynamicResource Color.Text1}"
                                                                            FontSize="18"
+                                                                           FontWeight="SemiBold"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center" />
                                                             </Grid>
                                                         </Border>
-                                                        <StackPanel Grid.Column="1" Spacing="2">
+                                                        <StackPanel Grid.Column="1" Spacing="2" MinWidth="100" ClipToBounds="True">
                                                             <TextBlock Text="{Binding DescriptionDisplay}"
                                                                        VerticalAlignment="Center"
                                                                        FontSize="14"
                                                                        FontWeight="Medium"
-                                                                       TextWrapping="Wrap" />
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis" />
                                                             <TextBlock Text="{Binding TransactionDateDisplay}"
-                                                                       Classes="muted" />
+                                                                       Classes="muted"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis" />
                                                         </StackPanel>
                                                         <Border Grid.Column="2"
                                                                 Background="{Binding CategoryAnchorBrush}"
@@ -226,14 +233,18 @@
                                                                        TextWrapping="Wrap"
                                                                        VerticalAlignment="Center" />
                                                         </Border>
-                                                        <Grid Grid.Column="3" VerticalAlignment="Center">
+                                                        <Grid Grid.Column="3" VerticalAlignment="Center" ClipToBounds="True">
                                                             <TextBlock Text="{Binding AmountDisplay}"
                                                                        Foreground="{DynamicResource Color.Success}"
                                                                        FontWeight="Bold"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis"
                                                                        IsVisible="{Binding IsIncome}" />
                                                             <TextBlock Text="{Binding AmountDisplay}"
                                                                        Foreground="{DynamicResource Color.Danger}"
                                                                        FontWeight="Bold"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis"
                                                                        IsVisible="{Binding !IsIncome}" />
                                                         </Grid>
                                                     </Grid>

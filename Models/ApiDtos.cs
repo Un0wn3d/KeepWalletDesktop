@@ -159,7 +159,8 @@ public sealed record UpdateUserCategoryPreferencesRequestDto(
 public sealed record UserCategoryPreferenceUpdateDto(
     int CategoryId,
     string? IconKey = null,
-    string? Color = null);
+    string? Color = null,
+    bool? IsActive = null);
 
 public sealed record MergeCategoryRequestDto(
     int TargetCategoryId);
@@ -194,8 +195,7 @@ public sealed record ApiSavingDto(
     string Currency,
     string? IconKey,
     string? Color,
-    bool IsCompleted,
-    DateTimeOffset CreatedAt);
+    bool IsCompleted);
 
 public sealed record CreateSavingItemRequestDto(string Name, decimal Price, short? Priority, bool IsPurchased);
 
@@ -215,7 +215,7 @@ public sealed record CreatePlannedTransactionRequestDto(
     int CategoryId,
     decimal Amount,
     string? Description,
-    DateTimeOffset NextDueDate,
+    DateOnly NextDueDate,
     TimeSpan RepeatInterval);
 
 public sealed record ConfirmPlannedTransactionRequestDto(Guid AccountId);
@@ -230,7 +230,7 @@ public sealed record ApiPlannedTransactionDto(
     string? Description,
     DateTimeOffset TransactionDate,
     TimeSpan RepeatInterval,
-    DateTimeOffset NextDueDate,
+    DateOnly NextDueDate,
     bool IsActive);
 
 public sealed record CreateBankAccountRequestDto(

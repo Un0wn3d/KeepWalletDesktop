@@ -12,7 +12,7 @@ namespace KeepWalletDesktop.ViewModels;
 
 public partial class MainViewModel
 {
-    private async Task LoadSavingsAsync()
+    private async Task LoadSavingsAsync(int? preferredSavingId = null)
     {
         if (!IsApiAuthorized)
         {
@@ -23,7 +23,10 @@ public partial class MainViewModel
         {
             EnsureApiClient();
             var savings = await _apiClient!.GetSavingsAsync();
-            var activeSaving = savings.FirstOrDefault(s => !s.IsCompleted) ?? savings.FirstOrDefault();
+            var activeSaving = preferredSavingId.HasValue
+                ? savings.FirstOrDefault(s => s.Id == preferredSavingId.Value)
+                : null;
+            activeSaving ??= savings.FirstOrDefault(s => !s.IsCompleted) ?? savings.FirstOrDefault();
 
             if (activeSaving is null)
             {
@@ -142,7 +145,7 @@ public partial class MainViewModel
             SavingItemNameInput = string.Empty;
             SavingItemAmount = 0;
             await UpdateActiveSavingTargetFromItemsAsync();
-            await LoadSavingDetailsAsync(ActiveSavingId.Value);
+            await LoadSavingsAsync(ActiveSavingId.Value);
         }
         catch (HttpRequestException ex)
         {
@@ -184,7 +187,7 @@ public partial class MainViewModel
             EnsureApiClient();
             await _apiClient!.DeleteSavingItemAsync(ActiveSavingId.Value, item.Id);
             await UpdateActiveSavingTargetFromItemsAsync();
-            await LoadSavingDetailsAsync(ActiveSavingId.Value);
+            await LoadSavingsAsync(ActiveSavingId.Value);
         }
         catch (HttpRequestException ex)
         {
@@ -264,7 +267,7 @@ public partial class MainViewModel
                 if (latestSaving.CurrentAmount < item.Amount)
                 {
                     SavingsStatusMessage = Texts.TransactionFormValidationText;
-                    await LoadSavingDetailsAsync(ActiveSavingId.Value, latestSaving.CurrentAmount);
+                    await LoadSavingsAsync(ActiveSavingId.Value);
                     return;
                 }
             }
@@ -278,7 +281,7 @@ public partial class MainViewModel
                 ? Math.Max(0, latestSaving.CurrentAmount - item.Amount)
                 : latestSaving.CurrentAmount + item.Amount;
             await UpdateActiveSavingTargetFromItemsAsync(updatedCurrentAmount);
-            await LoadSavingDetailsAsync(ActiveSavingId.Value, updatedCurrentAmount);
+            await LoadSavingsAsync(ActiveSavingId.Value);
         }
         catch (HttpRequestException ex)
         {
@@ -395,7 +398,7 @@ public partial class MainViewModel
                 target.Id,
                 new UpdateSavingItemRequestDto(target.Name, target.Amount, currentPriority, target.IsPaid));
 
-            await LoadSavingDetailsAsync(ActiveSavingId.Value);
+            await LoadSavingsAsync(ActiveSavingId.Value);
         }
         catch (HttpRequestException ex)
         {
@@ -429,8 +432,11 @@ public partial class MainViewModel
                 string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
                 targetAmount > 0 ? targetAmount : null,
                 currentAmountOverride ?? (decimal)SavedAmount,
-                null,
-                targetAmount > 0 && (currentAmountOverride ?? (decimal)SavedAmount) >= targetAmount));
+                ActiveSavingDeadline,
+                targetAmount > 0 && (currentAmountOverride ?? (decimal)SavedAmount) >= targetAmount,
+                ActiveSavingCurrency,
+                ActiveSavingIconKey,
+                ActiveSavingColor));
 
         ApplySaving(saving);
     }

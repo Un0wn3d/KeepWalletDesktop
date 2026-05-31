@@ -42,6 +42,11 @@ public partial class AppShellView : UserControl
 
     private void CategorySettings_OnChanged(object? sender, RoutedEventArgs e)
     {
+        if (sender is ToggleSwitch { DataContext: CategoryManagementItemViewModel category } toggle)
+        {
+            category.IsSelected = toggle.IsChecked == true;
+        }
+
         if (DataContext is MainViewModel viewModel &&
             viewModel.SaveCategoriesCommand.CanExecute(null))
         {

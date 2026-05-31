@@ -105,8 +105,17 @@
   <data name="BankAccountDetailsTitle" xml:space="preserve">
     <value>Bank account details</value>
   </data>
+  <data name="LastBankAccountRequired" xml:space="preserve">
+    <value>The account must have at least 1 bank account.</value>
+  </data>
   <data name="SavingsTitle" xml:space="preserve">
     <value>Savings</value>
+  </data>
+  <data name="NoSavingsText" xml:space="preserve">
+    <value>No savings</value>
+  </data>
+  <data name="AllAccountsFilter" xml:space="preserve">
+    <value>All accounts</value>
   </data>
   <data name="AvailableBalanceLabel" xml:space="preserve">
     <value>Available balance</value>
@@ -131,6 +140,9 @@
   </data>
   <data name="WithdrawFromSavingsButton" xml:space="preserve">
     <value>Withdraw</value>
+  </data>
+  <data name="SavingsTransferCategoryName" xml:space="preserve">
+    <value>Savings</value>
   </data>
   <data name="GoalProgressLabel" xml:space="preserve">
     <value>Goal progress</value>
@@ -187,7 +199,7 @@
     <value>Create transaction</value>
   </data>
   <data name="CreateSavingsButton" xml:space="preserve">
-    <value>Create new savings</value>
+    <value>New savings</value>
   </data>
   <data name="ConnectedStatus" xml:space="preserve">
     <value>Connected</value>

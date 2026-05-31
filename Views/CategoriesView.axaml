@@ -15,6 +15,38 @@
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="8" />
         </Style>
+        <Style Selector="ToggleButton.transaction-type-button">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Padding" Value="16,10" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="ToggleButton.transaction-type-button /template/ ContentPresenter">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource Color.Text1}" />
+        </Style>
+        <Style Selector="ToggleButton.transaction-type-button:checked">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="ToggleButton.transaction-type-button.expense:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.Danger}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource Color.Danger}" />
+        </Style>
+        <Style Selector="ToggleButton.transaction-type-button.income:checked /template/ ContentPresenter">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.Success}" />
+            <Setter Property="BorderThickness" Value="2" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="TextElement.Foreground" Value="{DynamicResource Color.Success}" />
+        </Style>
     </UserControl.Styles>
 
     <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsCategoriesPage}">
@@ -46,16 +78,18 @@
                             <TextBox Grid.Column="1"
                                      Text="{Binding CategoryNewName}"
                                      Watermark="{Binding Texts.OnboardingCategoryNameHint}" />
-                            <Button Grid.Column="2"
-                                    Content="{Binding Texts.TransactionExpenseType}"
-                                    Classes="secondary-button"
-                                    Command="{Binding SelectCategoryTypeCommand}"
-                                    CommandParameter="expense" />
-                            <Button Grid.Column="3"
-                                    Content="{Binding Texts.TransactionIncomeType}"
-                                    Classes="secondary-button"
-                                    Command="{Binding SelectCategoryTypeCommand}"
-                                    CommandParameter="income" />
+                            <ToggleButton Grid.Column="2"
+                                          Content="{Binding Texts.TransactionExpenseType}"
+                                          Classes="transaction-type-button expense"
+                                          IsChecked="{Binding IsNewCategoryExpenseTypeSelected, Mode=OneWay}"
+                                          Command="{Binding SelectCategoryTypeCommand}"
+                                          CommandParameter="expense" />
+                            <ToggleButton Grid.Column="3"
+                                          Content="{Binding Texts.TransactionIncomeType}"
+                                          Classes="transaction-type-button income"
+                                          IsChecked="{Binding IsNewCategoryIncomeTypeSelected, Mode=OneWay}"
+                                          Command="{Binding SelectCategoryTypeCommand}"
+                                          CommandParameter="income" />
                             <Button Grid.Column="4"
                                     Content="{Binding Texts.OnboardingAddCategoryButton}"
                                     Classes="primary-button"

@@ -105,8 +105,17 @@
   <data name="BankAccountDetailsTitle" xml:space="preserve">
     <value>Деталі банківського рахунку</value>
   </data>
+  <data name="LastBankAccountRequired" xml:space="preserve">
+    <value>В акаунті має бути хоча б 1 банківський рахунок.</value>
+  </data>
   <data name="SavingsTitle" xml:space="preserve">
     <value>Накопичення</value>
+  </data>
+  <data name="NoSavingsText" xml:space="preserve">
+    <value>Сбережений нет</value>
+  </data>
+  <data name="AllAccountsFilter" xml:space="preserve">
+    <value>Усі рахунки</value>
   </data>
   <data name="AvailableBalanceLabel" xml:space="preserve">
     <value>Доступний баланс</value>
@@ -131,6 +140,9 @@
   </data>
   <data name="WithdrawFromSavingsButton" xml:space="preserve">
     <value>Зняти</value>
+  </data>
+  <data name="SavingsTransferCategoryName" xml:space="preserve">
+    <value>Накопичення</value>
   </data>
   <data name="GoalProgressLabel" xml:space="preserve">
     <value>Прогрес цілі</value>
@@ -187,7 +199,7 @@
     <value>Створити транзакцію</value>
   </data>
   <data name="CreateSavingsButton" xml:space="preserve">
-    <value>Створити скарбничку</value>
+    <value>Нова скарбничка</value>
   </data>
   <data name="ConnectedStatus" xml:space="preserve">
     <value>Підключено</value>

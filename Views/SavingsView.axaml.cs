@@ -15,23 +15,6 @@ public partial class SavingsView : UserControl
         InitializeComponent();
     }
 
-    private void SavingsDialogIconButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not Button button || DataContext is not MainViewModel viewModel)
-        {
-            return;
-        }
-
-        iconPicker.Show(
-            button,
-            viewModel.CategoryIconOptions,
-            viewModel.SavingColorOptions,
-            iconKey => viewModel.SavingsDialogIconKey = iconKey,
-            color => viewModel.SavingsDialogColor = color,
-            viewModel.Texts.IconSearchHint,
-            circularIcons: true);
-    }
-
     private void ActiveSavingIcon_OnDoubleTapped(object? sender, TappedEventArgs e)
     {
         if (sender is not Control owner || DataContext is not MainViewModel viewModel)

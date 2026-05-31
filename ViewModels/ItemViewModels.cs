@@ -44,15 +44,17 @@ public sealed record TransactionItemViewModel(
     public string CategoryIcon => CategoryIconCatalog.GetGlyph(CategoryIconKey ?? CategoryCode, Type);
     public Bitmap? CategoryIconSampleImage => CategoryIconCatalog.GetSampleImage(CategoryIconKey ?? CategoryCode);
     public bool HasCategoryIconSampleImage => CategoryIconSampleImage is not null;
-    public IBrush CategoryAnchorBrush => IsIncome
-        ? new SolidColorBrush(Color.Parse(CategoryColor))
-        : new SolidColorBrush(Color.Parse(CategoryColor));
+    public IBrush CategoryAnchorBrush => new SolidColorBrush(ParseColorOrDefault(CategoryColor));
 
     private static string FormatAmount(decimal amount) =>
         decimal.Truncate(amount) == amount
             ? amount.ToString("#,##0", CultureInfo.InvariantCulture)
             : amount.ToString("#,##0.##", CultureInfo.InvariantCulture);
 
+    private static Color ParseColorOrDefault(string? rawColor) =>
+        Color.TryParse(rawColor?.Trim(), out var color)
+            ? color
+            : Color.Parse("#E5E7EB");
 }
 
 public sealed record SavingOptionViewModel(
@@ -118,7 +120,7 @@ public sealed record ScheduledPaymentItemViewModel(
     public string CategoryIcon => CategoryIconCatalog.GetGlyph(CategoryIconKey, Type);
     public string DescriptionDisplay => string.IsNullOrWhiteSpace(Description) ? "-" : Description;
     public string DueDateDisplay => DueDate.ToLocalTime().ToString("dd.MM.yyyy", CultureInfo.InvariantCulture);
-    public IBrush CategoryAnchorBrush => new SolidColorBrush(Color.Parse(CategoryColor));
+    public IBrush CategoryAnchorBrush => new SolidColorBrush(ParseColorOrDefault(CategoryColor));
     public bool IsOverdue => IsActive && DueDate.ToLocalTime().Date < DateTime.Today;
     public bool IsDueSoon => IsActive && !IsOverdue && (DueDate.ToLocalTime().Date - DateTime.Today).Days <= 3;
     public bool IsDueLater => IsActive && !IsOverdue &&
@@ -142,6 +144,11 @@ public sealed record ScheduledPaymentItemViewModel(
             "SEK" => "kr",
             _ => currency
         };
+
+    private static Color ParseColorOrDefault(string? rawColor) =>
+        Color.TryParse(rawColor?.Trim(), out var color)
+            ? color
+            : Color.Parse("#E5E7EB");
 }
 
 public sealed record CategoryLegendItemViewModel(

@@ -9,7 +9,8 @@
              x:DataType="vm:MainViewModel">
         <Border Grid.ColumnSpan="2"
                 IsVisible="{Binding IsBankAccountDialogOpen}"
-                Background="{DynamicResource Color.Overlay}">
+                Background="{DynamicResource Color.Overlay}"
+                PointerPressed="DialogOverlay_OnPointerPressed">
             <Grid HorizontalAlignment="Center"
                   VerticalAlignment="Center"
                   Width="420">

@@ -76,7 +76,7 @@ public partial class MainViewModel
                         categoryId,
                         amount,
                         null,
-                        transactionDate.ToUniversalTime(),
+                        DateOnly.FromDateTime(transactionDate.LocalDateTime.Date),
                         repeatInterval));
 
                 ApiStatusMessage = Texts.TransactionUpdatedText;
@@ -113,7 +113,7 @@ public partial class MainViewModel
                         categoryId,
                         amount,
                         null,
-                        transactionDate.ToUniversalTime(),
+                        DateOnly.FromDateTime(transactionDate.LocalDateTime.Date),
                         repeatInterval));
 
                 ApiStatusMessage = Texts.TransactionSavedText;
