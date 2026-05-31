@@ -55,7 +55,7 @@
     <value>Registration</value>
   </data>
   <data name="UsernameLabel" xml:space="preserve">
-    <value>Username</value>
+    <value>Login</value>
   </data>
   <data name="EmailLabel" xml:space="preserve">
     <value>Email</value>
@@ -214,7 +214,7 @@
     <value>API connection error</value>
   </data>
   <data name="RegisterRequired" xml:space="preserve">
-    <value>Username, email, and password are required for registration.</value>
+    <value>Login, email, and password are required for registration.</value>
   </data>
   <data name="RegisteringToApi" xml:space="preserve">
     <value>Registering with KeepWalletAPI...</value>

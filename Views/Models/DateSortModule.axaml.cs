@@ -9,6 +9,8 @@ namespace KeepWalletDesktop.Views.Mdules;
 
 public partial class DateSortModule : UserControl
 {
+    private const int MaxVisualCalendarRangeDays = 62;
+
     private DateTimeOffset _from;
     private DateTimeOffset _to;
     private DateSortPeriod _period = DateSortPeriod.Month;
@@ -76,6 +78,11 @@ public partial class DateSortModule : UserControl
         _calendarSelectionDebounceTimer.Stop();
         _calendarSelectionDebounceTimer.Tick -= CalendarSelectionDebounceTimerOnTick;
         UpdateControls();
+    }
+
+    private void PeriodFlyout_Opened(object? sender, EventArgs e)
+    {
+        Dispatcher.UIThread.Post(RefreshCalendarVisualSelection, DispatcherPriority.Loaded);
     }
 
     private void LastHourButton_Click(object? sender, RoutedEventArgs e) => ApplyPreset(DateSortPeriod.Hour);
@@ -167,19 +174,33 @@ public partial class DateSortModule : UserControl
 
     private void UpdateControls()
     {
-        _isUpdatingDates = true;
-        RangeCalendar.DisplayDate = _from.Date;
-        RangeCalendar.SelectedDates.Clear();
-        for (var date = _from.Date; date <= _to.Date; date = date.AddDays(1))
-        {
-            RangeCalendar.SelectedDates.Add(date);
-        }
-        _isUpdatingDates = false;
+        RefreshCalendarVisualSelection();
 
         PeriodButton.Content = _period == DateSortPeriod.Custom
             ? $"{_from:dd.MM.yyyy} - {_to:dd.MM.yyyy}"
             : GetPeriodLabel(_period);
         ApplyRangeToDataContext();
+    }
+
+    private void RefreshCalendarVisualSelection()
+    {
+        _isUpdatingDates = true;
+        try
+        {
+            RangeCalendar.DisplayDate = _from.Date;
+            RangeCalendar.SelectedDates.Clear();
+
+            var visualTo = (_to.Date - _from.Date).Days > MaxVisualCalendarRangeDays
+                ? _from.Date.AddDays(MaxVisualCalendarRangeDays)
+                : _to.Date;
+            RangeCalendar.SelectedDates.AddRange(_from.Date, visualTo);
+        }
+        finally
+        {
+            _isUpdatingDates = false;
+        }
+
+        RangeCalendar.InvalidateVisual();
     }
 
     private void SetMonthRange(int year, int month)

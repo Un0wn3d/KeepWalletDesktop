@@ -1707,7 +1707,7 @@ public partial class MainViewModel : ViewModelBase
                 string.IsNullOrWhiteSpace(RegisterFullName) ? null : RegisterFullName.Trim());
 
             ApplyAuthorizedUser(auth.Username, auth.Email, auth.RoleName);
-            ApiLogin = RegisterEmail.Trim();
+            ApiLogin = RegisterUsername.Trim();
             SaveLocalUserSettings();
             ApiPassword = string.Empty;
             RegisterPassword = string.Empty;
@@ -3075,6 +3075,7 @@ public partial class MainViewModel : ViewModelBase
                 .Where(c => c.IsSelected)
                 .Select(c => c.Id)
                 .ToHashSet();
+            ApplyUserCategoryPreferences(categories);
         }
         catch
         {
@@ -3082,6 +3083,33 @@ public partial class MainViewModel : ViewModelBase
         }
 
         UpdateTransactionCategoryOptions(SelectedTransactionCategory?.Code);
+        UpdateScheduledPaymentCategoryOptions(SelectedScheduledPaymentCategory?.Code);
+        RefreshTransactionItems();
+    }
+
+    private void ApplyUserCategoryPreferences(IReadOnlyList<UserCategoryPreferenceDto> categories)
+    {
+        if (apiCategories.Count == 0 || categories.Count == 0)
+        {
+            return;
+        }
+
+        var preferencesById = categories.ToDictionary(c => c.Id);
+        apiCategories = apiCategories
+            .Select(category =>
+            {
+                if (!preferencesById.TryGetValue(category.Id, out var preference))
+                {
+                    return category;
+                }
+
+                return category with
+                {
+                    IconKey = string.IsNullOrWhiteSpace(preference.IconKey) ? category.IconKey : preference.IconKey,
+                    Color = string.IsNullOrWhiteSpace(preference.Color) ? category.Color : preference.Color
+                };
+            })
+            .ToArray();
     }
 
     private async Task LoadBudgetsAsync()

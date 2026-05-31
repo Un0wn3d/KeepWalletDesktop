@@ -44,7 +44,8 @@
                         Content="Цей місяць">
                     <Button.Flyout>
                         <Flyout Placement="Bottom"
-                                VerticalOffset="13">
+                                VerticalOffset="13"
+                                Opened="PeriodFlyout_Opened">
                                 <Border Padding="10"
                                         CornerRadius="8"
                                         Margin="0"

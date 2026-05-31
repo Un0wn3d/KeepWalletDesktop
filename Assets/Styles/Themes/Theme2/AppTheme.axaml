@@ -251,6 +251,15 @@
     <Setter Property="Foreground" Value="{DynamicResource Color.Accent}" />
   </Style>
 
+  <Style Selector="Button.auth-submit-button">
+    <Setter Property="Background" Value="White" />
+    <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="16,10" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
   <Style Selector="Button.fab-button">
     <Setter Property="Width" Value="64" />
     <Setter Property="Height" Value="64" />

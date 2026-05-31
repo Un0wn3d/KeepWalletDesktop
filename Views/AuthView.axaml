@@ -14,7 +14,7 @@
             <Grid HorizontalAlignment="Center"
                   VerticalAlignment="Center"
                   Width="520"
-                  RowDefinitions="Auto, Auto, Auto"
+                  RowDefinitions="Auto, Auto, Auto, Auto"
                   RowSpacing="18">
                 <StackPanel Spacing="6"
                             HorizontalAlignment="Center">
@@ -31,46 +31,62 @@
                 <Border Grid.Row="1"
                         Classes="auth-card">
                     <StackPanel Spacing="12">
-                        <Button HorizontalAlignment="Right"
-                                Content="{Binding Texts.ConfigureServerButton}"
-                                Command="{Binding OpenServerDialogCommand}" />
                         <TextBlock Text="{Binding AuthCardTitle}"
                                    HorizontalAlignment="Center"
                                    FontSize="22"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource Color.Text1}" />
 
-                        <TextBlock Text="{Binding Texts.LoginOrEmailLabel}"
-                                   IsVisible="{Binding IsLoginMode}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="2"
+                                    IsVisible="{Binding IsLoginMode}">
+                            <TextBlock Text="{Binding Texts.LoginOrEmailLabel}" />
+                        </StackPanel>
                         <TextBox Text="{Binding ApiLogin}"
                                  IsVisible="{Binding IsLoginMode}"
-                                 Watermark="demo@example.com" />
+                                 Watermark="alex" />
 
-                        <TextBlock Text="{Binding Texts.PasswordLabel}"
-                                   IsVisible="{Binding IsLoginMode}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="2"
+                                    IsVisible="{Binding IsLoginMode}">
+                            <TextBlock Text="{Binding Texts.PasswordLabel}" />
+                        </StackPanel>
                         <TextBox Text="{Binding ApiPassword}"
                                  IsVisible="{Binding IsLoginMode}"
                                  PasswordChar="*"
                                  Watermark="password" />
 
                         <Button Content="{Binding Texts.LoginButton}"
+                                Classes="auth-submit-button"
                                 IsVisible="{Binding IsLoginMode}"
                                 Command="{Binding LoginToApiCommand}" />
 
-                        <TextBlock Text="{Binding Texts.UsernameLabel}"
-                                   IsVisible="{Binding IsRegisterMode}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="2"
+                                    IsVisible="{Binding IsRegisterMode}">
+                            <TextBlock Text="{Binding Texts.UsernameLabel}" />
+                            <TextBlock Text="*" />
+                        </StackPanel>
                         <TextBox Text="{Binding RegisterUsername}"
                                  IsVisible="{Binding IsRegisterMode}"
                                  Watermark="alex" />
 
-                        <TextBlock Text="{Binding Texts.EmailLabel}"
-                                   IsVisible="{Binding IsRegisterMode}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="2"
+                                    IsVisible="{Binding IsRegisterMode}">
+                            <TextBlock Text="{Binding Texts.EmailLabel}" />
+                            <TextBlock Text="*" />
+                        </StackPanel>
                         <TextBox Text="{Binding RegisterEmail}"
                                  IsVisible="{Binding IsRegisterMode}"
                                  Watermark="alex@example.com" />
 
-                        <TextBlock Text="{Binding Texts.PasswordLabel}"
-                                   IsVisible="{Binding IsRegisterMode}" />
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="2"
+                                    IsVisible="{Binding IsRegisterMode}">
+                            <TextBlock Text="{Binding Texts.PasswordLabel}" />
+                            <TextBlock Text="*" />
+                        </StackPanel>
                         <TextBox Text="{Binding RegisterPassword}"
                                  IsVisible="{Binding IsRegisterMode}"
                                  PasswordChar="*"
@@ -83,6 +99,7 @@
                                  Watermark="Alex Example" />
 
                         <Button Content="{Binding Texts.RegisterButton}"
+                                Classes="auth-submit-button"
                                 IsVisible="{Binding IsRegisterMode}"
                                 Command="{Binding RegisterInApiCommand}" />
 
@@ -92,8 +109,6 @@
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
                                     Spacing="6">
-                            <TextBlock Text="{Binding AuthFooterPrompt}"
-                                       VerticalAlignment="Center" />
                             <Button Content="{Binding AuthFooterAction}"
                                     Classes="link-button"
                                     Command="{Binding ToggleAuthModeCommand}" />
@@ -101,7 +116,13 @@
                     </StackPanel>
                         </Border>
 
-                <StackPanel Grid.Row="2"
+                <Button Grid.Row="2"
+                        HorizontalAlignment="Center"
+                        Classes="link-button"
+                        Content="{Binding ApiBaseUrl}"
+                        Command="{Binding OpenServerDialogCommand}" />
+
+                <StackPanel Grid.Row="3"
                             HorizontalAlignment="Center"
                             Spacing="6">
                     <TextBlock Text="{Binding Texts.LanguageLabel}"

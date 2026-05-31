@@ -55,7 +55,7 @@
     <value>Реєстрація</value>
   </data>
   <data name="UsernameLabel" xml:space="preserve">
-    <value>Ім'я користувача</value>
+    <value>Логін</value>
   </data>
   <data name="EmailLabel" xml:space="preserve">
     <value>Email</value>
@@ -214,7 +214,7 @@
     <value>Помилка підключення до API</value>
   </data>
   <data name="RegisterRequired" xml:space="preserve">
-    <value>Для реєстрації потрібні ім'я користувача, email і пароль.</value>
+    <value>Для реєстрації потрібні логін, email і пароль.</value>
   </data>
   <data name="RegisteringToApi" xml:space="preserve">
     <value>Реєстрація в KeepWalletAPI...</value>

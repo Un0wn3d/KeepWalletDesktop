@@ -16,12 +16,17 @@ public class AppDBContext : DbContext
 
     public AppDBContext()
     {
-        var appFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-            "KeepWalletDesktop");
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var appFolder = Path.Combine(localAppData, "KeepWallet");
+        var oldAppFolder = Path.Combine(localAppData, "KeepWalletDesktop");
 
         Directory.CreateDirectory(appFolder);
         DbPath = Path.Combine(appFolder, "base.db");
+        var oldDbPath = Path.Combine(oldAppFolder, "base.db");
+        if (!File.Exists(DbPath) && File.Exists(oldDbPath))
+        {
+            File.Copy(oldDbPath, DbPath);
+        }
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
@@ -63,4 +68,3 @@ public static class SQLiteDbInitializer
         db.SaveChanges();
     }
 }
-
