@@ -42,6 +42,24 @@ public sealed class KeepWalletApiClient : IDisposable
 
     public string BaseUrl => _httpClient.BaseAddress?.ToString().TrimEnd('/') ?? string.Empty;
 
+    public async Task<AppSettingsDto> GetAppSettingsAsync(CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAsync(HttpMethod.Get, "/api/app-settings", cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<AppSettingsDto>(JsonOptions, cancellationToken)
+            ?? new AppSettingsDto(true);
+    }
+
+    public async Task<AppSettingsDto> UpdateAppSettingsAsync(
+        UpdateAppSettingsRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Patch, "/api/app-settings", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<AppSettingsDto>(JsonOptions, cancellationToken)
+            ?? new AppSettingsDto(request.RegistrationEnabled);
+    }
+
     public async Task<AuthResponseDto> LoginAsync(string login, string password, CancellationToken cancellationToken = default)
     {
         const string path = "/api/auth/login";
@@ -130,6 +148,16 @@ public sealed class KeepWalletApiClient : IDisposable
     {
         using var response = await SendAuthorizedJsonAsync(HttpMethod.Patch, $"/api/users/{userId}", request, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
+    }
+
+    public async Task<ApiUserDto> CreateUserAsync(
+        CreateUserRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Post, "/api/users", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiUserDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty user response.");
     }
 
     public async Task<IReadOnlyList<ApiGroupDto>> GetGroupsAsync(CancellationToken cancellationToken = default)
@@ -381,6 +409,17 @@ public sealed class KeepWalletApiClient : IDisposable
             ?? throw new InvalidOperationException("API returned an empty transaction response.");
     }
 
+    public async Task<ApiTransactionDto> UpdateTransactionGroupsAsync(
+        int transactionId,
+        ReplaceResourceGroupsRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, $"/api/transactions/{transactionId}/groups", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiTransactionDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty transaction response.");
+    }
+
     public async Task DeleteTransactionAsync(int transactionId, CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedAsync(HttpMethod.Delete, $"/api/transactions/{transactionId}", cancellationToken);
@@ -428,6 +467,17 @@ public sealed class KeepWalletApiClient : IDisposable
         CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, $"/api/savings/{savingId}/group", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiSavingDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty saving response.");
+    }
+
+    public async Task<ApiSavingDto> UpdateSavingGroupsAsync(
+        int savingId,
+        ReplaceResourceGroupsRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, $"/api/savings/{savingId}/groups", request, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
         return await response.Content.ReadFromJsonAsync<ApiSavingDto>(JsonOptions, cancellationToken)
             ?? throw new InvalidOperationException("API returned an empty saving response.");
@@ -573,6 +623,17 @@ public sealed class KeepWalletApiClient : IDisposable
         CancellationToken cancellationToken = default)
     {
         using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, $"/api/bank-accounts/{accountId}/group", request, cancellationToken);
+        await EnsureSuccessAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync<ApiBankAccountDto>(JsonOptions, cancellationToken)
+            ?? throw new InvalidOperationException("API returned an empty bank account response.");
+    }
+
+    public async Task<ApiBankAccountDto> UpdateBankAccountGroupsAsync(
+        Guid accountId,
+        ReplaceResourceGroupsRequestDto request,
+        CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAuthorizedJsonAsync(HttpMethod.Put, $"/api/bank-accounts/{accountId}/groups", request, cancellationToken);
         await EnsureSuccessAsync(response, cancellationToken);
         return await response.Content.ReadFromJsonAsync<ApiBankAccountDto>(JsonOptions, cancellationToken)
             ?? throw new InvalidOperationException("API returned an empty bank account response.");
@@ -766,9 +827,45 @@ public sealed class KeepWalletApiClient : IDisposable
         }
 
         throw new HttpRequestException(
-            $"API request failed with status {(int)response.StatusCode}: {content}",
+            ExtractErrorMessage(content) ?? $"API request failed with status {(int)response.StatusCode}: {content}",
             null,
             response.StatusCode);
+    }
+
+    private static string? ExtractErrorMessage(string content)
+    {
+        try
+        {
+            using var document = JsonDocument.Parse(content);
+            if (document.RootElement.ValueKind != JsonValueKind.Object)
+            {
+                return null;
+            }
+
+            if (document.RootElement.TryGetProperty("message", out var message) &&
+                message.ValueKind == JsonValueKind.String)
+            {
+                return message.GetString();
+            }
+
+            if (document.RootElement.TryGetProperty("error", out var error) &&
+                error.ValueKind == JsonValueKind.String)
+            {
+                return error.GetString();
+            }
+
+            if (document.RootElement.TryGetProperty("title", out var title) &&
+                title.ValueKind == JsonValueKind.String)
+            {
+                return title.GetString();
+            }
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+
+        return null;
     }
 
     private void SetAccessToken(string accessToken)

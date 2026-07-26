@@ -13,13 +13,13 @@
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" MaxWidth="1120">
                 <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="8">
-                    <TextBlock Text="Звітність профілю" Classes="page-title" />
+                    <TextBlock Text="{Binding Texts.ReportingTitle}" Classes="page-title" />
                     <Button Grid.Column="1"
-                            Content="Експорт PDF"
+                            Content="{Binding Texts.ExportPdfButton}"
                             Classes="secondary-button"
                             Command="{Binding ExportReportPdfCommand}" />
                     <Button Grid.Column="2"
-                            Content="Експорт Excel"
+                            Content="{Binding Texts.ExportExcelButton}"
                             Classes="primary-button"
                             Command="{Binding ExportReportExcelCommand}" />
                 </Grid>
@@ -54,19 +54,19 @@
                 <Grid ColumnDefinitions="*, *, *" ColumnSpacing="12">
                     <Border Grid.Column="0" Classes="panel-card alt">
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Доходи" Classes="muted" />
+                            <TextBlock Text="{Binding Texts.Income}" Classes="muted" />
                             <TextBlock Text="{Binding ReportIncomeTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="1" Classes="panel-card alt">
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Витрати" Classes="muted" />
+                            <TextBlock Text="{Binding Texts.Expenses}" Classes="muted" />
                             <TextBlock Text="{Binding ReportExpenseTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
                     </Border>
                     <Border Grid.Column="2" Classes="panel-card alt">
                         <StackPanel Spacing="6">
-                            <TextBlock Text="Баланс" Classes="muted" />
+                            <TextBlock Text="{Binding Texts.BalanceLabel}" Classes="muted" />
                             <TextBlock Text="{Binding ReportBalanceTotal, StringFormat={}{0:N2}}" FontSize="22" FontWeight="Bold" />
                         </StackPanel>
                     </Border>
@@ -75,23 +75,23 @@
                 <Border Classes="panel-card"
                         IsVisible="{Binding IsCategoryPeriodReportView}">
                     <StackPanel Spacing="6">
-                        <TextBlock Text="Звітність по обраній категорії за період" Classes="card-title" />
-                        <TextBlock Text="{Binding ReportSelectedCategoryExpenseTotal, StringFormat=Сума витрат: {0:N2}}" />
-                        <TextBlock Text="{Binding ReportSelectedCategoryTransactionCount, StringFormat=Кількість транзакцій: {0}}" Classes="muted" />
+                        <TextBlock Text="{Binding Texts.ReportCategoryPeriodTitle}" Classes="card-title" />
+                        <TextBlock Text="{Binding ReportSelectedCategoryExpenseTotalDisplay}" />
+                        <TextBlock Text="{Binding ReportSelectedCategoryTransactionCountDisplay}" Classes="muted" />
                     </StackPanel>
                 </Border>
 
                 <Border Classes="panel-card"
                         IsVisible="{Binding IsMonthlyPlanReportView}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Планові витрати за обраний місяць" Classes="card-title" />
+                        <TextBlock Text="{Binding Texts.ReportMonthlyPlanTitle}" Classes="card-title" />
                         <ItemsControl ItemsSource="{Binding CategoryDetails}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CategoryDetailItemViewModel">
                                     <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="12" Margin="0,4">
                                         <TextBlock Text="{Binding Name}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding AmountDisplay, StringFormat=Факт: {0}}" />
-                                        <TextBlock Grid.Column="2" Text="{Binding LimitDisplay, StringFormat=План: {0}}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding AmountDisplay, StringFormat={}{0}}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding LimitDisplay, StringFormat={}{0}}" />
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
@@ -102,7 +102,7 @@
                 <Border Classes="panel-card"
                         IsVisible="{Binding IsMonthlyExpensesReportView}">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Помісячні витрати за обраний період" Classes="card-title" />
+                        <TextBlock Text="{Binding Texts.ReportMonthlyExpensesOption}" Classes="card-title" />
                         <ItemsControl ItemsSource="{Binding ReportMonthlyExpenses}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:CategoryLegendItemViewModel">
@@ -126,7 +126,8 @@
                         <Grid RowDefinitions="Auto, *" RowSpacing="12">
                             <TextBlock Text="{Binding Texts.TransactionBreakdownTitle}" Classes="card-title" />
                             <Grid Grid.Row="1" ColumnDefinitions="*, 220" ColumnSpacing="10">
-                                <lvc:PieChart Grid.Column="0"
+                                <lvc:PieChart x:Name="ReportExpensePieChart"
+                                              Grid.Column="0"
                                               Background="{DynamicResource Color.SurfaceAlt}"
                                               LegendPosition="Hidden"
                                               Series="{Binding Series}" />
@@ -165,7 +166,8 @@
                         <Grid RowDefinitions="Auto, *" RowSpacing="12">
                             <TextBlock Text="{Binding TransactionTimelineTitle}" Classes="card-title" />
                             <Grid Grid.Row="1">
-                                <lvc:CartesianChart Background="{DynamicResource Color.SurfaceAlt}"
+                                <lvc:CartesianChart x:Name="ReportTimelineChart"
+                                                    Background="{DynamicResource Color.SurfaceAlt}"
                                                     Series="{Binding Chart}"
                                                     XAxes="{Binding TransactionTimelineXAxes}"
                                                     YAxes="{Binding TransactionTimelineYAxes}"
@@ -182,7 +184,7 @@
                 <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
                     <Border Classes="panel-card">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="Банківські рахунки" Classes="card-title" />
+                            <TextBlock Text="{Binding Texts.BankAccountsTitle}" Classes="card-title" />
                             <ItemsControl ItemsSource="{Binding BankAccounts}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:BankAccountItemViewModel">
@@ -197,7 +199,7 @@
                     </Border>
                     <Border Grid.Column="1" Classes="panel-card">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="Накопичення" Classes="card-title" />
+                            <TextBlock Text="{Binding Texts.SavingsTitle}" Classes="card-title" />
                             <ItemsControl ItemsSource="{Binding Savings}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:SavingOptionViewModel">
@@ -214,7 +216,7 @@
 
                 <Border Classes="panel-card">
                     <StackPanel Spacing="8">
-                        <TextBlock Text="Останні транзакції" Classes="card-title" />
+                        <TextBlock Text="{Binding Texts.RecentTransactionsTitle}" Classes="card-title" />
                         <ItemsControl ItemsSource="{Binding AllTransactions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate x:DataType="vm:TransactionItemViewModel">

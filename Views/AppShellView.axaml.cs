@@ -40,6 +40,21 @@ public partial class AppShellView : UserControl
         e.Handled = true;
     }
 
+    private void AddCategoryOverlay_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (!ReferenceEquals(e.Source, sender))
+        {
+            return;
+        }
+
+        if (DataContext is MainViewModel viewModel &&
+            viewModel.CloseAddCategoryModuleCommand.CanExecute(null))
+        {
+            viewModel.CloseAddCategoryModuleCommand.Execute(null);
+            e.Handled = true;
+        }
+    }
+
     private void CategorySettings_OnChanged(object? sender, RoutedEventArgs e)
     {
         if (sender is ToggleSwitch { DataContext: CategoryManagementItemViewModel category } toggle)

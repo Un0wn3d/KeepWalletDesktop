@@ -8,29 +8,12 @@ namespace KeepWalletDesktop.Views;
 
 public partial class CategoriesView : UserControl
 {
-    private readonly IconPickerModule iconPicker = new();
-
     public CategoriesView()
     {
         InitializeComponent();
     }
 
-    private void NewCategoryIconButton_OnClick(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not Button button || DataContext is not MainViewModel viewModel)
-        {
-            return;
-        }
-
-        iconPicker.Show(
-            button,
-            viewModel.CategoryIconOptions,
-            viewModel.CategoryColorOptions,
-            iconKey => viewModel.CategoryNewIconKey = iconKey,
-            color => viewModel.CategoryNewColor = color,
-            viewModel.Texts.IconSearchHint,
-            circularIcons: false);
-    }
+    private readonly IconPickerModuleView iconPicker = new();
 
     private void CategoryIconButton_OnClick(object? sender, RoutedEventArgs e)
     {

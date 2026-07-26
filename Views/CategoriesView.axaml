@@ -1,6 +1,7 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:modules="using:KeepWalletDesktop.Views.Modules"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
@@ -10,93 +11,17 @@
              x:DataType="vm:MainViewModel">
     <UserControl.Styles>
         <Style Selector="Button.category-icon-button">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
+            <Setter Property="Background" Value="{DynamicResource Color.InputSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.InputBorder}" />
             <Setter Property="BorderThickness" Value="1" />
             <Setter Property="CornerRadius" Value="8" />
-        </Style>
-        <Style Selector="ToggleButton.transaction-type-button">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="Padding" Value="16,10" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
-        <Style Selector="ToggleButton.transaction-type-button /template/ ContentPresenter">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource Color.Text1}" />
-        </Style>
-        <Style Selector="ToggleButton.transaction-type-button:checked">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderThickness" Value="2" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-        <Style Selector="ToggleButton.transaction-type-button.expense:checked /template/ ContentPresenter">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Danger}" />
-            <Setter Property="BorderThickness" Value="2" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource Color.Danger}" />
-        </Style>
-        <Style Selector="ToggleButton.transaction-type-button.income:checked /template/ ContentPresenter">
-            <Setter Property="Background" Value="White" />
-            <Setter Property="BorderBrush" Value="{DynamicResource Color.Success}" />
-            <Setter Property="BorderThickness" Value="2" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="TextElement.Foreground" Value="{DynamicResource Color.Success}" />
         </Style>
     </UserControl.Styles>
 
     <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsCategoriesPage}">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="16" MaxWidth="1120">
-                <Border Classes="panel-card alt">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="{Binding Texts.OnboardingAddCategoryTitle}"
-                                   FontSize="18"
-                                   FontWeight="SemiBold" />
-                        <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto" ColumnSpacing="8">
-                            <Button Width="40"
-                                    Height="40"
-                                    Padding="0"
-                                    Classes="category-icon-button"
-                                    Background="{Binding CategoryNewColor}"
-                                    Click="NewCategoryIconButton_OnClick"
-                                    HorizontalContentAlignment="Center"
-                                    VerticalContentAlignment="Center">
-                                <Grid>
-                                    <TextBlock Text="{Binding CategoryNewIconGlyph}"
-                                               FontFamily="{StaticResource EmojiFontFamily}"
-                                               FontSize="18"
-                                               TextAlignment="Center"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center" />
-                                </Grid>
-                            </Button>
-                            <TextBox Grid.Column="1"
-                                     Text="{Binding CategoryNewName}"
-                                     Watermark="{Binding Texts.OnboardingCategoryNameHint}" />
-                            <ToggleButton Grid.Column="2"
-                                          Content="{Binding Texts.TransactionExpenseType}"
-                                          Classes="transaction-type-button expense"
-                                          IsChecked="{Binding IsNewCategoryExpenseTypeSelected, Mode=OneWay}"
-                                          Command="{Binding SelectCategoryTypeCommand}"
-                                          CommandParameter="expense" />
-                            <ToggleButton Grid.Column="3"
-                                          Content="{Binding Texts.TransactionIncomeType}"
-                                          Classes="transaction-type-button income"
-                                          IsChecked="{Binding IsNewCategoryIncomeTypeSelected, Mode=OneWay}"
-                                          Command="{Binding SelectCategoryTypeCommand}"
-                                          CommandParameter="income" />
-                            <Button Grid.Column="4"
-                                    Content="{Binding Texts.OnboardingAddCategoryButton}"
-                                    Classes="primary-button"
-                                    Command="{Binding AddCategoryCommand}" />
-                        </Grid>
-                    </StackPanel>
-                </Border>
+                <modules:AddCategoryModuleView />
 
                 <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
                     <Border Classes="panel-card">
@@ -140,8 +65,7 @@
                                             </StackPanel>
                                             <ToggleSwitch Grid.Column="2"
                                                           IsChecked="{Binding IsSelected}"
-                                                          Checked="CategorySelection_OnChanged"
-                                                          Unchecked="CategorySelection_OnChanged" />
+                                                          IsCheckedChanged="CategorySelection_OnChanged" />
                                             <Button Grid.Column="3"
                                                     Width="44"
                                                     Height="44"
@@ -207,8 +131,7 @@
                                             </StackPanel>
                                             <ToggleSwitch Grid.Column="2"
                                                           IsChecked="{Binding IsSelected}"
-                                                          Checked="CategorySelection_OnChanged"
-                                                          Unchecked="CategorySelection_OnChanged" />
+                                                          IsCheckedChanged="CategorySelection_OnChanged" />
                                             <Button Grid.Column="3"
                                                     Width="44"
                                                     Height="44"

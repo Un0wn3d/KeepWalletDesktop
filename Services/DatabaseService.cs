@@ -1,4 +1,4 @@
-﻿// using Microsoft.Extensions.Configuration;
+// using Microsoft.Extensions.Configuration;
 // using MySqlConnector;
 // using Serilog;
 // using System;

@@ -19,6 +19,37 @@ public partial class MainViewModel
         ScheduledPaymentsFilter = string.IsNullOrWhiteSpace(filter) ? "all" : filter.Trim().ToLowerInvariant();
     }
 
+    [RelayCommand]
+    private void ToggleScheduledPaymentAdvancedFilter()
+    {
+        IsScheduledPaymentAdvancedFilterOpen = !IsScheduledPaymentAdvancedFilterOpen;
+        OnPropertyChanged(nameof(HasScheduledPaymentAdvancedFilter));
+    }
+
+    [RelayCommand]
+    private void RefreshScheduledPaymentAdvancedFilters()
+    {
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+        OnPropertyChanged(nameof(HasScheduledPaymentAdvancedFilter));
+    }
+
+    [RelayCommand]
+    private void ClearScheduledPaymentAdvancedFilters()
+    {
+        foreach (var option in ScheduledPaymentGroupFilterOptions)
+        {
+            option.IsSelected = false;
+        }
+
+        foreach (var option in ScheduledPaymentUserFilterOptions)
+        {
+            option.IsSelected = false;
+        }
+
+        OnPropertyChanged(nameof(FilteredScheduledPayments));
+        OnPropertyChanged(nameof(HasScheduledPaymentAdvancedFilter));
+    }
+
     private async Task LoadScheduledPaymentsAsync()
     {
         if (!IsApiAuthorized)
@@ -29,228 +60,86 @@ public partial class MainViewModel
         try
         {
             EnsureApiClient();
-            var payments = await _apiClient!.GetPlannedTransactionsAsync();
-            ScheduledPayments = new ObservableCollection<ScheduledPaymentItemViewModel>(
-                payments.Select(p => new ScheduledPaymentItemViewModel(
-                    p.Id,
-                    p.RecurringPaymentId,
-                    p.Name,
-                    p.AccountId,
-                    p.CategoryId,
-                    p.Amount,
-                    GetTransactionType(p.CategoryId),
-                    GetCategoryDisplayName(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
-                    GetCategoryIconKey(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
-                    GetCategoryColor(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
-                    p.Description,
-                    ResolveScheduledPaymentCurrency(p.AccountId),
-                    ToScheduledPaymentDueDate(p.NextDueDate),
-                    p.RepeatInterval,
-                    FormatRepeatIntervalDisplay(p.RepeatInterval),
-                    p.IsActive,
-                    $"{p.Amount:N2}",
-                    p.IsActive ? Texts.ScheduledPaymentPendingStatus : Texts.ScheduledPaymentPaidStatus,
-                    FormatDaysRemainingDisplay(p.NextDueDate, p.IsActive))));
-        }
-        catch (HttpRequestException ex)
-        {
-            ApiStatusMessage = GetApiErrorMessage(ex);
-        }
-        catch (Exception ex)
-        {
-            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
-        }
-    }
-
-    private async Task LoadBankAccountsAsync()
-    {
-        if (!IsApiAuthorized)
-        {
-            return;
-        }
-
-        try
-        {
-            EnsureApiClient();
-            var accounts = await _apiClient!.GetBankAccountsAsync();
-            BankAccounts = new ObservableCollection<BankAccountItemViewModel>(
-                accounts.Select(a => new BankAccountItemViewModel(
-                    a.Id,
-                    a.Name,
-                    a.Currency,
-                    a.Balance,
-                    a.IsDefault,
-                    a.GroupId,
-                    $"{a.Balance:N2} {a.Currency}")));
-
-            SelectedBankAccount = BankAccounts.FirstOrDefault(a => SelectedBankAccount?.Id == a.Id)
-                ?? BankAccounts.FirstOrDefault(a => a.IsDefault)
-                ?? BankAccounts.FirstOrDefault();
-            defaultAccountId = SelectedBankAccount?.Id;
-        }
-        catch (HttpRequestException ex)
-        {
-            ApiStatusMessage = GetApiErrorMessage(ex);
-        }
-        catch (Exception ex)
-        {
-            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
-        }
-    }
-
-    [RelayCommand]
-    private void BeginCreateBankAccount()
-    {
-        ResetBankAccountForm();
-        if (Groups.Count == 0)
-        {
-            _ = LoadGroupsAsync();
-        }
-        BankAccountStatusMessage = string.Empty;
-        IsBankAccountDialogOpen = true;
-    }
-
-    [RelayCommand]
-    private async Task SelectBankAccountAsync(BankAccountItemViewModel? account)
-    {
-        if (account is null)
-        {
-            return;
-        }
-
-        SelectedBankAccount = account;
-        CurrentPage = HomePage;
-        await LoadTransactionsAsync();
-    }
-
-    [RelayCommand]
-    private void EditBankAccount(BankAccountItemViewModel? account)
-    {
-        if (account is null)
-        {
-            return;
-        }
-
-        EditingBankAccountId = account.Id;
-        BankAccountNameInput = account.Name;
-        BankAccountCurrencyInput = account.Currency;
-        BankAccountBalanceInput = account.Balance.ToString("0.##", CultureInfo.InvariantCulture);
-        IsBankAccountDefaultInput = account.IsDefault;
-        IsBankAccountSharedInput = account.GroupId.HasValue;
-        SelectedBankAccountShareGroup = account.GroupId.HasValue
-            ? Groups.FirstOrDefault(g => g.Id == account.GroupId.Value)
-            : null;
-        if (account.GroupId.HasValue && SelectedBankAccountShareGroup is null)
-        {
-            _ = LoadGroupsAsync();
-        }
-        BankAccountStatusMessage = string.Empty;
-        IsBankAccountDialogOpen = true;
-    }
-
-    [RelayCommand]
-    private void CloseBankAccountDialog()
-    {
-        IsBankAccountDialogOpen = false;
-        ResetBankAccountForm();
-    }
-
-    [RelayCommand]
-    private async Task SaveBankAccountAsync()
-    {
-        if (IsApiBusy)
-        {
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(BankAccountNameInput) ||
-            string.IsNullOrWhiteSpace(BankAccountCurrencyInput) ||
-            !decimal.TryParse(BankAccountBalanceInput, NumberStyles.Number, CultureInfo.InvariantCulture, out var balance) ||
-            balance < 0 ||
-            (IsBankAccountSharedInput && SelectedBankAccountShareGroup is null))
-        {
-            BankAccountStatusMessage = Texts.TransactionFormValidationText;
-            return;
-        }
-
-        try
-        {
-            IsApiBusy = true;
-            EnsureApiClient();
-
-            var name = BankAccountNameInput.Trim();
-            var currency = BankAccountCurrencyInput.Trim().ToUpperInvariant();
-            var groupId = IsBankAccountSharedInput ? SelectedBankAccountShareGroup?.Id : null;
-            var account = EditingBankAccountId.HasValue
-                ? await _apiClient!.UpdateBankAccountAsync(
-                    EditingBankAccountId.Value,
-                    new UpdateBankAccountRequestDto(name, currency, balance, IsBankAccountDefaultInput, groupId))
-                : await _apiClient!.CreateBankAccountAsync(
-                    new CreateBankAccountRequestDto(name, currency, balance, IsBankAccountDefaultInput, groupId));
-
-            if (account.IsDefault)
+            if (BankAccounts.Count == 0)
             {
-                defaultAccountId = account.Id;
-                TransactionCurrencyInput = account.Currency;
+                await LoadBankAccountsAsync();
             }
 
-            IsBankAccountDialogOpen = false;
-            ResetBankAccountForm();
-            await LoadBankAccountsAsync();
-            SelectedBankAccount = BankAccounts.FirstOrDefault(a => a.Id == account.Id) ?? SelectedBankAccount;
-            await LoadTransactionsAsync();
+            if (BankAccounts.Any(a => a.GroupId.HasValue) && Groups.Count == 0)
+            {
+                await LoadGroupsAsync();
+            }
+
+            var payments = await _apiClient!.GetPlannedTransactionsAsync();
+            if (payments.Any(p => p.GroupId.HasValue) && Groups.Count == 0)
+            {
+                await LoadGroupsAsync();
+            }
+
+            ScheduledPayments = new ObservableCollection<ScheduledPaymentItemViewModel>(
+                payments
+                    .GroupBy(p => p.Id)
+                    .Select(group =>
+                    {
+                        var p = group.FirstOrDefault(x => !x.GroupId.HasValue) ?? group.First();
+                        var groupIds = group.Where(x => x.GroupId.HasValue).Select(x => x.GroupId!.Value).Distinct().ToArray();
+                        var displayGroupId = groupIds.FirstOrDefault();
+                        return new ScheduledPaymentItemViewModel(
+                            p.Id,
+                            p.RecurringPaymentId,
+                            p.Name,
+                            p.AccountId,
+                            groupIds.Length > 0 ? displayGroupId : null,
+                            ResolveScheduledPaymentGroupName(groupIds.Length > 0 ? displayGroupId : null, group.FirstOrDefault(x => x.GroupId == displayGroupId)?.GroupName),
+                            ResolveScheduledPaymentGroupColor(groupIds.Length > 0 ? displayGroupId : null),
+                            p.CategoryId,
+                            p.Amount,
+                            GetTransactionType(p.CategoryId),
+                            GetCategoryDisplayName(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                            GetCategoryIconKey(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                            GetCategoryColor(p.CategoryId.ToString(CultureInfo.InvariantCulture)),
+                            p.Description,
+                            ResolveScheduledPaymentCurrency(p.AccountId, p.Currency),
+                            ToScheduledPaymentDueDate(p.NextDueDate),
+                            p.RepeatInterval,
+                            FormatRepeatIntervalDisplay(p.RepeatInterval),
+                            p.IsActive,
+                            $"{p.Amount:N2}",
+                            p.IsActive ? Texts.ScheduledPaymentPendingStatus : Texts.ScheduledPaymentPaidStatus,
+                            FormatDaysRemainingDisplay(p.NextDueDate, p.IsActive),
+                            p.OwnerDisplay,
+                            groupIds);
+                    }));
         }
         catch (HttpRequestException ex)
         {
-            BankAccountStatusMessage = GetApiErrorMessage(ex);
+            ApiStatusMessage = GetApiErrorMessage(ex);
         }
         catch (Exception ex)
         {
-            BankAccountStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
-        }
-        finally
-        {
-            IsApiBusy = false;
+            ApiStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
         }
     }
 
     [RelayCommand]
-    private async Task DeleteBankAccountAsync()
+    private async Task BeginCreateScheduledPaymentAsync()
     {
-        if (IsApiBusy || !EditingBankAccountId.HasValue)
+        if (!await EnsureBankAccountExistsAsync(Texts.MissingBankAccountTransactionPrompt))
         {
             return;
         }
 
-        if (BankAccounts.Count <= 1)
-        {
-            BankAccountStatusMessage = Texts.LastBankAccountRequired;
-            return;
-        }
+        BeginCreateTransaction();
+        var plannedDate = DateTimeOffset.Now.AddDays(1);
+        TransactionSelectedDate = plannedDate;
+        TransactionSelectedTime = plannedDate.TimeOfDay;
+        TransactionDateInput = plannedDate.ToString(DateDisplayFormat, CultureInfo.InvariantCulture);
+        TransactionTimeInput = plannedDate.ToString("HH:mm", CultureInfo.InvariantCulture);
 
-        try
-        {
-            IsApiBusy = true;
-            EnsureApiClient();
-            await _apiClient!.DeleteBankAccountAsync(EditingBankAccountId.Value);
-
-            IsBankAccountDialogOpen = false;
-            ResetBankAccountForm();
-            await LoadBankAccountsAsync();
-            await LoadTransactionsAsync();
-        }
-        catch (HttpRequestException ex)
-        {
-            BankAccountStatusMessage = GetApiErrorMessage(ex);
-        }
-        catch (Exception ex)
-        {
-            BankAccountStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
-        }
-        finally
-        {
-            IsApiBusy = false;
-        }
+        await LoadCategoriesAsync();
+        IsAllTransactionsDialogOpen = false;
+        IsTransactionDialogOpen = true;
+        TransactionShareGroups = BuildGroupSelections([]);
     }
 
     [RelayCommand]
@@ -287,6 +176,7 @@ public partial class MainViewModel
             await _apiClient!.CreatePlannedTransactionAsync(new CreatePlannedTransactionRequestDto(
                 ScheduledPaymentNameInput.Trim(),
                 accountId,
+                SelectedBankAccount?.GroupId,
                 categoryId,
                 amount,
                 string.IsNullOrWhiteSpace(ScheduledPaymentDescriptionInput) ? null : ScheduledPaymentDescriptionInput.Trim(),
@@ -330,9 +220,7 @@ public partial class MainViewModel
                 await LoadBankAccountsAsync();
             }
 
-            var paymentCurrency = BankAccounts
-                .FirstOrDefault(a => a.Id == payment.AccountId)?
-                .Currency;
+            var paymentCurrency = payment.Currency;
 
             if (string.IsNullOrWhiteSpace(paymentCurrency))
             {
@@ -341,7 +229,8 @@ public partial class MainViewModel
             }
 
             var compatibleAccounts = BankAccounts
-                .Where(a => string.Equals(a.Currency, paymentCurrency, StringComparison.OrdinalIgnoreCase))
+                .Where(a => IsOwnBankAccount(a) &&
+                    string.Equals(a.Currency, paymentCurrency, StringComparison.OrdinalIgnoreCase))
                 .OrderByDescending(a => a.Id == payment.AccountId)
                 .ThenByDescending(a => a.IsDefault)
                 .ThenBy(a => a.Name)
@@ -489,8 +378,16 @@ public partial class MainViewModel
         TransactionType = payment.Type;
         TransactionAmountInput = payment.Amount.ToString("0.##", CultureInfo.InvariantCulture);
         TransactionDescriptionInput = payment.Description ?? string.Empty;
-        IsTransactionSharedInput = false;
-        SelectedTransactionShareGroup = null;
+        var selectedGroupIds = payment.GroupIds.ToArray();
+        IsTransactionSharedInput = selectedGroupIds.Length > 0;
+        SelectedTransactionShareGroup = selectedGroupIds.Length > 0
+            ? Groups.FirstOrDefault(g => g.Id == selectedGroupIds[0])
+            : null;
+        TransactionShareGroups = BuildGroupSelections(selectedGroupIds);
+        if (selectedGroupIds.Length > 0 && TransactionShareGroups.Count == 0)
+        {
+            _ = LoadGroupsAsync();
+        }
         UpdateTransactionCategoryOptions(payment.CategoryId.ToString(CultureInfo.InvariantCulture));
         ApplyScheduledRepeatSelection(payment.RepeatInterval);
 
@@ -538,8 +435,22 @@ public partial class MainViewModel
         return string.Join(" ", parts!);
     }
 
-    private string ResolveScheduledPaymentCurrency(Guid accountId) =>
-        BankAccounts.FirstOrDefault(a => a.Id == accountId)?.Currency ?? "UAH";
+    private string ResolveScheduledPaymentCurrency(Guid accountId, string? apiCurrency) =>
+        !string.IsNullOrWhiteSpace(apiCurrency)
+            ? apiCurrency
+            : BankAccounts.FirstOrDefault(a => a.Id == accountId)?.Currency ?? "UAH";
+    private string? ResolveScheduledPaymentGroupName(Guid? groupId, string? apiGroupName) =>
+        !string.IsNullOrWhiteSpace(apiGroupName)
+            ? apiGroupName
+            : groupId.HasValue
+                ? Groups.FirstOrDefault(g => g.Id == groupId.Value)?.Name
+                : null;
+
+    private string? ResolveScheduledPaymentGroupColor(Guid? groupId) =>
+        groupId.HasValue
+            ? Groups.FirstOrDefault(g => g.Id == groupId.Value)?.SelectedColor
+            : null;
+
 
     private static DateTimeOffset ToScheduledPaymentDueDate(DateOnly dueDate) =>
         new(dueDate.ToDateTime(TimeOnly.MinValue), TimeZoneInfo.Local.GetUtcOffset(DateTime.Now));

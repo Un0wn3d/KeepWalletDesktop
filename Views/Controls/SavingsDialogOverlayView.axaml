@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"
+             x:Class="KeepWalletDesktop.Views.Controls.SavingsDialogOverlayView"
+             x:DataType="vm:MainViewModel">
+    <UserControl.Styles>
+        <Style Selector="CalendarDatePicker.savings-picker">
+            <Setter Property="Background" Value="{DynamicResource Color.InputSurface}" />
+            <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.InputBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="CalendarDatePicker.savings-picker /template/ Button#PART_Button">
+            <Setter Property="Background" Value="{DynamicResource Color.InputSurface}" />
+            <Setter Property="Foreground" Value="{DynamicResource Color.Text1}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.InputBorder}" />
+        </Style>
+    </UserControl.Styles>
+    <Border IsVisible="{Binding IsSavingsDialogOpen}"
+            Background="{DynamicResource Color.Overlay}"
+            PointerPressed="SavingsDialogOverlay_OnPointerPressed">
+        <Grid HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Width="460">
+            <Border Classes="dialog-card">
+                <StackPanel Spacing="12">
+                    <TextBlock Text="{Binding Texts.CreateSavingsButton}"
+                               HorizontalAlignment="Center"
+                               FontSize="24"
+                               FontWeight="Bold" />
+
+                    <Grid ColumnDefinitions="64,*" ColumnSpacing="12">
+                        <Button Width="52"
+                                Height="52"
+                                CornerRadius="26"
+                                Background="{Binding SavingsDialogColor}"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Bottom"
+                                Click="SavingsDialogIconButton_OnClick">
+                            <TextBlock Text="{Binding SavingsDialogIconGlyph}"
+                                       FontFamily="{StaticResource EmojiFontFamily}"
+                                       FontSize="22"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Button>
+
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="{Binding Texts.SavingNameLabel}" Classes="form-label" />
+                            <TextBox Text="{Binding SavingsDialogNameInput}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*, 120" ColumnSpacing="8">
+                        <StackPanel Spacing="4">
+                            <TextBlock Text="{Binding Texts.GoalAmountLabel}" Classes="form-label" />
+                            <TextBox Watermark="{Binding Texts.GoalAmountHint}"
+                                     Text="{Binding SavingsDialogTargetAmountInput}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Spacing="4">
+                            <TextBlock Text="{Binding Texts.OnboardingCurrencyLabel}" Classes="form-label" />
+                            <ComboBox ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                      SelectedItem="{Binding SavingsDialogCurrency}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Spacing="4">
+                        <TextBlock Text="{Binding Texts.SavingsDeadlineLabel}" Classes="form-label" />
+                        <CalendarDatePicker SelectedDate="{Binding SavingsDialogDeadlineDate, Mode=TwoWay}"
+                                            Watermark="{Binding Texts.SavingsDeadlineHint}"
+                                            HorizontalAlignment="Stretch"
+                                            CornerRadius="8"
+                                            Classes="savings-picker" />
+                    </StackPanel>
+
+                    <TextBlock Text="{Binding SavingsStatusMessage}"
+                               Classes="message-text"
+                               TextWrapping="Wrap" />
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Spacing="8">
+                        <Button Content="{Binding Texts.SaveServerSettingsButton}"
+                                Classes="primary-button"
+                                Command="{Binding SaveNewSavingsCommand}" />
+                        <Button Content="{Binding Texts.CancelButton}"
+                                Classes="secondary-button"
+                                Command="{Binding CloseSavingsDialogCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Border>
+</UserControl>

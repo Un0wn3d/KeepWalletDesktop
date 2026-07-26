@@ -35,18 +35,40 @@
                                                     HorizontalContentAlignment="Stretch"
                                                     Command="{ReflectionBinding $parent[UserControl].DataContext.SelectBankAccountCommand}"
                                                     CommandParameter="{Binding .}">
-                                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
-                                                    <StackPanel>
+                                                <Grid ColumnDefinitions="220, Auto, *, Auto" ColumnSpacing="8">
+                                                    <StackPanel VerticalAlignment="Center"
+                                                                ClipToBounds="True">
                                                         <TextBlock Text="{Binding Name}"
                                                                    FontWeight="SemiBold"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"
                                                                    Foreground="{DynamicResource Color.Text1}" />
                                                         <TextBlock Text="{Binding Currency}"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"
                                                                    Classes="muted" />
                                                     </StackPanel>
-                                                    <TextBlock Grid.Column="1"
+                                                    <Border Grid.Column="1"
+                                                            Background="{Binding GroupBrush}"
+                                                            CornerRadius="20"
+                                                            Padding="12,6"
+                                                            MinWidth="{ReflectionBinding $parent[UserControl].DataContext.BankAccountGroupPillWidth}"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Left"
+                                                            IsVisible="{Binding IsShared}">
+                                                        <TextBlock Text="{Binding OwnerDisplayText}"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextAlignment="Center"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   VerticalAlignment="Center" />
+                                                    </Border>
+                                                    <TextBlock Grid.Column="3"
                                                                Text="{Binding BalanceDisplay}"
                                                                FontWeight="SemiBold"
                                                                VerticalAlignment="Center"
+                                                               TextWrapping="NoWrap"
+                                                               TextTrimming="CharacterEllipsis"
                                                                Foreground="{DynamicResource Color.Text1}" />
                                                 </Grid>
                                             </Button>

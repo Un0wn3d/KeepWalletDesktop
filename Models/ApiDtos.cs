@@ -36,11 +36,23 @@ public sealed record UpdateUserRequestDto(
     string? Email = null,
     string? Password = null,
     string? FullName = null,
-    bool? IsActive = null);
+    bool? IsActive = null,
+    DateTimeOffset? CreatedAt = null);
 
-public sealed record CreateGroupRequestDto(string Name, string? IconKey = null);
+public sealed record CreateUserRequestDto(
+    string Role,
+    string Username,
+    string Email,
+    string Password,
+    string? FullName = null);
 
-public sealed record UpdateGroupRequestDto(string Name, string? IconKey = null);
+public sealed record AppSettingsDto(bool RegistrationEnabled);
+
+public sealed record UpdateAppSettingsRequestDto(bool RegistrationEnabled);
+
+public sealed record CreateGroupRequestDto(string Name, string? IconKey = null, string? Color = null);
+
+public sealed record UpdateGroupRequestDto(string Name, string? IconKey = null, string? Color = null);
 
 public sealed record AddGroupMemberRequestDto(string LoginOrEmail, string RoleName);
 
@@ -50,13 +62,17 @@ public sealed record TransferGroupOwnerRequestDto(Guid NewOwnerUserId);
 
 public sealed record ShareResourceWithGroupRequestDto(Guid? GroupId);
 
+public sealed record ReplaceResourceGroupsRequestDto(IReadOnlyList<Guid> GroupIds);
+
 public sealed record ApiGroupDto(
     Guid Id,
     string Name,
     string IconKey,
+    string? Color,
     string RoleName,
     DateTimeOffset CreatedAt,
-    int MemberCount);
+    int MemberCount,
+    string? OwnerDisplay = null);
 
 public sealed record ApiGroupMemberDto(
     Guid GroupId,
@@ -195,7 +211,8 @@ public sealed record ApiSavingDto(
     string Currency,
     string? IconKey,
     string? Color,
-    bool IsCompleted);
+    bool IsCompleted,
+    string? OwnerDisplay = null);
 
 public sealed record CreateSavingItemRequestDto(string Name, decimal Price, short? Priority, bool IsPurchased);
 
@@ -212,6 +229,7 @@ public sealed record ApiSavingItemDto(
 public sealed record CreatePlannedTransactionRequestDto(
     string Name,
     Guid AccountId,
+    Guid? GroupId,
     int CategoryId,
     decimal Amount,
     string? Description,
@@ -223,6 +241,8 @@ public sealed record ConfirmPlannedTransactionRequestDto(Guid AccountId);
 public sealed record ApiPlannedTransactionDto(
     int Id,
     Guid AccountId,
+    Guid? GroupId,
+    string? GroupName,
     int CategoryId,
     int RecurringPaymentId,
     string Name,
@@ -231,7 +251,9 @@ public sealed record ApiPlannedTransactionDto(
     DateTimeOffset TransactionDate,
     TimeSpan RepeatInterval,
     DateOnly NextDueDate,
-    bool IsActive);
+    bool IsActive,
+    string? OwnerDisplay = null,
+    string? Currency = null);
 
 public sealed record CreateBankAccountRequestDto(
     string Name,
@@ -254,4 +276,7 @@ public sealed record ApiBankAccountDto(
     string Name,
     string Currency,
     decimal Balance,
-    bool IsDefault);
+    bool IsDefault,
+    string? GroupName = null,
+    string? GroupColor = null,
+    string? GroupOwnerDisplay = null);

@@ -3,6 +3,7 @@
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
              xmlns:views="clr-namespace:KeepWalletDesktop.Views"
              xmlns:controls="clr-namespace:KeepWalletDesktop.Views.Controls"
+             xmlns:modules="using:KeepWalletDesktop.Views.Modules"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -14,7 +15,7 @@
              Focusable="True"
              KeyDown="AppShell_OnKeyDown">
     <Grid ColumnDefinitions="Auto, *" MinWidth="500">
-        <controls:LeftPanel Grid.Column="0"
+        <controls:LeftPanelView Grid.Column="0"
                             IsVisible="{Binding CanOpenAppPages}" />
 
         <views:HomeView Grid.Column="1" />
@@ -25,15 +26,16 @@
         <views:CategoriesView Grid.Column="1" />
         <views:ReportingView Grid.Column="1" />
         <views:ApiSettingsView Grid.Column="1" />
+        <views:LogsView Grid.Column="1" />
 
-        <controls:FloatingActionMenu Grid.Column="1"
+        <controls:FloatingActionMenuView Grid.Column="1"
                                      IsVisible="{Binding IsHomePage}"
                                      HorizontalAlignment="Right"
                                      VerticalAlignment="Bottom"
                                      Margin="0,0,24,24" />
 
-        <controls:AllTransactionsDialog Grid.Column="1" />
-        <controls:SavingsDialogOverlay Grid.ColumnSpan="2" />
+        <controls:AllTransactionsDialogView Grid.Column="1" />
+        <controls:SavingsDialogOverlayView Grid.ColumnSpan="2" />
         <Border Grid.ColumnSpan="2"
                 IsVisible="{Binding IsMissingBankAccountPromptOpen}"
                 Background="{DynamicResource Color.Overlay}">
@@ -87,6 +89,65 @@
                             <Button Content="{Binding Texts.YesButton}"
                                     Classes="danger-button"
                                     Command="{Binding ConfirmDeleteCategoryCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsGroupActionPromptOpen}"
+                Background="{DynamicResource Color.Overlay}">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="460">
+                <Border Classes="dialog-card">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="{Binding GroupActionPromptTitle}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding GroupActionPromptMessage}"
+                                   Classes="muted"
+                                   TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Spacing="8">
+                            <Button Content="{Binding Texts.NoButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding CancelGroupActionCommand}" />
+                            <Button Content="{Binding Texts.YesButton}"
+                                    Classes="primary-button"
+                                    IsVisible="{Binding !IsGroupActionDanger}"
+                                    Command="{Binding ConfirmGroupActionCommand}" />
+                            <Button Content="{Binding Texts.YesButton}"
+                                    Classes="danger-button"
+                                    IsVisible="{Binding IsGroupActionDanger}"
+                                    Command="{Binding ConfirmGroupActionCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsCategoryErrorDialogOpen}"
+                Background="{DynamicResource Color.Overlay}">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="420">
+                <Border Classes="dialog-card">
+                    <StackPanel Spacing="14">
+                        <TextBlock Text="{Binding Texts.DeleteCategoryErrorTitle}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding CategoryErrorDialogMessage}"
+                                   Classes="muted"
+                                   TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right">
+                            <Button Content="{Binding Texts.OkButton}"
+                                    Classes="primary-button"
+                                    Command="{Binding CloseCategoryErrorDialogCommand}" />
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -279,8 +340,7 @@
                                                             </ComboBox>
                                                             <ToggleSwitch Grid.Column="3"
                                                                           IsChecked="{Binding IsSelected}"
-                                                                          Checked="CategorySettings_OnChanged"
-                                                                          Unchecked="CategorySettings_OnChanged" />
+                                                                          IsCheckedChanged="CategorySettings_OnChanged" />
                                                             <Button Grid.Column="4"
                                                                     Width="44"
                                                                     Height="44"
@@ -341,8 +401,7 @@
                                                             </ComboBox>
                                                             <ToggleSwitch Grid.Column="3"
                                                                           IsChecked="{Binding IsSelected}"
-                                                                          Checked="CategorySettings_OnChanged"
-                                                                          Unchecked="CategorySettings_OnChanged" />
+                                                                          IsCheckedChanged="CategorySettings_OnChanged" />
                                                             <Button Grid.Column="4"
                                                                     Width="44"
                                                                     Height="44"
@@ -409,7 +468,93 @@
                 </Border>
             </Grid>
         </Border>
-        <controls:TransactionDialog Grid.ColumnSpan="2" />
-        <controls:BankAccountDialog Grid.ColumnSpan="2" />
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsScheduledPaymentConfirmDialogOpen}"
+                Background="{DynamicResource Color.Overlay}">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="440">
+                <Border Classes="dialog-card">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="{Binding ScheduledPaymentConfirmTitle}"
+                                   HorizontalAlignment="Center"
+                                   FontSize="24"
+                                   FontWeight="Bold" />
+
+                        <TextBlock Text="{Binding Texts.ScheduledPaymentNameLabel}" Classes="form-label" />
+                        <TextBlock Text="{Binding PendingScheduledPaymentConfirmation.Name}" FontWeight="SemiBold" />
+
+                        <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{Binding Texts.TransactionAmountLabel}" Classes="form-label" />
+                                <TextBlock Text="{Binding PendingScheduledPaymentConfirmation.AmountDisplay}" />
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" Spacing="4">
+                                <TextBlock Text="{Binding Texts.TransactionCurrencyLabel}" Classes="form-label" />
+                                <TextBlock Text="{Binding ScheduledPaymentConfirmCurrency}" />
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="{Binding Texts.BankAccountsTitle}" Classes="form-label" />
+                        <ComboBox ItemsSource="{Binding ScheduledPaymentConfirmAccounts}"
+                                  SelectedItem="{Binding SelectedScheduledPaymentConfirmAccount}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:BankAccountItemViewModel">
+                                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Grid.Column="1" Text="{Binding BalanceDisplay}" Classes="muted" />
+                                    </Grid>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Spacing="8">
+                            <Button Width="44"
+                                    Height="44"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Classes="secondary-button"
+                                    IsVisible="{Binding CanEditPendingScheduledPaymentConfirmation}"
+                                    Command="{Binding EditScheduledPaymentCommand}"
+                                    CommandParameter="{Binding PendingScheduledPaymentConfirmation}">
+                                <Viewbox Width="18" Height="18">
+                                    <TextBlock Text="&#xE34C;"
+                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                               TextAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Viewbox>
+                            </Button>
+                            <Button Content="{Binding Texts.ConfirmScheduledPaymentButton}"
+                                    Classes="primary-button"
+                                    Command="{Binding ConfirmScheduledPaymentWithAccountCommand}" />
+                            <Button Content="{Binding Texts.CancelButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding CloseScheduledPaymentConfirmDialogCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        <controls:TransactionDialogView Grid.ColumnSpan="2" />
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsAddCategoryModuleOpen}"
+                Background="{DynamicResource Color.Overlay}"
+                PointerPressed="AddCategoryOverlay_OnPointerPressed">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="620">
+                <StackPanel Spacing="8">
+                    <modules:AddCategoryModuleView />
+                    <TextBlock Text="{Binding CategoryStatusMessage}"
+                               Classes="muted"
+                               TextWrapping="Wrap" />
+                </StackPanel>
+            </Grid>
+        </Border>
+        <controls:BankAccountDialogView Grid.ColumnSpan="2" />
     </Grid>
 </UserControl>

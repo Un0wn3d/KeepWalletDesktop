@@ -1,4 +1,4 @@
-﻿<Application xmlns="https://github.com/avaloniaui"
+<Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="KeepWalletDesktop.App"
              xmlns:svg="clr-namespace:Avalonia.Svg.Skia;assembly=Avalonia.Svg.Skia"
@@ -15,15 +15,16 @@
   
     <Application.Styles>
         <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
         <StyleInclude Source="avares://KeepWalletDesktop/Assets/Styles/AppTheme.axaml"/>
         <StyleInclude Source="avares://KeepWalletDesktop/Assets/Styles/CalendarStyles.axaml"/>
     </Application.Styles>
 
     <Application.Resources>
         <ResourceDictionary>
-            <FontFamily x:Key="EmojiFontFamily">avares://KeepWalletDesktop/Assets/Fonts/NotoColorEmoji.ttf#Noto Color Emoji</FontFamily>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="avares://KeepWalletDesktop/Assets/Styles/Themes/Theme1/Theme.axaml"/>
+                <ResourceInclude Source="avares://KeepWalletDesktop/Assets/Styles/Fonts.axaml"/>
+                <ResourceInclude Source="avares://KeepWalletDesktop/Assets/Styles/Themes/Light/Theme.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

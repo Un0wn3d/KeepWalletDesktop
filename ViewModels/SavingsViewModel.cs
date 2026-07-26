@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Input;
 using KeepWalletDesktop.Models;
 using KeepWalletDesktop.Services;
 using System;
@@ -23,6 +23,11 @@ public partial class MainViewModel
         {
             EnsureApiClient();
             var savings = await _apiClient!.GetSavingsAsync();
+            if (savings.Any(s => s.GroupId.HasValue) && Groups.Count == 0)
+            {
+                await LoadGroupsAsync();
+            }
+
             var activeSaving = preferredSavingId.HasValue
                 ? savings.FirstOrDefault(s => s.Id == preferredSavingId.Value)
                 : null;
@@ -38,7 +43,8 @@ public partial class MainViewModel
                 ActiveSavingIconKey = "other";
                 ActiveSavingColor = "#3B82F6";
                 ActiveSavingDeadline = null;
-                AddAmount = 0;
+                ActiveSavingIsCompleted = false;
+                AddAmount = string.Empty;
                 InterestRate = 0;
                 Savings = [];
                 SavingRateHistory = [];
@@ -49,26 +55,35 @@ public partial class MainViewModel
             }
 
             Savings = new ObservableCollection<SavingOptionViewModel>(
-                savings.Select(s =>
-                {
-                    var targetAmount = s.TargetAmount ?? 0;
-                    var progress = targetAmount <= 0
-                        ? 0
-                        : Math.Clamp((double)(s.CurrentAmount / targetAmount * 100), 0, 100);
-                    return new SavingOptionViewModel(
-                        s.Id,
-                        s.GroupId,
-                        s.Name,
-                        s.IconKey ?? "other",
-                        s.Color ?? "#3B82F6",
-                        s.Currency,
-                        BuildSavingDeadlineDisplay(s.Deadline),
-                        $"{s.CurrentAmount:N2}",
-                        $"{targetAmount:N2} {s.Currency}",
-                        progress,
-                        $"{progress:0}%",
-                        s.Id == activeSaving.Id);
-                }));
+                savings
+                    .GroupBy(s => s.Id)
+                    .Select(group =>
+                    {
+                        var s = group.FirstOrDefault(x => !x.GroupId.HasValue) ?? group.First();
+                        var groupIds = group.Where(x => x.GroupId.HasValue).Select(x => x.GroupId!.Value).Distinct().ToArray();
+                        var displayGroupId = groupIds.FirstOrDefault();
+                        var targetAmount = s.TargetAmount ?? 0;
+                        var progress = targetAmount <= 0
+                            ? 0
+                            : Math.Clamp((double)(s.CurrentAmount / targetAmount * 100), 0, 100);
+                        return new SavingOptionViewModel(
+                            s.Id,
+                            groupIds.Length > 0 ? displayGroupId : null,
+                            s.Name,
+                            s.IconKey ?? "other",
+                            s.Color ?? "#3B82F6",
+                            s.Currency,
+                            BuildSavingDeadlineDisplay(s.Deadline),
+                            $"{s.CurrentAmount:N2}",
+                            $"{targetAmount:N2} {s.Currency}",
+                            progress,
+                            $"{progress:0}%",
+                            s.Id == activeSaving.Id,
+                            s.IsCompleted,
+                            s.OwnerDisplay,
+                            s.UserId,
+                            groupIds);
+                    }));
             ApplySaving(activeSaving);
             await LoadSavingDetailsAsync(activeSaving.Id);
         }
@@ -92,6 +107,8 @@ public partial class MainViewModel
         ActiveSavingIconKey = string.IsNullOrWhiteSpace(saving.IconKey) ? "other" : saving.IconKey;
         ActiveSavingColor = string.IsNullOrWhiteSpace(saving.Color) ? "#3B82F6" : saving.Color;
         ActiveSavingDeadline = saving.Deadline;
+        ActiveSavingIsCompleted = saving.IsCompleted;
+        IsEditingSavingGroups = false;
         SavingNameEditInput = saving.Name;
         SavingGoalAmountEditInput = (saving.TargetAmount ?? 0).ToString("0.##", CultureInfo.InvariantCulture);
         SavingCurrentAmountEditInput = saving.CurrentAmount.ToString("0.##", CultureInfo.InvariantCulture);
@@ -125,10 +142,67 @@ public partial class MainViewModel
     }
 
     [RelayCommand]
+    private void ToggleCompletedSavings()
+    {
+        AreCompletedSavingsVisible = !AreCompletedSavingsVisible;
+    }
+
+    [RelayCommand]
+    private async Task SaveActiveSavingCompletionAsync()
+    {
+        if (!ActiveSavingId.HasValue || IsApiBusy)
+        {
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            var targetAmount = GoalAmount > 0 ? (decimal?)GoalAmount : null;
+            var updated = await _apiClient!.UpdateSavingAsync(
+                ActiveSavingId.Value,
+                new UpdateSavingRequestDto(
+                    string.IsNullOrWhiteSpace(SavingNameInput) ? "Savings" : SavingNameInput.Trim(),
+                    targetAmount,
+                    (decimal)SavedAmount,
+                    ActiveSavingDeadline,
+                    ActiveSavingIsCompleted,
+                    string.IsNullOrWhiteSpace(ActiveSavingCurrency) ? "UAH" : ActiveSavingCurrency,
+                    ActiveSavingIconKey,
+                    ActiveSavingColor));
+
+            ApplySaving(updated);
+            await LoadSavingsAsync(updated.Id);
+            SavingsStatusMessage = Texts.TransactionUpdatedText;
+        }
+        catch (HttpRequestException ex)
+        {
+            SavingsStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
     private async Task AddSavingItemAsync()
     {
         if (!ActiveSavingId.HasValue || IsApiBusy || string.IsNullOrWhiteSpace(SavingItemNameInput))
         {
+            return;
+        }
+
+        if (!TryParsePositiveAmount(SavingItemAmount, out var itemAmount))
+        {
+            SavingItemAmountError = string.IsNullOrWhiteSpace(SavingItemAmount)
+                ? "Сума має бути більше 0"
+                : ValidatePositiveAmountInput(SavingItemAmount);
             return;
         }
 
@@ -141,9 +215,9 @@ public partial class MainViewModel
                 : SavingItems.Max(i => i.Priority ?? 0) + 1;
             await _apiClient!.CreateSavingItemAsync(
                 ActiveSavingId.Value,
-                new CreateSavingItemRequestDto(SavingItemNameInput.Trim(), (decimal)Math.Max(0, SavingItemAmount), (short)nextPriority, false));
+                new CreateSavingItemRequestDto(SavingItemNameInput.Trim(), itemAmount, (short)nextPriority, false));
             SavingItemNameInput = string.Empty;
-            SavingItemAmount = 0;
+            SavingItemAmount = string.Empty;
             await UpdateActiveSavingTargetFromItemsAsync();
             await LoadSavingsAsync(ActiveSavingId.Value);
         }
@@ -220,12 +294,49 @@ public partial class MainViewModel
             SavingNameInput = "Savings";
             GoalAmount = 0;
             SavedAmount = 0;
-            AddAmount = 0;
+            AddAmount = string.Empty;
             InterestRate = 0;
             SavingRateHistory = [];
             SavingItems = [];
             await LoadSavingsAsync();
             SavingsStatusMessage = Texts.TransactionDeletedText;
+        }
+        catch (HttpRequestException ex)
+        {
+            SavingsStatusMessage = GetApiErrorMessage(ex);
+        }
+        catch (Exception ex)
+        {
+            SavingsStatusMessage = $"{Texts.RequestErrorPrefix}: {ex.Message}";
+        }
+        finally
+        {
+            IsApiBusy = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveSavingGroupsAsync()
+    {
+        if (!ActiveSavingId.HasValue || IsApiBusy || !CanEditSavingShareGroups)
+        {
+            return;
+        }
+
+        var groupIds = GetSelectedSavingShareGroupIds();
+        if (IsSavingSharedInput && groupIds.Length == 0)
+        {
+            SavingsStatusMessage = Texts.TransactionFormValidationText;
+            return;
+        }
+
+        try
+        {
+            IsApiBusy = true;
+            EnsureApiClient();
+            await _apiClient!.UpdateSavingGroupsAsync(ActiveSavingId.Value, new ReplaceResourceGroupsRequestDto(groupIds));
+            await LoadSavingsAsync(ActiveSavingId.Value);
+            IsEditingSavingGroups = false;
         }
         catch (HttpRequestException ex)
         {
@@ -433,7 +544,7 @@ public partial class MainViewModel
                 targetAmount > 0 ? targetAmount : null,
                 currentAmountOverride ?? (decimal)SavedAmount,
                 ActiveSavingDeadline,
-                targetAmount > 0 && (currentAmountOverride ?? (decimal)SavedAmount) >= targetAmount,
+                ActiveSavingIsCompleted,
                 ActiveSavingCurrency,
                 ActiveSavingIconKey,
                 ActiveSavingColor));

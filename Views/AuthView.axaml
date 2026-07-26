@@ -43,18 +43,29 @@
                             <TextBlock Text="{Binding Texts.LoginOrEmailLabel}" />
                         </StackPanel>
                         <TextBox Text="{Binding ApiLogin}"
-                                 IsVisible="{Binding IsLoginMode}"
-                                 Watermark="alex" />
+                                 IsVisible="{Binding IsLoginMode}" />
 
                         <StackPanel Orientation="Horizontal"
                                     Spacing="2"
                                     IsVisible="{Binding IsLoginMode}">
                             <TextBlock Text="{Binding Texts.PasswordLabel}" />
                         </StackPanel>
-                        <TextBox Text="{Binding ApiPassword}"
-                                 IsVisible="{Binding IsLoginMode}"
-                                 PasswordChar="*"
-                                 Watermark="password" />
+                        <Grid ColumnDefinitions="*, 40"
+                              IsVisible="{Binding IsLoginMode}">
+                            <TextBox Grid.ColumnSpan="2"
+                                     Text="{Binding ApiPassword}"
+                                     PasswordChar="{Binding AuthPasswordChar}"
+                                     Padding="12,8,42,8" />
+                            <Button Grid.Column="1"
+                                    Classes="password-toggle-button"
+                                    Command="{Binding ToggleAuthPasswordVisibilityCommand}">
+                                <TextBlock Text="{Binding AuthPasswordVisibilityIcon}"
+                                           FontFamily="{DynamicResource Phosphor-Light}"
+                                           FontSize="20"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                        </Grid>
 
                         <Button Content="{Binding Texts.LoginButton}"
                                 Classes="auth-submit-button"
@@ -68,8 +79,7 @@
                             <TextBlock Text="*" />
                         </StackPanel>
                         <TextBox Text="{Binding RegisterUsername}"
-                                 IsVisible="{Binding IsRegisterMode}"
-                                 Watermark="alex" />
+                                 IsVisible="{Binding IsRegisterMode}" />
 
                         <StackPanel Orientation="Horizontal"
                                     Spacing="2"
@@ -79,7 +89,7 @@
                         </StackPanel>
                         <TextBox Text="{Binding RegisterEmail}"
                                  IsVisible="{Binding IsRegisterMode}"
-                                 Watermark="alex@example.com" />
+                                 Watermark="name@example.com" />
 
                         <StackPanel Orientation="Horizontal"
                                     Spacing="2"
@@ -87,16 +97,27 @@
                             <TextBlock Text="{Binding Texts.PasswordLabel}" />
                             <TextBlock Text="*" />
                         </StackPanel>
-                        <TextBox Text="{Binding RegisterPassword}"
-                                 IsVisible="{Binding IsRegisterMode}"
-                                 PasswordChar="*"
-                                 Watermark="password" />
+                        <Grid ColumnDefinitions="*, 40"
+                              IsVisible="{Binding IsRegisterMode}">
+                            <TextBox Grid.ColumnSpan="2"
+                                     Text="{Binding RegisterPassword}"
+                                     PasswordChar="{Binding AuthPasswordChar}"
+                                     Padding="12,8,42,8" />
+                            <Button Grid.Column="1"
+                                    Classes="password-toggle-button"
+                                    Command="{Binding ToggleAuthPasswordVisibilityCommand}">
+                                <TextBlock Text="{Binding AuthPasswordVisibilityIcon}"
+                                           FontFamily="{DynamicResource Phosphor-Light}"
+                                           FontSize="20"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                        </Grid>
 
                         <TextBlock Text="{Binding Texts.FullNameLabel}"
                                    IsVisible="{Binding IsRegisterMode}" />
                         <TextBox Text="{Binding RegisterFullName}"
-                                 IsVisible="{Binding IsRegisterMode}"
-                                 Watermark="Alex Example" />
+                                 IsVisible="{Binding IsRegisterMode}" />
 
                         <Button Content="{Binding Texts.RegisterButton}"
                                 Classes="auth-submit-button"
@@ -108,9 +129,11 @@
 
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
-                                    Spacing="6">
+                                    Spacing="6"
+                                    IsVisible="{Binding CanShowAuthFooterAction}">
                             <Button Content="{Binding AuthFooterAction}"
                                     Classes="link-button"
+                                    IsEnabled="{Binding CanOpenRegisterMode}"
                                     Command="{Binding ToggleAuthModeCommand}" />
                         </StackPanel>
                     </StackPanel>

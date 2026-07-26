@@ -1,0 +1,118 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:modules="clr-namespace:KeepWalletDesktop.Views.Modules"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1100"
+             d:DesignHeight="720"
+             x:Class="KeepWalletDesktop.Views.LogsView"
+             x:DataType="vm:MainViewModel">
+    <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsLogsPage}">
+        <ScrollViewer x:Name="LogsScrollViewer"
+                      VerticalScrollBarVisibility="Auto"
+                      ScrollChanged="LogsScrollViewer_OnScrollChanged">
+            <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*, Auto">
+                    <TextBlock Text="{Binding Texts.UserLogsTitle}"
+                               Classes="page-title" />
+                    <Button Grid.Column="1"
+                            Content="{Binding Texts.CancelButton}"
+                            Classes="secondary-button"
+                            Command="{Binding OpenSettingsCommand}" />
+                </Grid>
+
+                <Border Classes="panel-card alt">
+                    <Grid ColumnDefinitions="*, Auto, *"
+                          ColumnSpacing="10"
+                          VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="10"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center">
+                            <ComboBox ItemsSource="{Binding LogUserFilterOptions}"
+                                      SelectedItem="{Binding SelectedLogUserFilter}"
+                                      Width="220"
+                                      Height="34"
+                                      VerticalAlignment="Center" />
+                            <ComboBox ItemsSource="{Binding LogActionFilterOptions}"
+                                      SelectedItem="{Binding SelectedLogActionFilter}"
+                                      Width="220"
+                                      Height="34"
+                                      VerticalAlignment="Center" />
+                        </StackPanel>
+                        <modules:DateSortModuleView Grid.Column="1"
+                                                Width="520"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center" />
+                        <Button Grid.Column="2"
+                                Width="48"
+                                Height="34"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Content="&#xE26C;"
+                                FontFamily="{DynamicResource Phosphor-Fill}"
+                                Classes="secondary-button"
+                                Command="{Binding ClearLogFiltersCommand}" />
+                    </Grid>
+                </Border>
+
+                <Border Classes="panel-card log-table-card">
+                    <DataGrid ItemsSource="{Binding PagedFilteredUserLogs}"
+                              Classes="log-table"
+                              AutoGenerateColumns="False"
+                              CanUserResizeColumns="True"
+                              CanUserReorderColumns="True"
+                              GridLinesVisibility="All"
+                              HeadersVisibility="Column"
+                              IsReadOnly="True"
+                              RowHeight="42"
+                              MinHeight="140"
+                              MinWidth="900"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled">
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn Header="{Binding Texts.LogsDateHeader}" Width="150" MinWidth="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:AuditLogItemViewModel">
+                                        <TextBlock Text="{Binding CreatedAtDisplay}"
+                                                   Classes="muted log-table-cell"
+                                                   ToolTip.Tip="{Binding CreatedAtDisplay}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Texts.LogsUsersLabel}" Width="150" MinWidth="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:AuditLogItemViewModel">
+                                        <TextBlock Text="{Binding Username}"
+                                                   Classes="log-table-cell"
+                                                   ToolTip.Tip="{Binding Username}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Texts.LogActionLabel}" Width="220" MinWidth="120">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:AuditLogItemViewModel">
+                                        <TextBlock Text="{Binding Action}"
+                                                   Classes="log-table-cell"
+                                                   ToolTip.Tip="{Binding Action}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTemplateColumn Header="{Binding Texts.LogsDescriptionHeader}" Width="*" MinWidth="180">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="vm:AuditLogItemViewModel">
+                                        <TextBlock Text="{Binding Details}"
+                                                   Classes="log-table-cell"
+                                                   ToolTip.Tip="{Binding Details}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

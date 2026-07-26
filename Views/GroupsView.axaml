@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
              xmlns:views="clr-namespace:KeepWalletDesktop.Views"
@@ -21,6 +21,7 @@
                                     <Button Width="42"
                                             Height="42"
                                             Padding="0"
+                                            Background="{Binding NewGroupColor}"
                                             Click="NewGroupIconButton_OnClick"
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center">
@@ -72,17 +73,23 @@
                                                 BorderThickness="1"
                                                 BorderBrush="{DynamicResource Color.BorderSoft}">
                                             <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
-                                                <Grid Width="42" Height="42" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding IconGlyph}"
-                                                               FontFamily="{StaticResource EmojiFontFamily}"
-                                                               FontSize="18"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center" />
-                                                    <Image Source="{Binding IconSampleImage}"
-                                                           Width="28"
-                                                           Height="28"
-                                                           IsVisible="{Binding HasIconSampleImage}" />
-                                                </Grid>
+                                                <Border Width="42"
+                                                        Height="42"
+                                                        CornerRadius="8"
+                                                        Background="{Binding AccentBrush}"
+                                                        VerticalAlignment="Center">
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding IconGlyph}"
+                                                                   FontFamily="{StaticResource EmojiFontFamily}"
+                                                                   FontSize="18"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center" />
+                                                        <Image Source="{Binding IconSampleImage}"
+                                                               Width="28"
+                                                               Height="28"
+                                                               IsVisible="{Binding HasIconSampleImage}" />
+                                                    </Grid>
+                                                </Border>
                                                 <Grid Grid.Column="1" RowDefinitions="Auto, Auto" RowSpacing="6" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Name}"
                                                                FontWeight="SemiBold"
@@ -94,13 +101,13 @@
                                                 </Grid>
                                                 <Grid Grid.Column="2" VerticalAlignment="Center">
                                                     <Border Classes="owner-chip" IsVisible="{Binding IsOwnerRole}">
-                                                        <TextBlock Text="{Binding RoleName}" />
+                                                        <TextBlock Text="{Binding OwnerDisplayText}" />
                                                     </Border>
                                                     <Border Classes="member-chip" IsVisible="{Binding IsMemberRole}">
-                                                        <TextBlock Text="{Binding RoleName}" />
+                                                        <TextBlock Text="{Binding OwnerDisplayText}" />
                                                     </Border>
                                                     <Border Classes="viewer-chip" IsVisible="{Binding IsViewerRole}">
-                                                        <TextBlock Text="{Binding RoleName}" />
+                                                        <TextBlock Text="{Binding OwnerDisplayText}" />
                                                     </Border>
                                                 </Grid>
                                             </Grid>
@@ -115,11 +122,14 @@
             </Border>
 
                 <Border Grid.Column="1" Classes="panel-card">
-                <Grid RowDefinitions="Auto, *" RowSpacing="14">
+                <Grid>
+                <Grid RowDefinitions="Auto, *" RowSpacing="14"
+                      IsVisible="{Binding HasGroups}">
                     <Grid ColumnDefinitions="Auto, *, Auto, Auto" ColumnSpacing="8">
                         <Button Width="52"
                                 Height="52"
                                 Padding="0"
+                                Background="{Binding SelectedAccessGroup.AccentBrush}"
                                 Click="SelectedGroupIconButton_OnClick"
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center">
@@ -159,13 +169,13 @@
                                 <TextBlock Text="{Binding SelectedAccessGroup.CreatedAtDisplay, TargetNullValue=''}" Classes="muted" />
                                 <Grid>
                                     <Border Classes="owner-chip" IsVisible="{Binding SelectedAccessGroup.IsOwnerRole, TargetNullValue=False}">
-                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName, TargetNullValue=''}" />
+                                        <TextBlock Text="{Binding SelectedAccessGroup.OwnerDisplayText, TargetNullValue=''}" />
                                     </Border>
                                     <Border Classes="member-chip" IsVisible="{Binding SelectedAccessGroup.IsMemberRole, TargetNullValue=False}">
-                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName, TargetNullValue=''}" />
+                                        <TextBlock Text="{Binding SelectedAccessGroup.OwnerDisplayText, TargetNullValue=''}" />
                                     </Border>
                                     <Border Classes="viewer-chip" IsVisible="{Binding SelectedAccessGroup.IsViewerRole, TargetNullValue=False}">
-                                        <TextBlock Text="{Binding SelectedAccessGroup.RoleName, TargetNullValue=''}" />
+                                        <TextBlock Text="{Binding SelectedAccessGroup.OwnerDisplayText, TargetNullValue=''}" />
                                     </Border>
                                 </Grid>
                             </StackPanel>
@@ -194,10 +204,28 @@
                                 HorizontalContentAlignment="Center"
                                 VerticalContentAlignment="Center"
                                 Classes="danger-button"
+                                IsVisible="{Binding CanDeleteSelectedGroup}"
                                 Command="{Binding DeleteGroupCommand}"
                                 CommandParameter="{Binding SelectedAccessGroup}">
                             <Viewbox Width="18" Height="18">
                                 <TextBlock Text="&#xE4A6;"
+                                           FontFamily="{DynamicResource Phosphor-Fill}"
+                                           TextAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                            </Viewbox>
+                        </Button>
+                        <Button Grid.Column="3"
+                                Width="44"
+                                Height="44"
+                                Padding="0"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Classes="danger-button"
+                                IsVisible="{Binding CanLeaveSelectedGroup}"
+                                Command="{Binding BeginLeaveSelectedGroupCommand}">
+                            <Viewbox Width="18" Height="18">
+                                <TextBlock Text="&#xE7E6;"
                                            FontFamily="{DynamicResource Phosphor-Fill}"
                                            TextAlignment="Center"
                                            HorizontalAlignment="Center"
@@ -210,7 +238,9 @@
                         <TabItem Header="{Binding Texts.GroupMembersTitle}">
                             <ScrollViewer VerticalScrollBarVisibility="Auto">
                                 <StackPanel Spacing="12" Margin="0,12,0,0">
-                                    <Grid ColumnDefinitions="*, 150, Auto" ColumnSpacing="8">
+                                    <Grid ColumnDefinitions="*, 150, Auto"
+                                          ColumnSpacing="8"
+                                          IsVisible="{Binding CanManageSelectedGroupMembers}">
                                         <ComboBox ItemsSource="{Binding GroupUserSearchResults}"
                                                   SelectedItem="{Binding SelectedGroupUser}">
                                             <ComboBox.ItemTemplate>
@@ -220,8 +250,15 @@
                                             </ComboBox.ItemTemplate>
                                         </ComboBox>
                                         <ComboBox Grid.Column="1"
-                                                  ItemsSource="{Binding GroupMemberCreateRoles}"
-                                                  SelectedItem="{Binding SelectedGroupMemberRole}" />
+                                                  ItemsSource="{Binding GroupMemberCreateRoleOptions}"
+                                                  SelectedValue="{Binding SelectedGroupMemberRole}"
+                                                  SelectedValueBinding="{ReflectionBinding Code}">
+                                            <ComboBox.ItemTemplate>
+                                                <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                    <TextBlock Text="{Binding DisplayName}" />
+                                                </DataTemplate>
+                                            </ComboBox.ItemTemplate>
+                                        </ComboBox>
                                         <Button Grid.Column="2"
                                                 Content="{Binding Texts.AddUserButton}"
                                                 Classes="primary-button"
@@ -232,7 +269,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:GroupMemberItemViewModel">
                                                 <Border Classes="list-item-card" Margin="0,4">
-                                                    <Grid ColumnDefinitions="2*, *, *, Auto, Auto" ColumnSpacing="8">
+                                                    <Grid ColumnDefinitions="*, 150, 44" ColumnSpacing="8">
                                                         <StackPanel>
                                                             <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" />
                                                             <TextBlock Text="{Binding JoinedAtDisplay}" Classes="muted" />
@@ -240,31 +277,43 @@
                                                         <Button Grid.Column="1"
                                                                 Background="Transparent"
                                                                 BorderThickness="0"
+                                                                HorizontalContentAlignment="Left"
                                                                 DoubleTapped="GroupMemberRole_OnDoubleTapped"
                                                                 IsVisible="{Binding !IsEditingRole}">
-                                                            <TextBlock Text="{Binding RoleName}"
+                                                            <TextBlock Text="{Binding RoleDisplayName}"
                                                                        VerticalAlignment="Center" />
                                                         </Button>
                                                         <ComboBox Grid.Column="1"
-                                                                  ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.GroupMemberRoles}"
-                                                                  SelectedItem="{Binding SelectedRoleName}"
+                                                                  ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.GroupMemberRoleOptions}"
+                                                                  SelectedValue="{Binding SelectedRoleName}"
+                                                                  SelectedValueBinding="{ReflectionBinding Code}"
                                                                   SelectionChanged="GroupMemberRoleComboBox_OnSelectionChanged"
-                                                                  IsVisible="{Binding IsEditingRole}" />
-                                                        <Button Grid.Column="2"
-                                                                Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.TransferOwnerButton}"
-                                                                Classes="secondary-button"
-                                                                Command="{ReflectionBinding $parent[UserControl].DataContext.TransferGroupOwnerCommand}"
-                                                                CommandParameter="{Binding .}" />
-                                                        <Button Grid.Column="3"
-                                                                Width="38"
-                                                                Height="38"
-                                                                Classes="secondary-button"
-                                                                Command="{ReflectionBinding $parent[UserControl].DataContext.RemoveGroupMemberCommand}"
-                                                                CommandParameter="{Binding .}">
-                                                            <TextBlock Text="&#xE4A6;"
-                                                                       FontFamily="{DynamicResource Phosphor-Fill}"
-                                                                       FontSize="16" />
-                                                        </Button>
+                                                                  IsVisible="{Binding IsEditingRole}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                                    <TextBlock Text="{Binding DisplayName}" />
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                        <Grid Grid.Column="2" Width="44">
+                                                            <Button Width="38"
+                                                                    Height="38"
+                                                                    Padding="0"
+                                                                    HorizontalAlignment="Center"
+                                                                    VerticalAlignment="Center"
+                                                                    HorizontalContentAlignment="Center"
+                                                                    VerticalContentAlignment="Center"
+                                                                    Classes="secondary-button"
+                                                                    IsVisible="{Binding IsRemovable}"
+                                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.RemoveGroupMemberCommand}"
+                                                                    CommandParameter="{Binding .}">
+                                                                <TextBlock Text="&#xE4A6;"
+                                                                           FontFamily="{DynamicResource Phosphor-Fill}"
+                                                                           FontSize="16"
+                                                                           HorizontalAlignment="Center"
+                                                                           VerticalAlignment="Center" />
+                                                            </Button>
+                                                        </Grid>
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
@@ -275,38 +324,38 @@
                         </TabItem>
 
                         <TabItem Header="{Binding Texts.GroupAccessTitle}">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto">
                             <StackPanel Spacing="14" Margin="0,12,0,0">
-                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
-                                    <ComboBox ItemsSource="{Binding BankAccounts}"
-                                              SelectedItem="{Binding SelectedSharedBankAccount}">
+                                <Grid ColumnDefinitions="Auto, Auto, Auto" ColumnSpacing="8" HorizontalAlignment="Left">
+                                    <ComboBox ItemsSource="{Binding GroupAccessResourceTypeOptions}"
+                                              SelectedItem="{Binding SelectedGroupAccessResourceType}"
+                                              Width="190">
                                         <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:BankAccountItemViewModel">
-                                                <TextBlock Text="{Binding Name}" />
+                                            <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <Button Grid.Column="1"
-                                            Content="{Binding Texts.ShareAccountButton}"
-                                            Classes="secondary-button"
-                                            Command="{Binding ShareBankAccountWithGroupCommand}" />
-                                </Grid>
-
-                                <Grid ColumnDefinitions="*, Auto" ColumnSpacing="8">
-                                    <ComboBox ItemsSource="{Binding Savings}"
-                                              SelectedItem="{Binding SelectedSharedSaving}">
+                                    <ComboBox Grid.Column="1"
+                                              ItemsSource="{Binding GroupAccessResourceOptions}"
+                                              SelectedItem="{Binding SelectedGroupAccessResource}"
+                                              IsEnabled="{Binding HasGroupAccessResourceOptions}"
+                                              Width="260">
                                         <ComboBox.ItemTemplate>
-                                            <DataTemplate x:DataType="vm:SavingOptionViewModel">
-                                                <TextBlock Text="{Binding Name}" />
+                                            <DataTemplate x:DataType="vm:GroupAccessResourceItemViewModel">
+                                                <TextBlock Text="{Binding DisplayName}" />
                                             </DataTemplate>
                                         </ComboBox.ItemTemplate>
                                     </ComboBox>
-                                    <Button Grid.Column="1"
+                                    <Button Grid.Column="2"
                                             Content="{Binding Texts.ShareSavingsButton}"
-                                            Classes="secondary-button"
-                                            Command="{Binding ShareSavingWithGroupCommand}" />
+                                            Classes="primary-button"
+                                            Command="{Binding GrantSelectedGroupAccessCommand}"
+                                            IsEnabled="{Binding HasGroupAccessResourceOptions}" />
                                 </Grid>
-                                <TextBlock Text="{Binding Texts.GroupAccessAccountsTitle}" FontWeight="SemiBold" />
-                                <Border Classes="panel-card alt">
+                                <StackPanel Spacing="14" IsVisible="{Binding HasSelectedGroupAccessContent}">
+                                <TextBlock Text="{Binding Texts.GroupAccessAccountsTitle}" FontWeight="SemiBold" IsVisible="{Binding HasSelectedGroupBankAccounts}" />
+                                <Border Classes="panel-card alt" IsVisible="{Binding HasSelectedGroupBankAccounts}">
                                     <ItemsControl ItemsSource="{Binding SelectedGroupBankAccounts}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate x:DataType="vm:BankAccountItemViewModel">
@@ -318,7 +367,7 @@
                                                             HorizontalContentAlignment="Stretch"
                                                             Click="OpenGroupBankAccount_OnClick"
                                                             CommandParameter="{Binding .}">
-                                                        <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                                                        <Grid ColumnDefinitions="220, 180, *, Auto" ColumnSpacing="12">
                                                             <StackPanel>
                                                                 <TextBlock Text="{Binding Name}"
                                                                            FontWeight="SemiBold"
@@ -326,7 +375,20 @@
                                                                 <TextBlock Text="{Binding Currency}"
                                                                            Classes="muted" />
                                                             </StackPanel>
-                                                            <TextBlock Grid.Column="1"
+                                                            <Border Grid.Column="1"
+                                                                    Background="{Binding GroupBrush}"
+                                                                    CornerRadius="20"
+                                                                    Padding="12,6"
+                                                                    VerticalAlignment="Center"
+                                                                    HorizontalAlignment="Left"
+                                                                    MinWidth="{ReflectionBinding $parent[UserControl].DataContext.BankAccountGroupPillWidth}">
+                                                                <TextBlock Text="{Binding OwnerDisplayText}"
+                                                                           HorizontalAlignment="Center"
+                                                                           TextAlignment="Center"
+                                                                           TextWrapping="Wrap"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <TextBlock Grid.Column="3"
                                                                        Text="{Binding BalanceDisplay}"
                                                                        FontWeight="SemiBold"
                                                                        VerticalAlignment="Center"
@@ -340,7 +402,7 @@
                                                             HorizontalContentAlignment="Center"
                                                             VerticalContentAlignment="Center"
                                                             Classes="secondary-button"
-                                                            Click="OpenGroupBankAccount_OnClick"
+                                                            Command="{ReflectionBinding $parent[UserControl].DataContext.EditBankAccountCommand}"
                                                             CommandParameter="{Binding .}">
                                                         <Viewbox Width="18" Height="18">
                                                             <TextBlock Text="&#xE34C;"
@@ -356,8 +418,85 @@
                                     </ItemsControl>
                                 </Border>
 
-                                <TextBlock Text="{Binding Texts.GroupAccessTransactionsTitle}" FontWeight="SemiBold" />
-                                <Border Classes="panel-card alt">
+                                <TextBlock Text="{Binding Texts.GroupAccessScheduledPaymentsTitle}" FontWeight="SemiBold" IsVisible="{Binding HasSelectedGroupScheduledPayments}" />
+                                <Border Classes="panel-card alt" IsVisible="{Binding HasSelectedGroupScheduledPayments}">
+                                    <ItemsControl ItemsSource="{Binding SelectedGroupScheduledPayments}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate x:DataType="vm:ScheduledPaymentItemViewModel">
+                                                <Button Background="Transparent"
+                                                        BorderThickness="0"
+                                                        Padding="0"
+                                                        Margin="0,4"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleScheduledPaymentCommand}"
+                                                        CommandParameter="{Binding .}">
+                                                <Border Classes="list-item-card">
+                                                    <Grid ColumnDefinitions="52, 150, 180, *, 120, 130, 120" ColumnSpacing="12">
+                                                        <Border Width="40"
+                                                                Height="40"
+                                                                CornerRadius="8"
+                                                                Background="{Binding CategoryAnchorBrush}"
+                                                                VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding CategoryIcon}"
+                                                                       FontFamily="{StaticResource EmojiFontFamily}"
+                                                                       FontSize="16"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
+                                                            <TextBlock Text="{Binding Name}"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource Color.Text1}"
+                                                                       TextWrapping="Wrap" />
+                                                            <TextBlock Text="{Binding DueDateDisplay}" Classes="muted" />
+                                                        </StackPanel>
+                                                        <Border Grid.Column="2"
+                                                                Background="{Binding GroupBrush}"
+                                                                CornerRadius="20"
+                                                                Padding="12,6"
+                                                                MinWidth="{ReflectionBinding $parent[UserControl].DataContext.ScheduledPaymentGroupPillWidth}"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Left">
+                                                            <TextBlock Text="{Binding OwnerDisplayText}"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
+                                                                       TextWrapping="Wrap"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="4"
+                                                                   Text="{Binding Frequency}"
+                                                                   Classes="muted"
+                                                                   VerticalAlignment="Center" />
+                                                        <Border Grid.Column="5"
+                                                                Background="{Binding CategoryAnchorBrush}"
+                                                                CornerRadius="20"
+                                                                Padding="12,6"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Right"
+                                                                MinWidth="{ReflectionBinding $parent[UserControl].DataContext.ScheduledPaymentCategoryPillWidth}">
+                                                            <TextBlock Text="{Binding CategoryDisplay}"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
+                                                                       TextWrapping="Wrap"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <TextBlock Grid.Column="6"
+                                                                   Text="{Binding AmountWithSymbolDisplay}"
+                                                                   FontWeight="Bold"
+                                                                   VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Left"
+                                                                   Foreground="{DynamicResource Color.Danger}" />
+                                                    </Grid>
+                                                </Border>
+                                                </Button>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Border>
+
+                                <TextBlock Text="{Binding Texts.GroupAccessTransactionsTitle}" FontWeight="SemiBold" IsVisible="{Binding HasSelectedGroupTransactions}" />
+                                <Border Classes="panel-card alt" IsVisible="{Binding HasSelectedGroupTransactions}">
                                     <ItemsControl ItemsSource="{Binding SelectedGroupTransactions}">
                                         <ItemsControl.Styles>
                                             <Style Selector="Button.group-transaction-row-button">
@@ -385,19 +524,20 @@
                                                         Click="OpenGroupTransaction_OnClick"
                                                         CommandParameter="{Binding .}">
                                                     <Border Classes="list-item-card">
-                                                        <Grid ColumnDefinitions="52, 5*, 2*, 2*"
+                                                        <Grid ColumnDefinitions="52, 150, 180, *, 130, 120"
                                                               ColumnSpacing="12"
                                                               VerticalAlignment="Center">
                                                             <Border Width="40"
                                                                     Height="40"
                                                                     CornerRadius="8"
-                                                                    Background="White"
-                                                                    BorderBrush="{DynamicResource Color.BorderSoft}"
+                                                                    Background="{DynamicResource Color.InputSurface}"
+                                                                    BorderBrush="{DynamicResource Color.InputBorder}"
                                                                     BorderThickness="1"
                                                                     BoxShadow="{DynamicResource Shadow.Card}">
                                                                 <TextBlock Text="{Binding CategoryIcon}"
                                                                            FontFamily="{StaticResource EmojiFontFamily}"
                                                                            FontSize="18"
+                                                                           Foreground="{DynamicResource Color.Text2}"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center" />
                                                             </Border>
@@ -411,11 +551,25 @@
                                                                            Classes="muted" />
                                                             </StackPanel>
                                                             <Border Grid.Column="2"
+                                                                    Background="{Binding GroupBrush}"
+                                                                    CornerRadius="20"
+                                                                    Padding="12,6"
+                                                                    VerticalAlignment="Center"
+                                                                    HorizontalAlignment="Left"
+                                                                    MinWidth="{ReflectionBinding $parent[UserControl].DataContext.BankAccountGroupPillWidth}"
+                                                                    IsVisible="{Binding IsShared}">
+                                                                <TextBlock Text="{Binding SharedDisplay}"
+                                                                           HorizontalAlignment="Center"
+                                                                           TextAlignment="Center"
+                                                                           TextWrapping="Wrap"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <Border Grid.Column="4"
                                                                     Background="{Binding CategoryAnchorBrush}"
                                                                     CornerRadius="20"
                                                                     Padding="12,6"
                                                                     VerticalAlignment="Center"
-                                                                    HorizontalAlignment="Center"
+                                                                    HorizontalAlignment="Right"
                                                                     MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
                                                                 <TextBlock Text="{Binding CategoryDisplay}"
                                                                            HorizontalAlignment="Center"
@@ -423,14 +577,16 @@
                                                                            TextWrapping="Wrap"
                                                                            VerticalAlignment="Center" />
                                                             </Border>
-                                                            <Grid Grid.Column="3" VerticalAlignment="Center">
+                                                            <Grid Grid.Column="5" VerticalAlignment="Center">
                                                                 <TextBlock Text="{Binding AmountDisplay}"
                                                                            Foreground="{DynamicResource Color.Success}"
                                                                            FontWeight="Bold"
+                                                                           HorizontalAlignment="Left"
                                                                            IsVisible="{Binding IsIncome}" />
                                                                 <TextBlock Text="{Binding AmountDisplay}"
                                                                            Foreground="{DynamicResource Color.Danger}"
                                                                            FontWeight="Bold"
+                                                                           HorizontalAlignment="Left"
                                                                            IsVisible="{Binding !IsIncome}" />
                                                             </Grid>
                                                         </Grid>
@@ -441,8 +597,8 @@
                                     </ItemsControl>
                                 </Border>
 
-                                <TextBlock Text="{Binding Texts.GroupAccessSavingsTitle}" FontWeight="SemiBold" />
-                                <ItemsControl ItemsSource="{Binding SelectedGroupSavings}">
+                                <TextBlock Text="{Binding Texts.GroupAccessSavingsTitle}" FontWeight="SemiBold" IsVisible="{Binding HasSelectedGroupSavings}" />
+                                <ItemsControl ItemsSource="{Binding SelectedGroupSavings}" IsVisible="{Binding HasSelectedGroupSavings}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate x:DataType="vm:SavingOptionViewModel">
                                             <Button Margin="0,4"
@@ -459,7 +615,7 @@
                                                         BorderBrush="{DynamicResource Color.BorderSoft}">
                                                     <Grid RowDefinitions="Auto, Auto"
                                                           RowSpacing="8">
-                                                        <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
+                                                        <Grid ColumnDefinitions="Auto, 200, 180, *, Auto" ColumnSpacing="10">
                                                             <Border Width="42"
                                                                     Height="42"
                                                                     CornerRadius="21"
@@ -495,7 +651,20 @@
                                                                                Classes="muted" />
                                                                 </Grid>
                                                             </StackPanel>
-                                                            <TextBlock Grid.Column="2"
+                                                            <Border Grid.Column="2"
+                                                                    Background="{Binding AccentBrush}"
+                                                                    CornerRadius="20"
+                                                                    Padding="12,6"
+                                                                    MinWidth="120"
+                                                                    HorizontalAlignment="Left"
+                                                                    VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding OwnerDisplayText}"
+                                                                           HorizontalAlignment="Center"
+                                                                           TextAlignment="Center"
+                                                                           TextWrapping="Wrap"
+                                                                           VerticalAlignment="Center" />
+                                                            </Border>
+                                                            <TextBlock Grid.Column="4"
                                                                        Text="{Binding ProgressDisplay}"
                                                                        Classes="muted"
                                                                        FontWeight="SemiBold"
@@ -509,19 +678,30 @@
                                                                      Height="8"
                                                                      CornerRadius="4"
                                                                      Foreground="{Binding AccentBrush}"
-                                                                     Background="#D1D5DB" />
+                                                                     Background="{DynamicResource Color.SurfaceStrong}" />
                                                     </Grid>
                                                 </Border>
                                             </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
                                 </ItemsControl>
+                                </StackPanel>
                             </StackPanel>
+                            </ScrollViewer>
                         </TabItem>
                     </TabControl>
                 </Grid>
-                </Border>
-            </Grid>
+                <StackPanel IsVisible="{Binding HasNoGroups}"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="14">
+                    <TextBlock Text="{Binding Texts.NoGroupsText}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+                </Grid>
+            </Border>
 
             <Border x:Name="GroupSavingOverlay"
                     IsVisible="False"
@@ -682,7 +862,7 @@
                                                  Height="18"
                                                  CornerRadius="9"
                                                  Foreground="{Binding ActiveSavingColorBrush}"
-                                                 Background="#D1D5DB" />
+                                                 Background="{DynamicResource Color.SurfaceStrong}" />
                                     <TabControl Grid.Row="2">
                                         <TabItem Header="{Binding Texts.SavingsTitle}">
                                             <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -721,8 +901,8 @@
                                                                     <DataTemplate x:DataType="vm:TransactionItemViewModel">
                                                                         <Border Classes="list-item-card" Margin="0,4">
                                                                             <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
-                                                                                <Border Width="36" Height="36" CornerRadius="8" Background="White" BorderBrush="{DynamicResource Color.BorderSoft}" BorderThickness="1" BoxShadow="{DynamicResource Shadow.Card}">
-                                                                                    <TextBlock Text="{Binding CategoryIcon}" FontFamily="{StaticResource EmojiFontFamily}" FontSize="16" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                                                <Border Width="36" Height="36" CornerRadius="8" Background="{DynamicResource Color.InputSurface}" BorderBrush="{DynamicResource Color.InputBorder}" BorderThickness="1" BoxShadow="{DynamicResource Shadow.Card}">
+                                                                                    <TextBlock Text="{Binding CategoryIcon}" FontFamily="{StaticResource EmojiFontFamily}" FontSize="16" Foreground="{DynamicResource Color.Text2}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                                                                                 </Border>
                                                                                 <StackPanel Grid.Column="1" Spacing="2">
                                                                                     <TextBlock Text="{Binding DescriptionDisplay}" FontWeight="SemiBold" TextWrapping="Wrap" />
@@ -744,8 +924,8 @@
                                                 <StackPanel Spacing="12" Margin="0,12,0,0">
                                                     <StackPanel.Styles>
                                                         <Style Selector="CheckBox:disabled"><Setter Property="Opacity" Value="1" /></Style>
-                                                        <Style Selector="CheckBox:disabled /template/ Border#NormalRectangle"><Setter Property="Background" Value="#D1D5DB" /><Setter Property="BorderBrush" Value="#9CA3AF" /></Style>
-                                                        <Style Selector="CheckBox.saving-checkbox-insufficient /template/ Border#NormalRectangle"><Setter Property="Background" Value="#D1D5DB" /><Setter Property="BorderBrush" Value="#9CA3AF" /></Style>
+                                                        <Style Selector="CheckBox:disabled /template/ Border#NormalRectangle"><Setter Property="Background" Value="{DynamicResource Color.SurfaceStrong}" /><Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" /></Style>
+                                                        <Style Selector="CheckBox.saving-checkbox-insufficient /template/ Border#NormalRectangle"><Setter Property="Background" Value="{DynamicResource Color.SurfaceStrong}" /><Setter Property="BorderBrush" Value="{DynamicResource Color.BorderSoft}" /></Style>
                                                     </StackPanel.Styles>
                                                     <Grid ColumnDefinitions="2*, *, Auto" ColumnSpacing="8">
                                                         <TextBox Watermark="{Binding Texts.SavingItemNameHint}" Text="{Binding SavingItemNameInput}" />
@@ -786,6 +966,7 @@
                     </Border>
                 </Grid>
             </Border>
+        </Grid>
         </Grid>
     </Border>
 </UserControl>

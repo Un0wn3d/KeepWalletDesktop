@@ -2,21 +2,22 @@ using System;
 using System.Linq;
 using Avalonia;
 using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
 
 namespace KeepWalletDesktop.Services;
 
 public static class ThemeManager
 {
-    public const string Theme1 = "Theme1";
-    public const string Theme2 = "Theme2";
+    public const string Light = "Light";
+    public const string Dark = "Dark";
 
-    private static readonly Uri Theme1Resources = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Theme1/Theme.axaml");
-    private static readonly Uri Theme2Resources = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Theme2/Theme.axaml");
-    private static readonly Uri Theme1Styles = new("avares://KeepWalletDesktop/Assets/Styles/AppTheme.axaml");
-    private static readonly Uri Theme2Styles = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Theme2/AppTheme.axaml");
+    private static readonly Uri LightResources = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Light/Theme.axaml");
+    private static readonly Uri LightStyles = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Light/AppTheme.axaml");
+    private static readonly Uri DarkResources = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Dark/Theme.axaml");
+    private static readonly Uri DarkStyles = new("avares://KeepWalletDesktop/Assets/Styles/Themes/Dark/AppTheme.axaml");
 
     public static string NormalizeThemeName(string? themeName) =>
-        string.Equals(themeName, Theme2, StringComparison.OrdinalIgnoreCase) ? Theme2 : Theme1;
+        string.Equals(themeName, Dark, StringComparison.OrdinalIgnoreCase) ? Dark : Light;
 
     public static void Apply(string? themeName)
     {
@@ -27,8 +28,9 @@ public static class ThemeManager
         }
 
         var normalizedTheme = NormalizeThemeName(themeName);
-        var resourceSource = normalizedTheme == Theme2 ? Theme2Resources : Theme1Resources;
-        var styleSource = normalizedTheme == Theme2 ? Theme2Styles : Theme1Styles;
+        var resourceSource = normalizedTheme == Dark ? DarkResources : LightResources;
+        var styleSource = normalizedTheme == Dark ? DarkStyles : LightStyles;
+        app.RequestedThemeVariant = normalizedTheme == Dark ? ThemeVariant.Dark : ThemeVariant.Light;
 
         var oldThemeResources = app.Resources.MergedDictionaries
             .OfType<ResourceInclude>()
@@ -62,8 +64,8 @@ public static class ThemeManager
     private static bool IsThemeResource(Uri? source)
     {
         var value = source?.ToString() ?? string.Empty;
-        return value.Contains("/Assets/Styles/Themes/Theme1/Theme.axaml", StringComparison.OrdinalIgnoreCase) ||
-            value.Contains("/Assets/Styles/Themes/Theme2/Theme.axaml", StringComparison.OrdinalIgnoreCase) ||
+        return value.Contains("/Assets/Styles/Themes/Light/Theme.axaml", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("/Assets/Styles/Themes/Dark/Theme.axaml", StringComparison.OrdinalIgnoreCase) ||
             value.Contains("/Assets/Styles/Colors.axaml", StringComparison.OrdinalIgnoreCase);
     }
 
@@ -71,6 +73,7 @@ public static class ThemeManager
     {
         var value = source?.ToString() ?? string.Empty;
         return value.Contains("/Assets/Styles/AppTheme.axaml", StringComparison.OrdinalIgnoreCase) ||
-            value.Contains("/Assets/Styles/Themes/Theme2/AppTheme.axaml", StringComparison.OrdinalIgnoreCase);
+            value.Contains("/Assets/Styles/Themes/Light/AppTheme.axaml", StringComparison.OrdinalIgnoreCase) ||
+            value.Contains("/Assets/Styles/Themes/Dark/AppTheme.axaml", StringComparison.OrdinalIgnoreCase);
     }
 }

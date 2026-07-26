@@ -1,0 +1,87 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"             x:Class="KeepWalletDesktop.Views.Controls.BankAccountDialogView"
+             x:DataType="vm:MainViewModel">
+        <Border Grid.ColumnSpan="2"
+                IsVisible="{Binding IsBankAccountDialogOpen}"
+                Background="{DynamicResource Color.Overlay}"
+                PointerPressed="DialogOverlay_OnPointerPressed">
+            <Grid HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Width="420">
+                <Border Classes="dialog-card">
+                    <StackPanel Spacing="10">
+                        <TextBlock Text="{Binding BankAccountDialogTitle}"
+                                   HorizontalAlignment="Center"
+                                   FontSize="24"
+                                   FontWeight="Bold" />
+
+                        <TextBlock Text="{Binding Texts.OnboardingAccountNameLabel}" Classes="form-label" />
+                        <TextBox Text="{Binding BankAccountNameInput}" />
+
+                        <TextBlock Text="{Binding Texts.TransactionCurrencyLabel}" Classes="form-label" />
+                        <ComboBox ItemsSource="{Binding OnboardingCurrencyOptions}"
+                                  SelectedItem="{Binding BankAccountCurrencyInput}"
+                                  HorizontalAlignment="Stretch" />
+
+                        <TextBlock Text="{Binding Texts.TransactionAmountLabel}" Classes="form-label" />
+                        <TextBox Text="{Binding BankAccountBalanceInput}" />
+
+                        <CheckBox Content="{Binding Texts.BankAccountDefaultLabel}"
+                                  IsChecked="{Binding IsBankAccountDefaultInput}" />
+
+                        <CheckBox Content="{Binding Texts.ShareAccountButton}"
+                                  IsChecked="{Binding IsBankAccountSharedInput}"
+                                  IsEnabled="{Binding CanEditBankAccountShareGroups}" />
+                        <ScrollViewer MaxHeight="110"
+                                      IsVisible="{Binding IsBankAccountSharedInput}"
+                                      IsEnabled="{Binding CanEditBankAccountShareGroups}">
+                            <ItemsControl ItemsSource="{Binding BankAccountShareGroups}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:GroupSelectionItemViewModel">
+                                        <CheckBox Content="{Binding Name}"
+                                                  IsChecked="{Binding IsSelected}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+
+                        <TextBlock Text="{Binding BankAccountStatusMessage}"
+                                   Classes="message-text" />
+
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    Spacing="8">
+                            <Button Width="44"
+                                    Height="44"
+                                    Padding="0"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Classes="danger-button"
+                                    IsVisible="{Binding IsEditingBankAccount}"
+                                    Command="{Binding DeleteBankAccountCommand}">
+                                <Viewbox Width="18" Height="18">
+                                    <TextBlock Text="&#xE4A6;"
+                                               FontFamily="{DynamicResource Phosphor-Fill}"
+                                               TextAlignment="Center"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center" />
+                                </Viewbox>
+                            </Button>
+                            <Button Content="{Binding SaveBankAccountButtonText}"
+                                    Classes="primary-button"
+                                    Command="{Binding SaveBankAccountCommand}" />
+                            <Button Content="{Binding Texts.CancelButton}"
+                                    Classes="secondary-button"
+                                    Command="{Binding CloseBankAccountDialogCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+</UserControl>

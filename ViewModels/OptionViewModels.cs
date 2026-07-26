@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Serilog;
@@ -42,6 +43,22 @@ public partial class CategoryOptionViewModel : ObservableObject
 }
 
 public sealed record BankAccountFilterOptionViewModel(Guid? AccountId, string DisplayName);
+
+public partial class FilterSelectionOptionViewModel : ObservableObject
+{
+    public FilterSelectionOptionViewModel(string code, string displayName, bool isSelected = true)
+    {
+        Code = code;
+        DisplayName = displayName;
+        this.isSelected = isSelected;
+    }
+
+    public string Code { get; }
+    public string DisplayName { get; }
+
+    [ObservableProperty]
+    private bool isSelected;
+}
 
 public partial class OnboardingCategoryOptionViewModel : ObservableObject
 {
@@ -214,6 +231,11 @@ public static class CategoryIconCatalog
         if (LegacyGlyphs.TryGetValue(key, out var legacyGlyph))
         {
             return legacyGlyph;
+        }
+
+        if (IsEmojiGlyphKey(key))
+        {
+            return key;
         }
 
         var option = Options.FirstOrDefault(x => string.Equals(x.Key, key, StringComparison.Ordinal));
@@ -442,6 +464,11 @@ public static class CategoryIconCatalog
     private static bool IsIgnoredModifierCode(string hexCode) =>
         int.TryParse(hexCode, System.Globalization.NumberStyles.HexNumber, null, out var codePoint) &&
         (codePoint is >= 0x1F3FB and <= 0x1F3FF || codePoint is >= 0x1F9B0 and <= 0x1F9B3);
+
+    private static bool IsEmojiGlyphKey(string key) =>
+        key.EnumerateRunes().Any(rune => rune.Value is
+            >= 0x1F000 and <= 0x1FAFF or
+            >= 0x2600 and <= 0x27BF);
 
     private static string FromCodePoint(int codePoint) => char.ConvertFromUtf32(codePoint);
 

@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:KeepWalletDesktop.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="vm:MainViewModel"
+             x:Class="KeepWalletDesktop.Views.Controls.LeftPanelView">
+    <!-- Left Panel -->
+    <Border Classes="sidebar-shell">
+            
+        <Grid RowDefinitions="Auto, *, Auto"
+              HorizontalAlignment="Center">
+                
+            <!-- Icon -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,10">
+                <Image Source="/Assets/cardholder-sidebar.png"
+                       Width="32"
+                       Height="32"
+                       Stretch="Uniform" />
+            </StackPanel>
+            
+            <StackPanel Grid.Row="1" HorizontalAlignment="Center" Spacing="2" >
+                <Button Click="btn_Home"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavHomeTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE2C2;" >
+                    </Label>
+                </Button>
+                <Button Click="btn_BankAccounts"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavBankAccountsTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE1D2;"></Label>
+                </Button>
+                <Button Click="btn_ScheduledPayments"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavScheduledPaymentsTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE10A;"></Label>
+                </Button>
+                <Button Click="btn_Savings"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavSavingsTooltip}">
+                    <Label Classes="nav-icon" Content="&#xEA04;"></Label>
+                </Button>
+                <Button Click="btn_AllTransactions"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavAllTransactionsTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE2DE;"></Label>
+                </Button>
+                
+                
+                <Button Click="btn_Groups"
+                        Margin="0,15,0,0"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavGroupsTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE68E;"></Label>
+                </Button>
+                
+                <Button Click="btn_Categories"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavCategoriesTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE464;"></Label>
+                </Button>
+                <Button Click="btn_Reporting"
+                        Margin="0,15,0,0"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavReportingTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE59A;"></Label>
+                </Button>
+                
+            </StackPanel>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2" HorizontalAlignment="Center">
+                <Button Focusable="False"
+                        Name="Settings"
+                        Click="btn_Settings"
+                        ToolTip.Placement="Right"
+                        ToolTip.Tip="{Binding Texts.NavSettingsTooltip}">
+                    <Label Classes="nav-icon" Content="&#xE270;"></Label>
+                </Button>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

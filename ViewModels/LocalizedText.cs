@@ -40,11 +40,16 @@ public interface ILocalizedText
     string BankAccountsTitle { get; }
     string BankAccountsUnavailableText { get; }
     string BankAccountDefaultLabel { get; }
+    string BankAccountLabel { get; }
     string NewBankAccountButton { get; }
     string BankAccountDetailsTitle { get; }
     string LastBankAccountRequired { get; }
     string SavingsTitle { get; }
+    string ActiveSavingsTitle { get; }
+    string CompletedSavingsTitle { get; }
+    string SavingCompletedLabel { get; }
     string NoSavingsText { get; }
+    string NoGroupsText { get; }
     string AllAccountsFilter { get; }
     string AvailableBalanceLabel { get; }
     string SavingNameLabel { get; }
@@ -69,13 +74,85 @@ public interface ILocalizedText
     string SavingsDeadlineHint { get; }
     string SettingsTitle { get; }
     string UsersTitle { get; }
+    string RegistrationSettingsTitle { get; }
+    string RegistrationEnabledLabel { get; }
+    string AdminRegisterButton { get; }
     string UserLogsTitle { get; }
+    string ViewAllButton { get; }
+    string LogsUsersLabel { get; }
+    string LogsAllUsersFilter { get; }
+    string LogsAllActionsFilter { get; }
+    string LogsDateHeader { get; }
+    string LogsDescriptionHeader { get; }
+    string LogDescriptionLogin { get; }
+    string LogDescriptionLogout { get; }
+    string LogDescriptionCreated { get; }
+    string LogDescriptionUpdated { get; }
+    string LogDescriptionUpdatedWithChanges { get; }
+    string LogDescriptionDeleted { get; }
+    string LogFieldCategory { get; }
+    string LogFieldPrice { get; }
+    string LogFieldDate { get; }
+    string LogFieldDescription { get; }
+    string LogFieldName { get; }
+    string LogFieldAccount { get; }
+    string LogActionCreateUsers { get; }
+    string LogActionUpdateUsers { get; }
+    string LogActionDeleteUsers { get; }
+    string LogActionCreateGroups { get; }
+    string LogActionUpdateGroups { get; }
+    string LogActionDeleteGroups { get; }
+    string LogActionCreateGroupMembers { get; }
+    string LogActionUpdateGroupMembers { get; }
+    string LogActionDeleteGroupMembers { get; }
+    string LogActionCreateAccounts { get; }
+    string LogActionUpdateAccounts { get; }
+    string LogActionDeleteAccounts { get; }
+    string LogActionCreateTransactions { get; }
+    string LogActionUpdateTransactions { get; }
+    string LogActionDeleteTransactions { get; }
+    string LogActionCreateSavings { get; }
+    string LogActionUpdateSavings { get; }
+    string LogActionDeleteSavings { get; }
+    string LogActionCreateBudgets { get; }
+    string LogActionUpdateBudgets { get; }
+    string LogActionDeleteBudgets { get; }
+    string LogActionCreateCategories { get; }
+    string LogActionUpdateCategories { get; }
+    string LogActionDeleteCategories { get; }
+    string LogActionCreateRecurringPayments { get; }
+    string LogActionUpdateRecurringPayments { get; }
+    string LogActionDeleteRecurringPayments { get; }
+    string LogActionCreateWishList { get; }
+    string LogActionUpdateWishList { get; }
+    string LogActionDeleteWishList { get; }
+    string LogActionCreateUserCategoryPreferences { get; }
+    string LogActionUpdateUserCategoryPreferences { get; }
+    string LogActionDeleteUserCategoryPreferences { get; }
+    string LogActionLogin { get; }
+    string LogActionLogout { get; }
+    string LogEntityUser { get; }
+    string LogEntityGroup { get; }
+    string LogEntityGroupMember { get; }
+    string LogEntityAccount { get; }
+    string LogEntityTransaction { get; }
+    string LogEntitySaving { get; }
+    string LogEntityBudget { get; }
+    string LogEntityCategory { get; }
+    string LogEntityRecurringPayment { get; }
+    string LogEntityWishList { get; }
+    string LogEntityCategorySettings { get; }
+    string LogEntitySession { get; }
+    string LogEntityRecord { get; }
+    string LogActionLabel { get; }
     string UserAccessLabel { get; }
     string GroupsTitle { get; }
     string GroupNameHint { get; }
     string AddGroupButton { get; }
     string AddGroupButtonPlus { get; }
     string GroupAccessTitle { get; }
+    string OwnerLabel { get; }
+    string GroupsLabel { get; }
     string GroupMemberSearchHint { get; }
     string GroupMembersTitle { get; }
     string SearchButton { get; }
@@ -84,9 +161,18 @@ public interface ILocalizedText
     string DeleteGroupButton { get; }
     string ChangeRoleButton { get; }
     string TransferOwnerButton { get; }
+    string LeaveGroupButton { get; }
+    string GroupRoleOwner { get; }
+    string GroupRoleMember { get; }
+    string GroupRoleViewer { get; }
+    string LeaveGroupPromptTitle { get; }
+    string LeaveGroupPromptMessage { get; }
+    string TransferOwnerPromptTitle { get; }
+    string TransferOwnerPromptMessage { get; }
     string ShareAccountButton { get; }
     string ShareSavingsButton { get; }
     string GroupAccessAccountsTitle { get; }
+    string GroupAccessScheduledPaymentsTitle { get; }
     string GroupAccessTransactionsTitle { get; }
     string GroupAccessSavingsTitle { get; }
     string StatusLabel { get; }
@@ -109,6 +195,9 @@ public interface ILocalizedText
     string GuestLabel { get; }
     string DefaultRole { get; }
     string LoginPasswordRequired { get; }
+    string AuthLoginState { get; }
+    string AuthInvalidCredentials { get; }
+    string AuthNoServerConnection { get; }
     string ConnectingToApi { get; }
     string LoginSuccessPrefix { get; }
     string ApiConnectionErrorPrefix { get; }
@@ -131,6 +220,8 @@ public interface ILocalizedText
     string TransactionsEndpointMissing { get; }
     string UnauthorizedError { get; }
     string ConflictError { get; }
+    string DeleteCategoryErrorTitle { get; }
+    string DeleteCategoryInUseError { get; }
     string ValidationErrorPrefix { get; }
     string RequestErrorPrefix { get; }
     string TransactionsSectionTitle { get; }
@@ -139,6 +230,7 @@ public interface ILocalizedText
     string TransactionAmountLabel { get; }
     string TransactionCurrencyLabel { get; }
     string TransactionCategoryLabel { get; }
+    string NewCategoryOption { get; }
     string TransactionDateLabel { get; }
     string TransactionTimeLabel { get; }
     string TransactionDescriptionLabel { get; }
@@ -158,6 +250,9 @@ public interface ILocalizedText
     string TransactionDeletedText { get; }
     string TransactionFormValidationText { get; }
     string AllTransactionsLink { get; }
+    string AllTransactionsTypeFilterPlaceholder { get; }
+    string AllTransactionsAccountsFilterPlaceholder { get; }
+    string AllTransactionsCategoriesFilterPlaceholder { get; }
     string TransactionDetailsTitle { get; }
     string NoCategoryText { get; }
     string TransactionDateHint { get; }
@@ -168,6 +263,33 @@ public interface ILocalizedText
     string TransactionBreakdownTitle { get; }
     string TransactionTimelineTitle { get; }
     string ChartNoDataText { get; }
+    string ReportingTitle { get; }
+    string ExportPdfButton { get; }
+    string ExportExcelButton { get; }
+    string ReportCategoryPeriodOption { get; }
+    string ReportMonthlyPlanOption { get; }
+    string ReportMonthlyExpensesOption { get; }
+    string BalanceLabel { get; }
+    string ReportCategoryPeriodTitle { get; }
+    string ReportExpenseSumPrefix { get; }
+    string ReportTransactionCountPrefix { get; }
+    string ReportMonthlyPlanTitle { get; }
+    string ReportFactPrefix { get; }
+    string ReportPlanPrefix { get; }
+    string RecentTransactionsTitle { get; }
+    string DateRangePreviousMonth { get; }
+    string DateRangeThisMonth { get; }
+    string DateRangeNextMonth { get; }
+    string DateRangeLastHour { get; }
+    string DateRangeLastTwoHours { get; }
+    string DateRangeLastThreeHours { get; }
+    string DateRangeLastSixHours { get; }
+    string DateRangeLastTwelveHours { get; }
+    string DateRangeLastDay { get; }
+    string DateRangeLastWeek { get; }
+    string DateRangeLastHalfYear { get; }
+    string DateRangeLastYear { get; }
+    string DateRangeCustom { get; }
     string CategoryGroceries { get; }
     string CategoryTransport { get; }
     string CategoryHousing { get; }
@@ -202,6 +324,7 @@ public interface ILocalizedText
     string DeleteCategoryPromptMessage { get; }
     string YesButton { get; }
     string NoButton { get; }
+    string OkButton { get; }
     string ScheduledPaymentsTitle { get; }
     string ScheduledPaymentNameLabel { get; }
     string ScheduledPaymentRemainingLabel { get; }
@@ -213,6 +336,10 @@ public interface ILocalizedText
     string ScheduledRepeatMonthly { get; }
     string ScheduledRepeatYearly { get; }
     string ScheduledRepeatCustom { get; }
+    string ScheduledRepeatYearOption { get; }
+    string ScheduledRepeatMonthOption { get; }
+    string ScheduledRepeatWeekOption { get; }
+    string ScheduledRepeatDayOption { get; }
     string ScheduledRepeatYearUnit { get; }
     string ScheduledRepeatYearsUnit { get; }
     string ScheduledRepeatMonthUnit { get; }
@@ -232,14 +359,28 @@ public interface ILocalizedText
     string ScheduledPaymentsFilterAll { get; }
     string ScheduledPaymentsFilterFuture { get; }
     string ScheduledPaymentsFilterOverdue { get; }
+    string ScheduledPaymentsCurrencyFilterPlaceholder { get; }
+    string ScheduledPaymentsCategoryFilterPlaceholder { get; }
+    string ScheduledPaymentsGroupsFilterTitle { get; }
+    string ScheduledPaymentsUsersFilterTitle { get; }
+    string ScheduledPaymentsClearAdvancedFilters { get; }
     string ScheduledPaymentsToday { get; }
     string ScheduledPaymentsDayShort { get; }
     string ScheduledPaymentsOverduePrefix { get; }
     string ThemeLabel { get; }
-    string Theme1Name { get; }
-    string Theme2Name { get; }
+    string LightThemeName { get; }
+    string DarkThemeName { get; }
     string MergeCategoriesTitle { get; }
     string MergeCategoriesButton { get; }
+    string NavHomeTooltip { get; }
+    string NavBankAccountsTooltip { get; }
+    string NavScheduledPaymentsTooltip { get; }
+    string NavSavingsTooltip { get; }
+    string NavAllTransactionsTooltip { get; }
+    string NavGroupsTooltip { get; }
+    string NavCategoriesTooltip { get; }
+    string NavReportingTooltip { get; }
+    string NavSettingsTooltip { get; }
     string IconSearchHint { get; }
 }
 
@@ -311,11 +452,16 @@ public sealed class LocalizedText : ILocalizedText
     public string BankAccountsTitle => Get(nameof(BankAccountsTitle));
     public string BankAccountsUnavailableText => Get(nameof(BankAccountsUnavailableText));
     public string BankAccountDefaultLabel => Get(nameof(BankAccountDefaultLabel));
+    public string BankAccountLabel => Get(nameof(BankAccountLabel));
     public string NewBankAccountButton => Get(nameof(NewBankAccountButton));
     public string BankAccountDetailsTitle => Get(nameof(BankAccountDetailsTitle));
     public string LastBankAccountRequired => Get(nameof(LastBankAccountRequired));
     public string SavingsTitle => Get(nameof(SavingsTitle));
+    public string ActiveSavingsTitle => Get(nameof(ActiveSavingsTitle));
+    public string CompletedSavingsTitle => Get(nameof(CompletedSavingsTitle));
+    public string SavingCompletedLabel => Get(nameof(SavingCompletedLabel));
     public string NoSavingsText => Get(nameof(NoSavingsText));
+    public string NoGroupsText => Get(nameof(NoGroupsText));
     public string AllAccountsFilter => Get(nameof(AllAccountsFilter));
     public string AvailableBalanceLabel => Get(nameof(AvailableBalanceLabel));
     public string SavingNameLabel => Get(nameof(SavingNameLabel));
@@ -340,13 +486,85 @@ public sealed class LocalizedText : ILocalizedText
     public string SavingsDeadlineHint => Get(nameof(SavingsDeadlineHint));
     public string SettingsTitle => Get(nameof(SettingsTitle));
     public string UsersTitle => Get(nameof(UsersTitle));
+    public string RegistrationSettingsTitle => Get(nameof(RegistrationSettingsTitle));
+    public string RegistrationEnabledLabel => Get(nameof(RegistrationEnabledLabel));
+    public string AdminRegisterButton => Get(nameof(AdminRegisterButton));
     public string UserLogsTitle => Get(nameof(UserLogsTitle));
+    public string ViewAllButton => Get(nameof(ViewAllButton));
+    public string LogsUsersLabel => Get(nameof(LogsUsersLabel));
+    public string LogsAllUsersFilter => Get(nameof(LogsAllUsersFilter));
+    public string LogsAllActionsFilter => Get(nameof(LogsAllActionsFilter));
+    public string LogsDateHeader => Get(nameof(LogsDateHeader));
+    public string LogsDescriptionHeader => Get(nameof(LogsDescriptionHeader));
+    public string LogDescriptionLogin => Get(nameof(LogDescriptionLogin));
+    public string LogDescriptionLogout => Get(nameof(LogDescriptionLogout));
+    public string LogDescriptionCreated => Get(nameof(LogDescriptionCreated));
+    public string LogDescriptionUpdated => Get(nameof(LogDescriptionUpdated));
+    public string LogDescriptionUpdatedWithChanges => Get(nameof(LogDescriptionUpdatedWithChanges));
+    public string LogDescriptionDeleted => Get(nameof(LogDescriptionDeleted));
+    public string LogFieldCategory => Get(nameof(LogFieldCategory));
+    public string LogFieldPrice => Get(nameof(LogFieldPrice));
+    public string LogFieldDate => Get(nameof(LogFieldDate));
+    public string LogFieldDescription => Get(nameof(LogFieldDescription));
+    public string LogFieldName => Get(nameof(LogFieldName));
+    public string LogFieldAccount => Get(nameof(LogFieldAccount));
+    public string LogActionCreateUsers => Get(nameof(LogActionCreateUsers));
+    public string LogActionUpdateUsers => Get(nameof(LogActionUpdateUsers));
+    public string LogActionDeleteUsers => Get(nameof(LogActionDeleteUsers));
+    public string LogActionCreateGroups => Get(nameof(LogActionCreateGroups));
+    public string LogActionUpdateGroups => Get(nameof(LogActionUpdateGroups));
+    public string LogActionDeleteGroups => Get(nameof(LogActionDeleteGroups));
+    public string LogActionCreateGroupMembers => Get(nameof(LogActionCreateGroupMembers));
+    public string LogActionUpdateGroupMembers => Get(nameof(LogActionUpdateGroupMembers));
+    public string LogActionDeleteGroupMembers => Get(nameof(LogActionDeleteGroupMembers));
+    public string LogActionCreateAccounts => Get(nameof(LogActionCreateAccounts));
+    public string LogActionUpdateAccounts => Get(nameof(LogActionUpdateAccounts));
+    public string LogActionDeleteAccounts => Get(nameof(LogActionDeleteAccounts));
+    public string LogActionCreateTransactions => Get(nameof(LogActionCreateTransactions));
+    public string LogActionUpdateTransactions => Get(nameof(LogActionUpdateTransactions));
+    public string LogActionDeleteTransactions => Get(nameof(LogActionDeleteTransactions));
+    public string LogActionCreateSavings => Get(nameof(LogActionCreateSavings));
+    public string LogActionUpdateSavings => Get(nameof(LogActionUpdateSavings));
+    public string LogActionDeleteSavings => Get(nameof(LogActionDeleteSavings));
+    public string LogActionCreateBudgets => Get(nameof(LogActionCreateBudgets));
+    public string LogActionUpdateBudgets => Get(nameof(LogActionUpdateBudgets));
+    public string LogActionDeleteBudgets => Get(nameof(LogActionDeleteBudgets));
+    public string LogActionCreateCategories => Get(nameof(LogActionCreateCategories));
+    public string LogActionUpdateCategories => Get(nameof(LogActionUpdateCategories));
+    public string LogActionDeleteCategories => Get(nameof(LogActionDeleteCategories));
+    public string LogActionCreateRecurringPayments => Get(nameof(LogActionCreateRecurringPayments));
+    public string LogActionUpdateRecurringPayments => Get(nameof(LogActionUpdateRecurringPayments));
+    public string LogActionDeleteRecurringPayments => Get(nameof(LogActionDeleteRecurringPayments));
+    public string LogActionCreateWishList => Get(nameof(LogActionCreateWishList));
+    public string LogActionUpdateWishList => Get(nameof(LogActionUpdateWishList));
+    public string LogActionDeleteWishList => Get(nameof(LogActionDeleteWishList));
+    public string LogActionCreateUserCategoryPreferences => Get(nameof(LogActionCreateUserCategoryPreferences));
+    public string LogActionUpdateUserCategoryPreferences => Get(nameof(LogActionUpdateUserCategoryPreferences));
+    public string LogActionDeleteUserCategoryPreferences => Get(nameof(LogActionDeleteUserCategoryPreferences));
+    public string LogActionLogin => Get(nameof(LogActionLogin));
+    public string LogActionLogout => Get(nameof(LogActionLogout));
+    public string LogEntityUser => Get(nameof(LogEntityUser));
+    public string LogEntityGroup => Get(nameof(LogEntityGroup));
+    public string LogEntityGroupMember => Get(nameof(LogEntityGroupMember));
+    public string LogEntityAccount => Get(nameof(LogEntityAccount));
+    public string LogEntityTransaction => Get(nameof(LogEntityTransaction));
+    public string LogEntitySaving => Get(nameof(LogEntitySaving));
+    public string LogEntityBudget => Get(nameof(LogEntityBudget));
+    public string LogEntityCategory => Get(nameof(LogEntityCategory));
+    public string LogEntityRecurringPayment => Get(nameof(LogEntityRecurringPayment));
+    public string LogEntityWishList => Get(nameof(LogEntityWishList));
+    public string LogEntityCategorySettings => Get(nameof(LogEntityCategorySettings));
+    public string LogEntitySession => Get(nameof(LogEntitySession));
+    public string LogEntityRecord => Get(nameof(LogEntityRecord));
+    public string LogActionLabel => Get(nameof(LogActionLabel));
     public string UserAccessLabel => Get(nameof(UserAccessLabel));
     public string GroupsTitle => Get(nameof(GroupsTitle));
     public string GroupNameHint => Get(nameof(GroupNameHint));
     public string AddGroupButton => Get(nameof(AddGroupButton));
     public string AddGroupButtonPlus => Get(nameof(AddGroupButtonPlus));
     public string GroupAccessTitle => Get(nameof(GroupAccessTitle));
+    public string OwnerLabel => Get(nameof(OwnerLabel));
+    public string GroupsLabel => Get(nameof(GroupsLabel));
     public string GroupMemberSearchHint => Get(nameof(GroupMemberSearchHint));
     public string GroupMembersTitle => Get(nameof(GroupMembersTitle));
     public string SearchButton => Get(nameof(SearchButton));
@@ -355,9 +573,18 @@ public sealed class LocalizedText : ILocalizedText
     public string DeleteGroupButton => Get(nameof(DeleteGroupButton));
     public string ChangeRoleButton => Get(nameof(ChangeRoleButton));
     public string TransferOwnerButton => Get(nameof(TransferOwnerButton));
+    public string LeaveGroupButton => Get(nameof(LeaveGroupButton));
+    public string GroupRoleOwner => Get(nameof(GroupRoleOwner));
+    public string GroupRoleMember => Get(nameof(GroupRoleMember));
+    public string GroupRoleViewer => Get(nameof(GroupRoleViewer));
+    public string LeaveGroupPromptTitle => Get(nameof(LeaveGroupPromptTitle));
+    public string LeaveGroupPromptMessage => Get(nameof(LeaveGroupPromptMessage));
+    public string TransferOwnerPromptTitle => Get(nameof(TransferOwnerPromptTitle));
+    public string TransferOwnerPromptMessage => Get(nameof(TransferOwnerPromptMessage));
     public string ShareAccountButton => Get(nameof(ShareAccountButton));
     public string ShareSavingsButton => Get(nameof(ShareSavingsButton));
     public string GroupAccessAccountsTitle => Get(nameof(GroupAccessAccountsTitle));
+    public string GroupAccessScheduledPaymentsTitle => Get(nameof(GroupAccessScheduledPaymentsTitle));
     public string GroupAccessTransactionsTitle => Get(nameof(GroupAccessTransactionsTitle));
     public string GroupAccessSavingsTitle => Get(nameof(GroupAccessSavingsTitle));
     public string StatusLabel => Get(nameof(StatusLabel));
@@ -380,6 +607,9 @@ public sealed class LocalizedText : ILocalizedText
     public string GuestLabel => Get(nameof(GuestLabel));
     public string DefaultRole => Get(nameof(DefaultRole));
     public string LoginPasswordRequired => Get(nameof(LoginPasswordRequired));
+    public string AuthLoginState => Get(nameof(AuthLoginState));
+    public string AuthInvalidCredentials => Get(nameof(AuthInvalidCredentials));
+    public string AuthNoServerConnection => Get(nameof(AuthNoServerConnection));
     public string ConnectingToApi => Get(nameof(ConnectingToApi));
     public string LoginSuccessPrefix => Get(nameof(LoginSuccessPrefix));
     public string ApiConnectionErrorPrefix => Get(nameof(ApiConnectionErrorPrefix));
@@ -402,6 +632,8 @@ public sealed class LocalizedText : ILocalizedText
     public string TransactionsEndpointMissing => Get(nameof(TransactionsEndpointMissing));
     public string UnauthorizedError => Get(nameof(UnauthorizedError));
     public string ConflictError => Get(nameof(ConflictError));
+    public string DeleteCategoryErrorTitle => Get(nameof(DeleteCategoryErrorTitle));
+    public string DeleteCategoryInUseError => Get(nameof(DeleteCategoryInUseError));
     public string ValidationErrorPrefix => Get(nameof(ValidationErrorPrefix));
     public string RequestErrorPrefix => Get(nameof(RequestErrorPrefix));
     public string TransactionsSectionTitle => Get(nameof(TransactionsSectionTitle));
@@ -410,6 +642,7 @@ public sealed class LocalizedText : ILocalizedText
     public string TransactionAmountLabel => Get(nameof(TransactionAmountLabel));
     public string TransactionCurrencyLabel => Get(nameof(TransactionCurrencyLabel));
     public string TransactionCategoryLabel => Get(nameof(TransactionCategoryLabel));
+    public string NewCategoryOption => Get(nameof(NewCategoryOption));
     public string TransactionDateLabel => Get(nameof(TransactionDateLabel));
     public string TransactionTimeLabel => Get(nameof(TransactionTimeLabel));
     public string TransactionDescriptionLabel => Get(nameof(TransactionDescriptionLabel));
@@ -429,6 +662,9 @@ public sealed class LocalizedText : ILocalizedText
     public string TransactionDeletedText => Get(nameof(TransactionDeletedText));
     public string TransactionFormValidationText => Get(nameof(TransactionFormValidationText));
     public string AllTransactionsLink => Get(nameof(AllTransactionsLink));
+    public string AllTransactionsTypeFilterPlaceholder => Get(nameof(AllTransactionsTypeFilterPlaceholder));
+    public string AllTransactionsAccountsFilterPlaceholder => Get(nameof(AllTransactionsAccountsFilterPlaceholder));
+    public string AllTransactionsCategoriesFilterPlaceholder => Get(nameof(AllTransactionsCategoriesFilterPlaceholder));
     public string TransactionDetailsTitle => Get(nameof(TransactionDetailsTitle));
     public string NoCategoryText => Get(nameof(NoCategoryText));
     public string TransactionDateHint => Get(nameof(TransactionDateHint));
@@ -439,6 +675,33 @@ public sealed class LocalizedText : ILocalizedText
     public string TransactionBreakdownTitle => Get(nameof(TransactionBreakdownTitle));
     public string TransactionTimelineTitle => Get(nameof(TransactionTimelineTitle));
     public string ChartNoDataText => Get(nameof(ChartNoDataText));
+    public string ReportingTitle => Get(nameof(ReportingTitle));
+    public string ExportPdfButton => Get(nameof(ExportPdfButton));
+    public string ExportExcelButton => Get(nameof(ExportExcelButton));
+    public string ReportCategoryPeriodOption => Get(nameof(ReportCategoryPeriodOption));
+    public string ReportMonthlyPlanOption => Get(nameof(ReportMonthlyPlanOption));
+    public string ReportMonthlyExpensesOption => Get(nameof(ReportMonthlyExpensesOption));
+    public string BalanceLabel => Get(nameof(BalanceLabel));
+    public string ReportCategoryPeriodTitle => Get(nameof(ReportCategoryPeriodTitle));
+    public string ReportExpenseSumPrefix => Get(nameof(ReportExpenseSumPrefix));
+    public string ReportTransactionCountPrefix => Get(nameof(ReportTransactionCountPrefix));
+    public string ReportMonthlyPlanTitle => Get(nameof(ReportMonthlyPlanTitle));
+    public string ReportFactPrefix => Get(nameof(ReportFactPrefix));
+    public string ReportPlanPrefix => Get(nameof(ReportPlanPrefix));
+    public string RecentTransactionsTitle => Get(nameof(RecentTransactionsTitle));
+    public string DateRangePreviousMonth => Get(nameof(DateRangePreviousMonth));
+    public string DateRangeThisMonth => Get(nameof(DateRangeThisMonth));
+    public string DateRangeNextMonth => Get(nameof(DateRangeNextMonth));
+    public string DateRangeLastHour => Get(nameof(DateRangeLastHour));
+    public string DateRangeLastTwoHours => Get(nameof(DateRangeLastTwoHours));
+    public string DateRangeLastThreeHours => Get(nameof(DateRangeLastThreeHours));
+    public string DateRangeLastSixHours => Get(nameof(DateRangeLastSixHours));
+    public string DateRangeLastTwelveHours => Get(nameof(DateRangeLastTwelveHours));
+    public string DateRangeLastDay => Get(nameof(DateRangeLastDay));
+    public string DateRangeLastWeek => Get(nameof(DateRangeLastWeek));
+    public string DateRangeLastHalfYear => Get(nameof(DateRangeLastHalfYear));
+    public string DateRangeLastYear => Get(nameof(DateRangeLastYear));
+    public string DateRangeCustom => Get(nameof(DateRangeCustom));
     public string CategoryGroceries => Get(nameof(CategoryGroceries));
     public string CategoryTransport => Get(nameof(CategoryTransport));
     public string CategoryHousing => Get(nameof(CategoryHousing));
@@ -473,6 +736,7 @@ public sealed class LocalizedText : ILocalizedText
     public string DeleteCategoryPromptMessage => Get(nameof(DeleteCategoryPromptMessage));
     public string YesButton => Get(nameof(YesButton));
     public string NoButton => Get(nameof(NoButton));
+    public string OkButton => Get(nameof(OkButton));
     public string ScheduledPaymentsTitle => Get(nameof(ScheduledPaymentsTitle));
     public string ScheduledPaymentNameLabel => Get(nameof(ScheduledPaymentNameLabel));
     public string ScheduledPaymentRemainingLabel => Get(nameof(ScheduledPaymentRemainingLabel));
@@ -484,6 +748,10 @@ public sealed class LocalizedText : ILocalizedText
     public string ScheduledRepeatMonthly => Get(nameof(ScheduledRepeatMonthly));
     public string ScheduledRepeatYearly => Get(nameof(ScheduledRepeatYearly));
     public string ScheduledRepeatCustom => Get(nameof(ScheduledRepeatCustom));
+    public string ScheduledRepeatYearOption => Get(nameof(ScheduledRepeatYearOption));
+    public string ScheduledRepeatMonthOption => Get(nameof(ScheduledRepeatMonthOption));
+    public string ScheduledRepeatWeekOption => Get(nameof(ScheduledRepeatWeekOption));
+    public string ScheduledRepeatDayOption => Get(nameof(ScheduledRepeatDayOption));
     public string ScheduledRepeatYearUnit => Get(nameof(ScheduledRepeatYearUnit));
     public string ScheduledRepeatYearsUnit => Get(nameof(ScheduledRepeatYearsUnit));
     public string ScheduledRepeatMonthUnit => Get(nameof(ScheduledRepeatMonthUnit));
@@ -503,13 +771,27 @@ public sealed class LocalizedText : ILocalizedText
     public string ScheduledPaymentsFilterAll => Get(nameof(ScheduledPaymentsFilterAll));
     public string ScheduledPaymentsFilterFuture => Get(nameof(ScheduledPaymentsFilterFuture));
     public string ScheduledPaymentsFilterOverdue => Get(nameof(ScheduledPaymentsFilterOverdue));
+    public string ScheduledPaymentsCurrencyFilterPlaceholder => Get(nameof(ScheduledPaymentsCurrencyFilterPlaceholder));
+    public string ScheduledPaymentsCategoryFilterPlaceholder => Get(nameof(ScheduledPaymentsCategoryFilterPlaceholder));
+    public string ScheduledPaymentsGroupsFilterTitle => Get(nameof(ScheduledPaymentsGroupsFilterTitle));
+    public string ScheduledPaymentsUsersFilterTitle => Get(nameof(ScheduledPaymentsUsersFilterTitle));
+    public string ScheduledPaymentsClearAdvancedFilters => Get(nameof(ScheduledPaymentsClearAdvancedFilters));
     public string ScheduledPaymentsToday => Get(nameof(ScheduledPaymentsToday));
     public string ScheduledPaymentsDayShort => Get(nameof(ScheduledPaymentsDayShort));
     public string ScheduledPaymentsOverduePrefix => Get(nameof(ScheduledPaymentsOverduePrefix));
     public string ThemeLabel => Get(nameof(ThemeLabel));
-    public string Theme1Name => Get(nameof(Theme1Name));
-    public string Theme2Name => Get(nameof(Theme2Name));
+    public string LightThemeName => Get(nameof(LightThemeName));
+    public string DarkThemeName => Get(nameof(DarkThemeName));
     public string MergeCategoriesTitle => Get(nameof(MergeCategoriesTitle));
     public string MergeCategoriesButton => Get(nameof(MergeCategoriesButton));
+    public string NavHomeTooltip => Get(nameof(NavHomeTooltip));
+    public string NavBankAccountsTooltip => Get(nameof(NavBankAccountsTooltip));
+    public string NavScheduledPaymentsTooltip => Get(nameof(NavScheduledPaymentsTooltip));
+    public string NavSavingsTooltip => Get(nameof(NavSavingsTooltip));
+    public string NavAllTransactionsTooltip => Get(nameof(NavAllTransactionsTooltip));
+    public string NavGroupsTooltip => Get(nameof(NavGroupsTooltip));
+    public string NavCategoriesTooltip => Get(nameof(NavCategoriesTooltip));
+    public string NavReportingTooltip => Get(nameof(NavReportingTooltip));
+    public string NavSettingsTooltip => Get(nameof(NavSettingsTooltip));
     public string IconSearchHint => Get(nameof(IconSearchHint));
 }

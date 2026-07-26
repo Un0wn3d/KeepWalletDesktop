@@ -1,7 +1,7 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:KeepWalletDesktop.ViewModels"
-             xmlns:modules="using:KeepWalletDesktop.Views.Mdules"
+             xmlns:modules="using:KeepWalletDesktop.Views.Modules"
              xmlns:lvc="using:LiveChartsCore.SkiaSharpView.Avalonia"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -13,7 +13,7 @@
         <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsHomePage}">
             <ScrollViewer VerticalScrollBarVisibility="Auto"
                           ScrollChanged="HomeScrollViewer_OnScrollChanged">
-                <Grid RowDefinitions="Auto, 260, Auto, Auto" RowSpacing="16" MaxWidth="1280">
+                <Grid RowDefinitions="Auto, Auto, Auto, Auto" RowSpacing="16" MaxWidth="1280">
                     <Border Grid.Row="0">
                         <Grid ColumnDefinitions="*, *, *" ColumnSpacing="16">
                             <Border Grid.Column="0" Classes="metric-card total">
@@ -55,7 +55,7 @@
                         </Grid>
                     </Border>
 
-                    <Border Grid.Row="1">
+                    <Border Grid.Row="1" MinHeight="{Binding HomeChartPanelHeight}">
                         <Grid ColumnDefinitions="*, *" ColumnSpacing="16">
                             <Button Grid.Column="0"
                                     Background="Transparent"
@@ -75,7 +75,8 @@
                                                    Text="{Binding Texts.TransactionBreakdownTitle}"
                                                    Classes="section-title" />
                                         <Grid Grid.Row="1" ColumnDefinitions="*, 220" ColumnSpacing="10">
-                                            <lvc:PieChart Grid.Column="0"
+                                            <lvc:PieChart x:Name="ExpensePieChart"
+                                                          Grid.Column="0"
                                                           Background="{DynamicResource Color.SurfaceAlt}"
                                                           LegendPosition="Hidden"
                                                           Series="{Binding Series}" />
@@ -118,7 +119,8 @@
                                                Text="{Binding TransactionTimelineTitle}"
                                                Classes="section-title" />
                                     <Grid Grid.Row="1">
-                                        <lvc:CartesianChart Background="{DynamicResource Color.SurfaceAlt}"
+                                        <lvc:CartesianChart x:Name="TimelineChart"
+                                                            Background="{DynamicResource Color.SurfaceAlt}"
                                                             Series="{Binding Chart}"
                                                             XAxes="{Binding TransactionTimelineXAxes}"
                                                             YAxes="{Binding TransactionTimelineYAxes}"
@@ -133,7 +135,7 @@
                         </Grid>
                     </Border>
 
-                    <modules:DateSortModule Grid.Row="2" HorizontalAlignment="Stretch" />
+                    <modules:DateSortModuleView Grid.Row="2" HorizontalAlignment="Stretch" />
 
                     <Border Grid.Row="3" Classes="expenses-card">
                             <Grid RowDefinitions="Auto, Auto, *">
@@ -191,8 +193,9 @@
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="52" />
                                                             <ColumnDefinition Width="5*" MinWidth="100" />
-                                                            <ColumnDefinition Width="2*" />
-                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                            <ColumnDefinition Width="120" />
+                                                            <ColumnDefinition Width="80" />
                                                         </Grid.ColumnDefinitions>
                                                         <Border Width="40"
                                                                 Height="40"
@@ -201,31 +204,45 @@
                                                             <Grid>
                                                                 <TextBlock Text="{Binding CategoryIcon}"
                                                                            FontFamily="{StaticResource EmojiFontFamily}"
-                                                                           Foreground="{DynamicResource Color.Text1}"
                                                                            FontSize="18"
-                                                                           FontWeight="SemiBold"
                                                                            HorizontalAlignment="Center"
                                                                            VerticalAlignment="Center" />
                                                             </Grid>
                                                         </Border>
-                                                        <StackPanel Grid.Column="1" Spacing="2" MinWidth="100" ClipToBounds="True">
-                                                            <TextBlock Text="{Binding DescriptionDisplay}"
-                                                                       VerticalAlignment="Center"
-                                                                       FontSize="14"
-                                                                       FontWeight="Medium"
-                                                                       TextWrapping="NoWrap"
-                                                                       TextTrimming="CharacterEllipsis" />
-                                                            <TextBlock Text="{Binding TransactionDateDisplay}"
-                                                                       Classes="muted"
-                                                                       TextWrapping="NoWrap"
-                                                                       TextTrimming="CharacterEllipsis" />
-                                                        </StackPanel>
+                                                        <Grid Grid.Column="1" ColumnDefinitions="220, Auto, *" ColumnSpacing="8" ClipToBounds="True">
+                                                            <StackPanel Spacing="2" ClipToBounds="True">
+                                                                <TextBlock Text="{Binding DescriptionDisplay}"
+                                                                           VerticalAlignment="Center"
+                                                                           FontSize="14"
+                                                                           FontWeight="Medium"
+                                                                           TextWrapping="NoWrap"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                                <TextBlock Text="{Binding TransactionDateDisplay}"
+                                                                           Classes="muted"
+                                                                           TextWrapping="NoWrap"
+                                                                           TextTrimming="CharacterEllipsis" />
+                                                            </StackPanel>
+                                                            <Border Grid.Column="1"
+                                                                    Background="{Binding GroupBrush}"
+                                                                    CornerRadius="20"
+                                                                    Padding="12,6"
+                                                                    VerticalAlignment="Center"
+                                                                    HorizontalAlignment="Left"
+                                                                    MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionGroupPillWidth}"
+                                                                    IsVisible="{Binding IsShared}">
+                                                                    <TextBlock Text="{Binding GroupDisplay}"
+                                                                               HorizontalAlignment="Center"
+                                                                               TextAlignment="Center"
+                                                                               TextWrapping="Wrap"
+                                                                               VerticalAlignment="Center" />
+                                                            </Border>
+                                                        </Grid>
                                                         <Border Grid.Column="2"
                                                                 Background="{Binding CategoryAnchorBrush}"
                                                                 CornerRadius="20"
                                                                 Padding="12,6"
                                                                 VerticalAlignment="Center"
-                                                                HorizontalAlignment="Center"
+                                                                HorizontalAlignment="Left"
                                                                 MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
                                                             <TextBlock Text="{Binding CategoryDisplay}"
                                                                        HorizontalAlignment="Center"
@@ -233,7 +250,7 @@
                                                                        TextWrapping="Wrap"
                                                                        VerticalAlignment="Center" />
                                                         </Border>
-                                                        <Grid Grid.Column="3" VerticalAlignment="Center" ClipToBounds="True">
+                                                        <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" ClipToBounds="True">
                                                             <TextBlock Text="{Binding AmountDisplay}"
                                                                        Foreground="{DynamicResource Color.Success}"
                                                                        FontWeight="Bold"

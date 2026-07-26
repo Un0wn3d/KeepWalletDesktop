@@ -8,7 +8,7 @@ namespace KeepWalletDesktop.Views;
 
 public partial class SavingsView : UserControl
 {
-    private readonly IconPickerModule iconPicker = new();
+    private readonly IconPickerModuleView iconPicker = new();
 
     public SavingsView()
     {
@@ -148,6 +148,14 @@ public partial class SavingsView : UserControl
         if (DataContext is MainViewModel viewModel && viewModel.BeginEditSavingDeadlineCommand.CanExecute(null))
         {
             viewModel.BeginEditSavingDeadlineCommand.Execute(null);
+        }
+    }
+
+    private void SavingGroups_OnDoubleTapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is MainViewModel viewModel && viewModel.BeginEditSavingGroupsCommand.CanExecute(null))
+        {
+            viewModel.BeginEditSavingGroupsCommand.Execute(null);
         }
     }
 }

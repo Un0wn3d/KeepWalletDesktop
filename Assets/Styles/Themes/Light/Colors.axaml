@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <SolidColorBrush x:Key="Color.LeftPanelView">#101522</SolidColorBrush>
+  <LinearGradientBrush x:Key="Color.Background" StartPoint="0%,0%" EndPoint="100%,100%">
+    <GradientStop Color="#E7F1FF" Offset="0.0"/>
+    <GradientStop Color="#CFE3F9" Offset="0.55"/>
+    <GradientStop Color="#F8FBFF" Offset="1.0"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="Color.Surface">#F8FBFF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.SurfaceAlt">#EDF5FF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.SurfaceStrong">#DCEBFF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.SurfaceOverlay">#F7FBFFFF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.BorderSoft">#220F172A</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.Text1">#111827</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.Text2">#FFFFFFFF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.TextMuted">#5B6475</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.Accent">#2F80ED</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.AccentSoft">#E1EEFF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.InputSurface">#F2F7FF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.InputSurfaceHover">#E1EEFF</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.InputBorder">#8AB7F4</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.Success">#1F9D55</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.SuccessPanel">#2F9E44</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.Danger">#D64545</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.DangerPanel">#D64545</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.InfoPanel">#2F80ED</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.AquaPanel">#D8F3F0</SolidColorBrush>
+  <SolidColorBrush x:Key="Color.Overlay">#880C1220</SolidColorBrush>
+
+  <StaticResource x:Key="Brush.AppBackground" ResourceKey="Color.Background" />
+  <StaticResource x:Key="Brush.Card" ResourceKey="Color.Surface" />
+  <StaticResource x:Key="Brush.CardAlt" ResourceKey="Color.SurfaceAlt" />
+  <StaticResource x:Key="Brush.TextPrimary" ResourceKey="Color.Text1" />
+  <StaticResource x:Key="Brush.TextSecondary" ResourceKey="Color.TextMuted" />
+  <StaticResource x:Key="Brush.Border" ResourceKey="Color.BorderSoft" />
+  <StaticResource x:Key="Brush.Accent" ResourceKey="Color.Accent" />
+  <StaticResource x:Key="Brush.AccentSoft" ResourceKey="Color.AccentSoft" />
+  <StaticResource x:Key="Brush.Income" ResourceKey="Color.Success" />
+  <StaticResource x:Key="Brush.Expense" ResourceKey="Color.Text1" />
+  <StaticResource x:Key="Brush.Danger" ResourceKey="Color.Danger" />
+  <StaticResource x:Key="Brush.Overlay" ResourceKey="Color.Overlay" />
+  <StaticResource x:Key="Brush.Sidebar" ResourceKey="Color.LeftPanelView" />
+</ResourceDictionary>

@@ -9,6 +9,6 @@
         Title="KeepWalletDesktop">
         
         <Grid ColumnDefinitions="Auto, *">
-                <controls:LeftPanel Grid.Column="0"></controls:LeftPanel>
+                <controls:LeftPanelView Grid.Column="0"></controls:LeftPanelView>
         </Grid>
 </Window>

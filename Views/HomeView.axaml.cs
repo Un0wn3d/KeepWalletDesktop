@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using KeepWalletDesktop.ViewModels;
 using System;
+using System.ComponentModel;
 
 namespace KeepWalletDesktop.Views;
 
@@ -12,6 +13,47 @@ public partial class HomeView : UserControl
     public HomeView()
     {
         InitializeComponent();
+        DataContextChanged += (_, _) => AttachViewModel();
+        AttachViewModel();
+    }
+
+    private MainViewModel? attachedViewModel;
+
+    private void AttachViewModel()
+    {
+        if (attachedViewModel is not null)
+        {
+            attachedViewModel.PropertyChanged -= ViewModel_OnPropertyChanged;
+        }
+
+        attachedViewModel = DataContext as MainViewModel;
+        if (attachedViewModel is not null)
+        {
+            attachedViewModel.PropertyChanged += ViewModel_OnPropertyChanged;
+        }
+
+        ApplyChartTooltips();
+    }
+
+    private void ViewModel_OnPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(MainViewModel.ChartTooltipBackgroundPaint) or nameof(MainViewModel.ChartTooltipTextPaint))
+        {
+            ApplyChartTooltips();
+        }
+    }
+
+    private void ApplyChartTooltips()
+    {
+        if (DataContext is not MainViewModel viewModel)
+        {
+            return;
+        }
+
+        ExpensePieChart.TooltipBackgroundPaint = viewModel.ChartTooltipBackgroundPaint;
+        ExpensePieChart.TooltipTextPaint = viewModel.ChartTooltipTextPaint;
+        TimelineChart.TooltipBackgroundPaint = viewModel.ChartTooltipBackgroundPaint;
+        TimelineChart.TooltipTextPaint = viewModel.ChartTooltipTextPaint;
     }
 
     private void HomeScrollViewer_OnScrollChanged(object? sender, ScrollChangedEventArgs e)

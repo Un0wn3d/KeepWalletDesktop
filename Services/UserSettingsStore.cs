@@ -8,7 +8,8 @@ public sealed class UserSettings
 {
     public string ApiBaseUrl { get; set; } = string.Empty;
     public string LastLogin { get; set; } = string.Empty;
-    public string ThemeName { get; set; } = ThemeManager.Theme1;
+    public string LanguageCode { get; set; } = "ua";
+    public string ThemeName { get; set; } = ThemeManager.Light;
 }
 
 public static class UserSettingsStore

@@ -99,6 +99,9 @@
   <data name="BankAccountDefaultLabel" xml:space="preserve">
     <value>Основний рахунок</value>
   </data>
+  <data name="BankAccountLabel" xml:space="preserve">
+    <value>Банківський рахунок</value>
+  </data>
   <data name="NewBankAccountButton" xml:space="preserve">
     <value>Новий банківський рахунок</value>
   </data>
@@ -111,17 +114,125 @@
   <data name="SavingsTitle" xml:space="preserve">
     <value>Накопичення</value>
   </data>
+  <data name="ActiveSavingsTitle" xml:space="preserve">
+    <value>Активні скарбнички</value>
+  </data>
+  <data name="CompletedSavingsTitle" xml:space="preserve">
+    <value>Завершені скарбнички</value>
+  </data>
+  <data name="SavingCompletedLabel" xml:space="preserve">
+    <value>Завершено</value>
+  </data>
   <data name="NoSavingsText" xml:space="preserve">
-    <value>Сбережений нет</value>
+    <value>Скарбничок нема</value>
   </data>
   <data name="AllAccountsFilter" xml:space="preserve">
     <value>Усі рахунки</value>
   </data>
+  <data name="LogsUsersLabel" xml:space="preserve">
+    <value>Користувачі</value>
+  </data>
+  <data name="LogsAllUsersFilter" xml:space="preserve">
+    <value>Користувачі</value>
+  </data>
+  <data name="LogsAllActionsFilter" xml:space="preserve">
+    <value>Дії</value>
+  </data>
+  <data name="LogsDateHeader" xml:space="preserve">
+    <value>Дата</value>
+  </data>
+  <data name="LogsDescriptionHeader" xml:space="preserve">
+    <value>Опис</value>
+  </data>
+  <data name="LogDescriptionLogin" xml:space="preserve">
+    <value>Вхід у систему.</value>
+  </data>
+  <data name="LogDescriptionLogout" xml:space="preserve">
+    <value>Вихід із системи.</value>
+  </data>
+  <data name="LogDescriptionCreated" xml:space="preserve">
+    <value>Створено {0} {1}.</value>
+  </data>
+  <data name="LogDescriptionUpdated" xml:space="preserve">
+    <value>Оновлено {0} {1}.</value>
+  </data>
+  <data name="LogDescriptionUpdatedWithChanges" xml:space="preserve">
+    <value>Оновлено {0} {1}: {2}.</value>
+  </data>
+  <data name="LogDescriptionDeleted" xml:space="preserve">
+    <value>Видалено {0} {1}.</value>
+  </data>
+  <data name="LogFieldCategory" xml:space="preserve">
+    <value>категорія</value>
+  </data>
+  <data name="LogFieldPrice" xml:space="preserve">
+    <value>сума</value>
+  </data>
+  <data name="LogFieldDate" xml:space="preserve">
+    <value>дата</value>
+  </data>
+  <data name="LogFieldDescription" xml:space="preserve">
+    <value>опис</value>
+  </data>
+  <data name="LogFieldName" xml:space="preserve">
+    <value>назва</value>
+  </data>
+  <data name="LogFieldAccount" xml:space="preserve">
+    <value>рахунок</value>
+  </data>
+  <data name="LogActionCreateUsers" xml:space="preserve"><value>Створення користувача</value></data>
+  <data name="LogActionUpdateUsers" xml:space="preserve"><value>Оновлення користувача</value></data>
+  <data name="LogActionDeleteUsers" xml:space="preserve"><value>Видалення користувача</value></data>
+  <data name="LogActionCreateGroups" xml:space="preserve"><value>Створення групи</value></data>
+  <data name="LogActionUpdateGroups" xml:space="preserve"><value>Оновлення групи</value></data>
+  <data name="LogActionDeleteGroups" xml:space="preserve"><value>Видалення групи</value></data>
+  <data name="LogActionCreateGroupMembers" xml:space="preserve"><value>Додавання учасника групи</value></data>
+  <data name="LogActionUpdateGroupMembers" xml:space="preserve"><value>Оновлення учасника групи</value></data>
+  <data name="LogActionDeleteGroupMembers" xml:space="preserve"><value>Видалення учасника групи</value></data>
+  <data name="LogActionCreateAccounts" xml:space="preserve"><value>Створення рахунку</value></data>
+  <data name="LogActionUpdateAccounts" xml:space="preserve"><value>Оновлення рахунку</value></data>
+  <data name="LogActionDeleteAccounts" xml:space="preserve"><value>Видалення рахунку</value></data>
+  <data name="LogActionCreateTransactions" xml:space="preserve"><value>Створення транзакції</value></data>
+  <data name="LogActionUpdateTransactions" xml:space="preserve"><value>Оновлення транзакції</value></data>
+  <data name="LogActionDeleteTransactions" xml:space="preserve"><value>Видалення транзакції</value></data>
+  <data name="LogActionCreateSavings" xml:space="preserve"><value>Створення скарбнички</value></data>
+  <data name="LogActionUpdateSavings" xml:space="preserve"><value>Оновлення скарбнички</value></data>
+  <data name="LogActionDeleteSavings" xml:space="preserve"><value>Видалення скарбнички</value></data>
+  <data name="LogActionCreateBudgets" xml:space="preserve"><value>Створення бюджету</value></data>
+  <data name="LogActionUpdateBudgets" xml:space="preserve"><value>Оновлення бюджету</value></data>
+  <data name="LogActionDeleteBudgets" xml:space="preserve"><value>Видалення бюджету</value></data>
+  <data name="LogActionCreateCategories" xml:space="preserve"><value>Створення категорії</value></data>
+  <data name="LogActionUpdateCategories" xml:space="preserve"><value>Оновлення категорії</value></data>
+  <data name="LogActionDeleteCategories" xml:space="preserve"><value>Видалення категорії</value></data>
+  <data name="LogActionCreateRecurringPayments" xml:space="preserve"><value>Створення регулярного платежу</value></data>
+  <data name="LogActionUpdateRecurringPayments" xml:space="preserve"><value>Оновлення регулярного платежу</value></data>
+  <data name="LogActionDeleteRecurringPayments" xml:space="preserve"><value>Видалення регулярного платежу</value></data>
+  <data name="LogActionCreateWishList" xml:space="preserve"><value>Створення списку бажань</value></data>
+  <data name="LogActionUpdateWishList" xml:space="preserve"><value>Оновлення списку бажань</value></data>
+  <data name="LogActionDeleteWishList" xml:space="preserve"><value>Видалення списку бажань</value></data>
+  <data name="LogActionCreateUserCategoryPreferences" xml:space="preserve"><value>Створення налаштувань категорій</value></data>
+  <data name="LogActionUpdateUserCategoryPreferences" xml:space="preserve"><value>Оновлення налаштувань категорій</value></data>
+  <data name="LogActionDeleteUserCategoryPreferences" xml:space="preserve"><value>Видалення налаштувань категорій</value></data>
+  <data name="LogActionLogin" xml:space="preserve"><value>Вхід у систему</value></data>
+  <data name="LogActionLogout" xml:space="preserve"><value>Вихід із системи</value></data>
+  <data name="LogEntityUser" xml:space="preserve"><value>користувача</value></data>
+  <data name="LogEntityGroup" xml:space="preserve"><value>групу</value></data>
+  <data name="LogEntityGroupMember" xml:space="preserve"><value>учасника групи</value></data>
+  <data name="LogEntityAccount" xml:space="preserve"><value>рахунок</value></data>
+  <data name="LogEntityTransaction" xml:space="preserve"><value>транзакцію</value></data>
+  <data name="LogEntitySaving" xml:space="preserve"><value>скарбничку</value></data>
+  <data name="LogEntityBudget" xml:space="preserve"><value>бюджет</value></data>
+  <data name="LogEntityCategory" xml:space="preserve"><value>категорію</value></data>
+  <data name="LogEntityRecurringPayment" xml:space="preserve"><value>регулярний платіж</value></data>
+  <data name="LogEntityWishList" xml:space="preserve"><value>список бажань</value></data>
+  <data name="LogEntityCategorySettings" xml:space="preserve"><value>налаштування категорій</value></data>
+  <data name="LogEntitySession" xml:space="preserve"><value>сесію</value></data>
+  <data name="LogEntityRecord" xml:space="preserve"><value>запис</value></data>
   <data name="AvailableBalanceLabel" xml:space="preserve">
     <value>Доступний баланс</value>
   </data>
   <data name="GoalAmountLabel" xml:space="preserve">
-    <value>Ціль накопичення (₴)</value>
+    <value>Ціль накопичення</value>
   </data>
   <data name="GoalAmountHint" xml:space="preserve">
     <value>Наприклад: 50000</value>
@@ -216,6 +327,15 @@
   <data name="LoginPasswordRequired" xml:space="preserve">
     <value>Введіть логін і пароль.</value>
   </data>
+  <data name="AuthLoginState" xml:space="preserve">
+    <value>Вхід до системи</value>
+  </data>
+  <data name="AuthInvalidCredentials" xml:space="preserve">
+    <value>Невірний логін чи пароль</value>
+  </data>
+  <data name="AuthNoServerConnection" xml:space="preserve">
+    <value>Немає підключення до серверу</value>
+  </data>
   <data name="ConnectingToApi" xml:space="preserve">
     <value>Підключення до KeepWalletAPI...</value>
   </data>
@@ -306,6 +426,9 @@
   <data name="TransactionCategoryLabel" xml:space="preserve">
     <value>Категорія</value>
   </data>
+  <data name="NewCategoryOption" xml:space="preserve">
+    <value>Нова категорія</value>
+  </data>
   <data name="TransactionDateLabel" xml:space="preserve">
     <value>Дата</value>
   </data>
@@ -363,6 +486,15 @@
   <data name="AllTransactionsLink" xml:space="preserve">
     <value>Усі транзакції</value>
   </data>
+  <data name="AllTransactionsTypeFilterPlaceholder" xml:space="preserve">
+    <value>Тип транзакції</value>
+  </data>
+  <data name="AllTransactionsAccountsFilterPlaceholder" xml:space="preserve">
+    <value>Рахунки</value>
+  </data>
+  <data name="AllTransactionsCategoriesFilterPlaceholder" xml:space="preserve">
+    <value>Категорії</value>
+  </data>
   <data name="TransactionDetailsTitle" xml:space="preserve">
     <value>Редагування транзакції</value>
   </data>
@@ -393,6 +525,33 @@
   <data name="ChartNoDataText" xml:space="preserve">
     <value>Додайте транзакції, щоб побачити графіки.</value>
   </data>
+  <data name="ReportingTitle" xml:space="preserve"><value>Звітність профілю</value></data>
+  <data name="ExportPdfButton" xml:space="preserve"><value>Експорт PDF</value></data>
+  <data name="ExportExcelButton" xml:space="preserve"><value>Експорт Excel</value></data>
+  <data name="ReportCategoryPeriodOption" xml:space="preserve"><value>Звітність по обраній категорії за період часу</value></data>
+  <data name="ReportMonthlyPlanOption" xml:space="preserve"><value>Планові витрати за обраний місяць</value></data>
+  <data name="ReportMonthlyExpensesOption" xml:space="preserve"><value>Помісячні витрати за обраний період</value></data>
+  <data name="BalanceLabel" xml:space="preserve"><value>Баланс</value></data>
+  <data name="ReportCategoryPeriodTitle" xml:space="preserve"><value>Звітність по обраній категорії за період</value></data>
+  <data name="ReportExpenseSumPrefix" xml:space="preserve"><value>Сума витрат</value></data>
+  <data name="ReportTransactionCountPrefix" xml:space="preserve"><value>Кількість транзакцій</value></data>
+  <data name="ReportMonthlyPlanTitle" xml:space="preserve"><value>Планові витрати за обраний місяць</value></data>
+  <data name="ReportFactPrefix" xml:space="preserve"><value>Факт</value></data>
+  <data name="ReportPlanPrefix" xml:space="preserve"><value>План</value></data>
+  <data name="RecentTransactionsTitle" xml:space="preserve"><value>Останні транзакції</value></data>
+  <data name="DateRangePreviousMonth" xml:space="preserve"><value>Минулий місяць</value></data>
+  <data name="DateRangeThisMonth" xml:space="preserve"><value>Цей місяць</value></data>
+  <data name="DateRangeNextMonth" xml:space="preserve"><value>Наступний місяць</value></data>
+  <data name="DateRangeLastHour" xml:space="preserve"><value>Остання година</value></data>
+  <data name="DateRangeLastTwoHours" xml:space="preserve"><value>Останні 2 години</value></data>
+  <data name="DateRangeLastThreeHours" xml:space="preserve"><value>Останні 3 години</value></data>
+  <data name="DateRangeLastSixHours" xml:space="preserve"><value>Останні 6 годин</value></data>
+  <data name="DateRangeLastTwelveHours" xml:space="preserve"><value>Останні 12 годин</value></data>
+  <data name="DateRangeLastDay" xml:space="preserve"><value>Останній день</value></data>
+  <data name="DateRangeLastWeek" xml:space="preserve"><value>Останній тиждень</value></data>
+  <data name="DateRangeLastHalfYear" xml:space="preserve"><value>Останні пів року</value></data>
+  <data name="DateRangeLastYear" xml:space="preserve"><value>Останній рік</value></data>
+  <data name="DateRangeCustom" xml:space="preserve"><value>Діапазон</value></data>
   <data name="CategoryGroceries" xml:space="preserve">
     <value>Продукти</value>
   </data>
@@ -489,11 +648,20 @@
   <data name="DeleteCategoryPromptMessage" xml:space="preserve">
     <value>Категорія «{0}» буде видалена для всіх користувачів застосунку. Цю дію не можна скасувати. Продовжити?</value>
   </data>
+  <data name="DeleteCategoryErrorTitle" xml:space="preserve">
+    <value>Помилка видалення категорії</value>
+  </data>
+  <data name="DeleteCategoryInUseError" xml:space="preserve">
+    <value>Ця категорія вже використовується. Її не можна видалити.</value>
+  </data>
   <data name="YesButton" xml:space="preserve">
     <value>Так</value>
   </data>
   <data name="NoButton" xml:space="preserve">
     <value>Ні</value>
+  </data>
+  <data name="OkButton" xml:space="preserve">
+    <value>ОК</value>
   </data>
   <data name="ScheduledPaymentsTitle" xml:space="preserve">
     <value>Заплановані платежі</value>
@@ -508,7 +676,19 @@
     <value>Повторення</value>
   </data>
   <data name="ScheduledPaymentCustomRepeatHint" xml:space="preserve">
-    <value>10 days / 2 weeks / 1 month</value>
+    <value>10 днів / 2 тижні / 1 місяць</value>
+  </data>
+  <data name="ScheduledRepeatYearOption" xml:space="preserve">
+    <value>Роки</value>
+  </data>
+  <data name="ScheduledRepeatMonthOption" xml:space="preserve">
+    <value>Місяці</value>
+  </data>
+  <data name="ScheduledRepeatWeekOption" xml:space="preserve">
+    <value>Тижні</value>
+  </data>
+  <data name="ScheduledRepeatDayOption" xml:space="preserve">
+    <value>Дні</value>
   </data>
   <data name="ScheduledRepeatYearUnit" xml:space="preserve">
     <value>рік</value>
@@ -547,13 +727,13 @@
     <value>Оплачено</value>
   </data>
   <data name="ScheduledPaymentsTotalCardTitle" xml:space="preserve">
-    <value>Заплановані</value>
+    <value>Заплановані цього місяця</value>
   </data>
   <data name="ScheduledPaymentsPaidThisMonthCardTitle" xml:space="preserve">
     <value>Оплачені цього місяця</value>
   </data>
   <data name="ScheduledPaymentsUnpaidCardTitle" xml:space="preserve">
-    <value>Не оплачені</value>
+    <value>Неоплачені цього місяця</value>
   </data>
   <data name="ScheduledPaymentsOverdueCardTitle" xml:space="preserve">
     <value>Прострочені</value>
@@ -566,6 +746,21 @@
   </data>
   <data name="ScheduledPaymentsFilterOverdue" xml:space="preserve">
     <value>Прострочені</value>
+  </data>
+  <data name="ScheduledPaymentsCurrencyFilterPlaceholder" xml:space="preserve">
+    <value>Валюта</value>
+  </data>
+  <data name="ScheduledPaymentsCategoryFilterPlaceholder" xml:space="preserve">
+    <value>Категорія</value>
+  </data>
+  <data name="ScheduledPaymentsGroupsFilterTitle" xml:space="preserve">
+    <value>Групи</value>
+  </data>
+  <data name="ScheduledPaymentsUsersFilterTitle" xml:space="preserve">
+    <value>Користувачі</value>
+  </data>
+  <data name="ScheduledPaymentsClearAdvancedFilters" xml:space="preserve">
+    <value>Очистити фільтр</value>
   </data>
   <data name="ScheduledPaymentsToday" xml:space="preserve">
     <value>Сьогодні</value>
@@ -598,7 +793,7 @@
     <value>Історія ставок</value>
   </data>
   <data name="SavingsDeadlineLabel" xml:space="preserve">
-    <value>Дедлайн (дд.мм.рррр)</value>
+    <value>Цільова дата</value>
   </data>
   <data name="SavingsDeadlineHint" xml:space="preserve">
     <value>31.12.2026</value>
@@ -606,14 +801,32 @@
   <data name="UserLogsTitle" xml:space="preserve">
     <value>Логи користувача та груп</value>
   </data>
+  <data name="ViewAllButton" xml:space="preserve">
+    <value>Переглянути всі</value>
+  </data>
+  <data name="LogActionLabel" xml:space="preserve">
+    <value>Дія</value>
+  </data>
   <data name="GroupNameHint" xml:space="preserve">
     <value>Назва групи</value>
   </data>
   <data name="UsersTitle" xml:space="preserve">
     <value>Користувачі</value>
   </data>
+  <data name="RegistrationSettingsTitle" xml:space="preserve">
+    <value>Реєстрація</value>
+  </data>
+  <data name="RegistrationEnabledLabel" xml:space="preserve">
+    <value>Дозволити нові реєстрації</value>
+  </data>
+  <data name="AdminRegisterButton" xml:space="preserve">
+    <value>Зареєструвати</value>
+  </data>
   <data name="GroupsTitle" xml:space="preserve">
     <value>Групи</value>
+  </data>
+  <data name="NoGroupsText" xml:space="preserve">
+    <value>Груп нема</value>
   </data>
   <data name="AddGroupButton" xml:space="preserve">
     <value>Додати групу</value>
@@ -623,6 +836,12 @@
   </data>
   <data name="GroupAccessTitle" xml:space="preserve">
     <value>Доступ до групи</value>
+  </data>
+  <data name="OwnerLabel" xml:space="preserve">
+    <value>Власник:</value>
+  </data>
+  <data name="GroupsLabel" xml:space="preserve">
+    <value>Групи:</value>
   </data>
   <data name="GroupMemberSearchHint" xml:space="preserve">
     <value>Пошук за username, email або ім'ям</value>
@@ -648,14 +867,41 @@
   <data name="TransferOwnerButton" xml:space="preserve">
     <value>Зробити власником</value>
   </data>
+  <data name="LeaveGroupButton" xml:space="preserve">
+    <value>Вийти</value>
+  </data>
+  <data name="GroupRoleOwner" xml:space="preserve">
+    <value>Власник</value>
+  </data>
+  <data name="GroupRoleMember" xml:space="preserve">
+    <value>Учасник</value>
+  </data>
+  <data name="GroupRoleViewer" xml:space="preserve">
+    <value>Переглядач</value>
+  </data>
+  <data name="LeaveGroupPromptTitle" xml:space="preserve">
+    <value>Вийти з групи?</value>
+  </data>
+  <data name="LeaveGroupPromptMessage" xml:space="preserve">
+    <value>Ви втратите доступ до цієї групи та її спільних даних. Ваші накопичення, заплановані платежі та рахунки більше не відображатимуться в групі. Уже оплачені платежі залишаться в історії групи.</value>
+  </data>
+  <data name="TransferOwnerPromptTitle" xml:space="preserve">
+    <value>Передати права власника?</value>
+  </data>
+  <data name="TransferOwnerPromptMessage" xml:space="preserve">
+    <value>Після підтвердження вибраний учасник стане власником групи.</value>
+  </data>
   <data name="ShareAccountButton" xml:space="preserve">
     <value>Надати доступ до рахунку</value>
   </data>
   <data name="ShareSavingsButton" xml:space="preserve">
-    <value>Надати доступ до накопичення</value>
+    <value>Надати доступ</value>
   </data>
   <data name="GroupAccessAccountsTitle" xml:space="preserve">
     <value>Рахунки</value>
+  </data>
+  <data name="GroupAccessScheduledPaymentsTitle" xml:space="preserve">
+    <value>Заплановані платежі</value>
   </data>
   <data name="GroupAccessTransactionsTitle" xml:space="preserve">
     <value>Транзакції</value>
@@ -687,11 +933,11 @@
   <data name="ThemeLabel" xml:space="preserve">
     <value>Тема</value>
   </data>
-  <data name="Theme1Name" xml:space="preserve">
-    <value>Тема 1</value>
+  <data name="LightThemeName" xml:space="preserve">
+    <value>Світла</value>
   </data>
-  <data name="Theme2Name" xml:space="preserve">
-    <value>Тема 2</value>
+  <data name="DarkThemeName" xml:space="preserve">
+    <value>Темна</value>
   </data>
   <data name="MergeCategoriesTitle" xml:space="preserve">
     <value>Об'єднання категорій</value>
@@ -701,5 +947,32 @@
   </data>
   <data name="IconSearchHint" xml:space="preserve">
     <value>Пошук емодзі</value>
+  </data>
+  <data name="NavHomeTooltip" xml:space="preserve">
+    <value>Головна</value>
+  </data>
+  <data name="NavBankAccountsTooltip" xml:space="preserve">
+    <value>Банківські рахунки</value>
+  </data>
+  <data name="NavScheduledPaymentsTooltip" xml:space="preserve">
+    <value>Заплановані платежі</value>
+  </data>
+  <data name="NavSavingsTooltip" xml:space="preserve">
+    <value>Накопичення</value>
+  </data>
+  <data name="NavAllTransactionsTooltip" xml:space="preserve">
+    <value>Усі транзакції</value>
+  </data>
+  <data name="NavGroupsTooltip" xml:space="preserve">
+    <value>Групи</value>
+  </data>
+  <data name="NavCategoriesTooltip" xml:space="preserve">
+    <value>Категорії</value>
+  </data>
+  <data name="NavReportingTooltip" xml:space="preserve">
+    <value>Звіти</value>
+  </data>
+  <data name="NavSettingsTooltip" xml:space="preserve">
+    <value>Налаштування</value>
   </data>
 </root>

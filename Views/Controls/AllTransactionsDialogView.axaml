@@ -1,0 +1,292 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:KeepWalletDesktop.ViewModels"
+             xmlns:modules="using:KeepWalletDesktop.Views.Modules"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="800"
+             d:DesignHeight="450"             x:Class="KeepWalletDesktop.Views.Controls.AllTransactionsDialogView"
+             x:DataType="vm:MainViewModel">
+    <UserControl.Styles>
+        <Style Selector="Button.scheduled-advanced-filter-button">
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource Color.InputSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.InputBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+        <Style Selector="Button.clear-filter-button">
+            <Setter Property="Width" Value="36" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource Color.InputSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource Color.InputBorder}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+    </UserControl.Styles>
+        <Border Grid.Column="1" Margin="16" IsVisible="{Binding IsAllTransactionsPage}">
+            <Border Classes="panel-card">
+                    <Grid RowDefinitions="Auto, Auto, Auto, *" RowSpacing="12">
+                        <TextBlock Text="{Binding Texts.AllTransactionsLink}"
+                                   FontSize="24"
+                                   FontWeight="Bold" />
+
+                        <modules:DateSortModuleView Grid.Row="1" />
+
+                        <Grid Grid.Row="2"
+                              ColumnDefinitions="2*, Auto, Auto, Auto, Auto, Auto, Auto"
+                              ColumnSpacing="10">
+                            <TextBox Text="{Binding TransactionSearchText}"
+                                     Watermark="{Binding Texts.TransactionDescriptionHint}" />
+                            <Button Grid.Column="1"
+                                    Classes="scheduled-advanced-filter-button"
+                                    Classes.active="{Binding HasTransactionAdvancedFilter}">
+                                <TextBlock Text="&#xE4D6;"
+                                           FontFamily="{DynamicResource Phosphor}"
+                                           FontSize="19"
+                                           Foreground="{DynamicResource Color.Text1}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                                <Button.Flyout>
+                                    <Flyout Placement="Bottom"
+                                            VerticalOffset="8">
+                                        <Border Width="360"
+                                                Padding="16"
+                                                CornerRadius="8"
+                                                Background="{DynamicResource Color.Surface}">
+                                            <StackPanel Spacing="12">
+                                                <Grid ColumnDefinitions="*, Auto">
+                                                    <TextBlock Text="{Binding Texts.ScheduledPaymentsGroupsFilterTitle}"
+                                                               Classes="form-label"
+                                                               VerticalAlignment="Center" />
+                                                    <Button Grid.Column="1"
+                                                            Classes="link-button"
+                                                            Command="{Binding ClearTransactionAdvancedFiltersCommand}">
+                                                        <TextBlock Text="&#xE26C;"
+                                                                   FontFamily="{DynamicResource Phosphor}"
+                                                                   FontSize="18"
+                                                                   VerticalAlignment="Center" />
+                                                    </Button>
+                                                </Grid>
+                                                <ItemsControl ItemsSource="{Binding TransactionGroupFilterOptions}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:FilterSelectionOptionViewModel">
+                                                            <CheckBox Content="{Binding DisplayName}"
+                                                                      IsChecked="{Binding IsSelected}"
+                                                                      Margin="0,0,12,8"
+                                                                      IsCheckedChanged="TransactionAdvancedFilter_OnChanged" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+
+                                                <TextBlock Text="{Binding Texts.ScheduledPaymentsUsersFilterTitle}"
+                                                           Classes="form-label" />
+                                                <ItemsControl ItemsSource="{Binding TransactionUserFilterOptions}">
+                                                    <ItemsControl.ItemsPanel>
+                                                        <ItemsPanelTemplate>
+                                                            <WrapPanel Orientation="Horizontal" />
+                                                        </ItemsPanelTemplate>
+                                                    </ItemsControl.ItemsPanel>
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate x:DataType="vm:FilterSelectionOptionViewModel">
+                                                            <CheckBox Content="{Binding DisplayName}"
+                                                                      IsChecked="{Binding IsSelected}"
+                                                                      Margin="0,0,12,8"
+                                                                      IsCheckedChanged="TransactionAdvancedFilter_OnChanged" />
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
+                                        </Border>
+                                    </Flyout>
+                                </Button.Flyout>
+                            </Button>
+                            <ComboBox Grid.Column="2"
+                                      ItemsSource="{Binding TransactionTypeFilterOptions}"
+                                      SelectedItem="{Binding SelectedTransactionTypeFilter}"
+                                      PlaceholderText="{Binding Texts.AllTransactionsTypeFilterPlaceholder}"
+                                      MinWidth="150">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="3"
+                                      ItemsSource="{Binding TransactionAccountFilterOptions}"
+                                      SelectedItem="{Binding SelectedTransactionAccountFilter}"
+                                      MinWidth="160">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:BankAccountFilterOptionViewModel">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="4"
+                                      ItemsSource="{Binding TransactionCurrencyFilterOptions}"
+                                      SelectedItem="{Binding SelectedTransactionCurrencyFilter}"
+                                      MinWidth="120">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="5"
+                                      ItemsSource="{Binding TransactionCategoryFilterOptions}"
+                                      SelectedItem="{Binding SelectedTransactionCategoryFilter}"
+                                      MinWidth="150">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:CategoryOptionViewModel">
+                                        <TextBlock Text="{Binding DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <Button Grid.Column="6"
+                                    Classes="clear-filter-button"
+                                    Command="{Binding ClearTransactionFiltersCommand}">
+                                <TextBlock Text="&#xE26C;"
+                                           FontFamily="{DynamicResource Phosphor}"
+                                           FontSize="18"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                        </Grid>
+
+                        <ScrollViewer Grid.Row="3"
+                                      x:Name="TransactionsScrollViewer"
+                                      VerticalScrollBarVisibility="Auto"
+                                      ScrollChanged="TransactionsScrollViewer_OnScrollChanged">
+                            <ItemsControl ItemsSource="{Binding FilteredTransactions}" Background="Transparent">
+                                <ItemsControl.Styles>
+                                    <Style Selector="Button.transaction-row-button">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                    </Style>
+                                    <Style Selector="Button.transaction-row-button:pointerover">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                    </Style>
+                                    <Style Selector="Button.transaction-row-button:pressed">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                    </Style>
+                                    <Style Selector="Button.transaction-row-button:pointerover /template/ ContentPresenter">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                    </Style>
+                                    <Style Selector="Button.transaction-row-button:pressed /template/ ContentPresenter">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Setter Property="BorderBrush" Value="Transparent" />
+                                    </Style>
+                                </ItemsControl.Styles>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:TransactionItemViewModel">
+                                        <Button Background="Transparent"
+                                                Classes="transaction-row-button"
+                                                BorderThickness="0"
+                                                Padding="0"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                Command="{ReflectionBinding $parent[UserControl].DataContext.EditTransactionCommand}"
+                                                CommandParameter="{Binding .}">
+                                            <Border Classes="list-item-card">
+                                                <Grid ColumnSpacing="12"
+                                                      VerticalAlignment="Center">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="52" />
+                                                        <ColumnDefinition Width="5*" MinWidth="100" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="120" />
+                                                        <ColumnDefinition Width="80" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Width="40"
+                                                            Height="40"
+                                                            CornerRadius="8"
+                                                            Background="{Binding CategoryAnchorBrush}">
+                                                        <Grid>
+                                                            <TextBlock Text="{Binding CategoryIcon}"
+                                                                       FontFamily="{StaticResource EmojiFontFamily}"
+                                                                       FontSize="18"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                        </Grid>
+                                                    </Border>
+                                                    <Grid Grid.Column="1" ColumnDefinitions="220, Auto, *" ColumnSpacing="8" ClipToBounds="True">
+                                                        <StackPanel Spacing="2" ClipToBounds="True">
+                                                            <TextBlock Text="{Binding DescriptionDisplay}"
+                                                                       VerticalAlignment="Center"
+                                                                       FontSize="14"
+                                                                       FontWeight="Medium"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                            <TextBlock Text="{Binding TransactionDateDisplay}"
+                                                                       Classes="muted"
+                                                                       TextWrapping="NoWrap"
+                                                                       TextTrimming="CharacterEllipsis" />
+                                                        </StackPanel>
+                                                        <Border Grid.Column="1"
+                                                                Background="{Binding GroupBrush}"
+                                                                CornerRadius="20"
+                                                                Padding="12,6"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Left"
+                                                                MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionGroupPillWidth}"
+                                                                IsVisible="{Binding IsShared}">
+                                                            <TextBlock Text="{Binding GroupDisplay}"
+                                                                       HorizontalAlignment="Center"
+                                                                       TextAlignment="Center"
+                                                                       TextWrapping="Wrap"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                    </Grid>
+                                                    <Border Grid.Column="2"
+                                                            Background="{Binding CategoryAnchorBrush}"
+                                                            CornerRadius="20"
+                                                            Padding="12,6"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Left"
+                                                            MinWidth="{ReflectionBinding $parent[UserControl].DataContext.TransactionCategoryPillWidth}">
+                                                        <TextBlock Text="{Binding CategoryDisplay}"
+                                                                   HorizontalAlignment="Center"
+                                                                   TextAlignment="Center"
+                                                                   TextWrapping="Wrap"
+                                                                   VerticalAlignment="Center" />
+                                                    </Border>
+                                                    <Grid Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Left" ClipToBounds="True">
+                                                       <TextBlock Text="{Binding AmountDisplay}"
+                                                                   Foreground="{DynamicResource Color.Success}"
+                                                                   FontWeight="Bold"
+                                                                   TextAlignment="Left"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   IsVisible="{Binding IsIncome}" />
+                                                        <TextBlock Text="{Binding AmountDisplay}"
+                                                                   Foreground="{DynamicResource Color.Danger}"
+                                                                   FontWeight="Bold"
+                                                                   TextAlignment="Left"
+                                                                   TextWrapping="NoWrap"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   IsVisible="{Binding !IsIncome}" />
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </Grid>
+            </Border>
+        </Border>
+</UserControl>

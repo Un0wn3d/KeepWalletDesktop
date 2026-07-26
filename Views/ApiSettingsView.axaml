@@ -78,30 +78,74 @@
                     </Border>
                     <Border Classes="panel-card" IsVisible="{Binding IsCurrentUserAdmin}">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="{Binding AdminUsersCountDisplay}"
+                            <TextBlock Text="{Binding Texts.RegistrationSettingsTitle}"
                                        FontSize="18"
                                        FontWeight="SemiBold" />
-                            <Grid ColumnDefinitions="2*, 3*, 2*, *, Auto, *" ColumnSpacing="10" Margin="0,0,0,4">
+                            <CheckBox Content="{Binding Texts.RegistrationEnabledLabel}"
+                                      IsChecked="{Binding IsRegistrationEnabled, Mode=TwoWay}"
+                                      Command="{Binding ToggleRegistrationEnabledCommand}" />
+                            <Grid ColumnDefinitions="*, Auto">
+                                <TextBlock Text="{Binding AdminUsersCountDisplay}"
+                                           FontSize="18"
+                                           FontWeight="SemiBold" />
+                                <Button Grid.Column="1"
+                                        Content="{Binding Texts.AdminRegisterButton}"
+                                        Classes="primary-button"
+                                        Command="{Binding BeginCreateAdminUserCommand}" />
+                            </Grid>
+                            <Grid ColumnDefinitions="200, 330, 260, 120, 110, 220, Auto"
+                                  ColumnSpacing="10"
+                                  HorizontalAlignment="Left"
+                                  Margin="0,0,0,4">
                                 <TextBlock Text="{Binding Texts.UsernameLabel}" Classes="muted" FontWeight="SemiBold" />
                                 <TextBlock Grid.Column="1" Text="{Binding Texts.EmailLabel}" Classes="muted" FontWeight="SemiBold" />
                                 <TextBlock Grid.Column="2" Text="{Binding Texts.FullNameLabel}" Classes="muted" FontWeight="SemiBold" />
                                 <TextBlock Grid.Column="3" Text="{Binding Texts.RoleLabel}" Classes="muted" FontWeight="SemiBold" />
                                 <TextBlock Grid.Column="4" Text="{Binding Texts.UserAccessLabel}" Classes="muted" FontWeight="SemiBold" />
-                                <TextBlock Grid.Column="5" Text="{Binding Texts.TransactionDateLabel}" Classes="muted" FontWeight="SemiBold" />
+                                <TextBlock Grid.Column="5"
+                                           Text="{Binding Texts.PasswordLabel}"
+                                           Classes="muted"
+                                           FontWeight="SemiBold"
+                                           IsVisible="{Binding AdminUsersEditingAny}" />
                             </Grid>
                             <ItemsControl ItemsSource="{Binding AdminUsers}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:UserListItemViewModel">
-                                        <Grid ColumnDefinitions="2*, 3*, 2*, *, Auto, *" ColumnSpacing="10" Margin="0,4">
-                                            <TextBlock Text="{Binding Username}" />
-                                            <TextBlock Grid.Column="1" Text="{Binding Email}" Classes="muted" />
-                                            <TextBlock Grid.Column="2" Text="{Binding FullName}" />
-                                            <TextBlock Grid.Column="3" Text="{Binding RoleName}" />
+                                        <Grid ColumnDefinitions="200, 330, 260, 120, 110, 220, Auto"
+                                              ColumnSpacing="10"
+                                              HorizontalAlignment="Left"
+                                              Margin="0,4"
+                                              DoubleTapped="AdminUserRow_OnDoubleTapped">
+                                            <TextBlock Text="{Binding Username}" IsVisible="{Binding !IsEditing}" VerticalAlignment="Center" />
+                                            <TextBox Text="{Binding UsernameInput}" IsVisible="{Binding IsEditing}" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Email}" IsVisible="{Binding !IsEditing}" VerticalAlignment="Center" Classes="muted" />
+                                            <TextBox Grid.Column="1" Text="{Binding EmailInput}" IsVisible="{Binding IsEditing}" />
+                                            <TextBlock Grid.Column="2" Text="{Binding FullName}" IsVisible="{Binding !IsEditing}" VerticalAlignment="Center" />
+                                            <TextBox Grid.Column="2" Text="{Binding FullNameInput}" IsVisible="{Binding IsEditing}" />
+                                            <TextBlock Grid.Column="3" Text="{Binding RoleName}" IsVisible="{Binding !IsEditing}" VerticalAlignment="Center" />
+                                            <ComboBox Grid.Column="3"
+                                                      ItemsSource="{ReflectionBinding $parent[UserControl].DataContext.AdminRoleOptions}"
+                                                      SelectedItem="{Binding SelectedRoleName}"
+                                                      IsVisible="{Binding IsEditing}" />
                                             <CheckBox Grid.Column="4"
-                                                      IsChecked="{Binding IsActive, Mode=OneWay}"
-                                                      Command="{ReflectionBinding $parent[UserControl].DataContext.ToggleUserAccessCommand}"
-                                                      CommandParameter="{Binding .}" />
-                                            <TextBlock Grid.Column="5" Text="{Binding CreatedAtDisplay}" Classes="muted" />
+                                                      HorizontalAlignment="Center"
+                                                      IsChecked="{Binding IsActiveInput}"
+                                                      IsEnabled="False"
+                                                      IsVisible="{Binding !IsEditing}" />
+                                            <CheckBox Grid.Column="4"
+                                                      HorizontalAlignment="Center"
+                                                      IsChecked="{Binding IsActiveInput}"
+                                                      IsVisible="{Binding IsEditing}" />
+                                            <TextBox Grid.Column="5"
+                                                     Text="{Binding PasswordInput}"
+                                                     PasswordChar="*"
+                                                     IsVisible="{Binding IsEditing}" />
+                                            <Button Grid.Column="6"
+                                                    Content="{ReflectionBinding $parent[UserControl].DataContext.Texts.SaveServerSettingsButton}"
+                                                    Classes="primary-button"
+                                                    IsVisible="{Binding IsEditing}"
+                                                    Command="{ReflectionBinding $parent[UserControl].DataContext.SaveAdminUserCommand}"
+                                                    CommandParameter="{Binding .}" />
                                         </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -110,10 +154,16 @@
                     </Border>
                     <Border Classes="panel-card">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="{Binding Texts.UserLogsTitle}"
-                                       FontSize="18"
-                                       FontWeight="SemiBold" />
-                            <ItemsControl ItemsSource="{Binding UserLogs}">
+                            <Grid ColumnDefinitions="*, Auto">
+                                <TextBlock Text="{Binding Texts.UserLogsTitle}"
+                                           FontSize="18"
+                                           FontWeight="SemiBold" />
+                                <Button Grid.Column="1"
+                                        Content="{Binding Texts.ViewAllButton}"
+                                        Classes="link-button"
+                                        Command="{Binding OpenAllLogsCommand}" />
+                            </Grid>
+                            <ItemsControl ItemsSource="{Binding VisibleUserLogs}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate x:DataType="vm:AuditLogItemViewModel">
                                         <Border Classes="list-item-card">

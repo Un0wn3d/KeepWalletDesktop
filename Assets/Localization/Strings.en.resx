@@ -99,6 +99,9 @@
   <data name="BankAccountDefaultLabel" xml:space="preserve">
     <value>Default account</value>
   </data>
+  <data name="BankAccountLabel" xml:space="preserve">
+    <value>Bank account</value>
+  </data>
   <data name="NewBankAccountButton" xml:space="preserve">
     <value>New bank account</value>
   </data>
@@ -111,17 +114,113 @@
   <data name="SavingsTitle" xml:space="preserve">
     <value>Savings</value>
   </data>
+  <data name="ActiveSavingsTitle" xml:space="preserve">
+    <value>Active money boxes</value>
+  </data>
+  <data name="CompletedSavingsTitle" xml:space="preserve">
+    <value>Completed money boxes</value>
+  </data>
+  <data name="SavingCompletedLabel" xml:space="preserve">
+    <value>Completed</value>
+  </data>
   <data name="NoSavingsText" xml:space="preserve">
-    <value>No savings</value>
+    <value>No money boxes</value>
   </data>
   <data name="AllAccountsFilter" xml:space="preserve">
     <value>All accounts</value>
   </data>
+  <data name="LogsUsersLabel" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="LogsAllUsersFilter" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="LogsAllActionsFilter" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="LogsDateHeader" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="LogsDescriptionHeader" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="LogDescriptionLogin" xml:space="preserve">
+    <value>Signed in.</value>
+  </data>
+  <data name="LogDescriptionLogout" xml:space="preserve">
+    <value>Signed out.</value>
+  </data>
+  <data name="LogDescriptionCreated" xml:space="preserve">
+    <value>Created {0} {1}.</value>
+  </data>
+  <data name="LogDescriptionUpdated" xml:space="preserve">
+    <value>Updated {0} {1}.</value>
+  </data>
+  <data name="LogDescriptionUpdatedWithChanges" xml:space="preserve">
+    <value>Updated {0} {1}: {2}.</value>
+  </data>
+  <data name="LogDescriptionDeleted" xml:space="preserve">
+    <value>Deleted {0} {1}.</value>
+  </data>
+  <data name="LogFieldCategory" xml:space="preserve"><value>category</value></data>
+  <data name="LogFieldPrice" xml:space="preserve"><value>amount</value></data>
+  <data name="LogFieldDate" xml:space="preserve"><value>date</value></data>
+  <data name="LogFieldDescription" xml:space="preserve"><value>description</value></data>
+  <data name="LogFieldName" xml:space="preserve"><value>name</value></data>
+  <data name="LogFieldAccount" xml:space="preserve"><value>account</value></data>
+  <data name="LogActionCreateUsers" xml:space="preserve"><value>Create user</value></data>
+  <data name="LogActionUpdateUsers" xml:space="preserve"><value>Update user</value></data>
+  <data name="LogActionDeleteUsers" xml:space="preserve"><value>Delete user</value></data>
+  <data name="LogActionCreateGroups" xml:space="preserve"><value>Create group</value></data>
+  <data name="LogActionUpdateGroups" xml:space="preserve"><value>Update group</value></data>
+  <data name="LogActionDeleteGroups" xml:space="preserve"><value>Delete group</value></data>
+  <data name="LogActionCreateGroupMembers" xml:space="preserve"><value>Add group member</value></data>
+  <data name="LogActionUpdateGroupMembers" xml:space="preserve"><value>Update group member</value></data>
+  <data name="LogActionDeleteGroupMembers" xml:space="preserve"><value>Remove group member</value></data>
+  <data name="LogActionCreateAccounts" xml:space="preserve"><value>Create account</value></data>
+  <data name="LogActionUpdateAccounts" xml:space="preserve"><value>Update account</value></data>
+  <data name="LogActionDeleteAccounts" xml:space="preserve"><value>Delete account</value></data>
+  <data name="LogActionCreateTransactions" xml:space="preserve"><value>Create transaction</value></data>
+  <data name="LogActionUpdateTransactions" xml:space="preserve"><value>Update transaction</value></data>
+  <data name="LogActionDeleteTransactions" xml:space="preserve"><value>Delete transaction</value></data>
+  <data name="LogActionCreateSavings" xml:space="preserve"><value>Create money box</value></data>
+  <data name="LogActionUpdateSavings" xml:space="preserve"><value>Update money box</value></data>
+  <data name="LogActionDeleteSavings" xml:space="preserve"><value>Delete money box</value></data>
+  <data name="LogActionCreateBudgets" xml:space="preserve"><value>Create budget</value></data>
+  <data name="LogActionUpdateBudgets" xml:space="preserve"><value>Update budget</value></data>
+  <data name="LogActionDeleteBudgets" xml:space="preserve"><value>Delete budget</value></data>
+  <data name="LogActionCreateCategories" xml:space="preserve"><value>Create category</value></data>
+  <data name="LogActionUpdateCategories" xml:space="preserve"><value>Update category</value></data>
+  <data name="LogActionDeleteCategories" xml:space="preserve"><value>Delete category</value></data>
+  <data name="LogActionCreateRecurringPayments" xml:space="preserve"><value>Create recurring payment</value></data>
+  <data name="LogActionUpdateRecurringPayments" xml:space="preserve"><value>Update recurring payment</value></data>
+  <data name="LogActionDeleteRecurringPayments" xml:space="preserve"><value>Delete recurring payment</value></data>
+  <data name="LogActionCreateWishList" xml:space="preserve"><value>Create wish list</value></data>
+  <data name="LogActionUpdateWishList" xml:space="preserve"><value>Update wish list</value></data>
+  <data name="LogActionDeleteWishList" xml:space="preserve"><value>Delete wish list</value></data>
+  <data name="LogActionCreateUserCategoryPreferences" xml:space="preserve"><value>Create category settings</value></data>
+  <data name="LogActionUpdateUserCategoryPreferences" xml:space="preserve"><value>Update category settings</value></data>
+  <data name="LogActionDeleteUserCategoryPreferences" xml:space="preserve"><value>Delete category settings</value></data>
+  <data name="LogActionLogin" xml:space="preserve"><value>Sign in</value></data>
+  <data name="LogActionLogout" xml:space="preserve"><value>Sign out</value></data>
+  <data name="LogEntityUser" xml:space="preserve"><value>user</value></data>
+  <data name="LogEntityGroup" xml:space="preserve"><value>group</value></data>
+  <data name="LogEntityGroupMember" xml:space="preserve"><value>group member</value></data>
+  <data name="LogEntityAccount" xml:space="preserve"><value>account</value></data>
+  <data name="LogEntityTransaction" xml:space="preserve"><value>transaction</value></data>
+  <data name="LogEntitySaving" xml:space="preserve"><value>money box</value></data>
+  <data name="LogEntityBudget" xml:space="preserve"><value>budget</value></data>
+  <data name="LogEntityCategory" xml:space="preserve"><value>category</value></data>
+  <data name="LogEntityRecurringPayment" xml:space="preserve"><value>recurring payment</value></data>
+  <data name="LogEntityWishList" xml:space="preserve"><value>wish list</value></data>
+  <data name="LogEntityCategorySettings" xml:space="preserve"><value>category settings</value></data>
+  <data name="LogEntitySession" xml:space="preserve"><value>session</value></data>
+  <data name="LogEntityRecord" xml:space="preserve"><value>record</value></data>
   <data name="AvailableBalanceLabel" xml:space="preserve">
     <value>Available balance</value>
   </data>
   <data name="GoalAmountLabel" xml:space="preserve">
-    <value>Savings goal (₴)</value>
+    <value>Savings goal</value>
   </data>
   <data name="GoalAmountHint" xml:space="preserve">
     <value>For example: 50000</value>
@@ -216,6 +315,15 @@
   <data name="LoginPasswordRequired" xml:space="preserve">
     <value>Enter login and password.</value>
   </data>
+  <data name="AuthLoginState" xml:space="preserve">
+    <value>Signing in</value>
+  </data>
+  <data name="AuthInvalidCredentials" xml:space="preserve">
+    <value>Invalid login or password</value>
+  </data>
+  <data name="AuthNoServerConnection" xml:space="preserve">
+    <value>No connection to server</value>
+  </data>
   <data name="ConnectingToApi" xml:space="preserve">
     <value>Connecting to KeepWalletAPI...</value>
   </data>
@@ -306,6 +414,9 @@
   <data name="TransactionCategoryLabel" xml:space="preserve">
     <value>Category</value>
   </data>
+  <data name="NewCategoryOption" xml:space="preserve">
+    <value>New category</value>
+  </data>
   <data name="TransactionDateLabel" xml:space="preserve">
     <value>Date</value>
   </data>
@@ -363,6 +474,15 @@
   <data name="AllTransactionsLink" xml:space="preserve">
     <value>All transactions</value>
   </data>
+  <data name="AllTransactionsTypeFilterPlaceholder" xml:space="preserve">
+    <value>Transaction type</value>
+  </data>
+  <data name="AllTransactionsAccountsFilterPlaceholder" xml:space="preserve">
+    <value>Accounts</value>
+  </data>
+  <data name="AllTransactionsCategoriesFilterPlaceholder" xml:space="preserve">
+    <value>Categories</value>
+  </data>
   <data name="TransactionDetailsTitle" xml:space="preserve">
     <value>Edit transaction</value>
   </data>
@@ -393,6 +513,33 @@
   <data name="ChartNoDataText" xml:space="preserve">
     <value>Add transactions to see the charts.</value>
   </data>
+  <data name="ReportingTitle" xml:space="preserve"><value>Profile reports</value></data>
+  <data name="ExportPdfButton" xml:space="preserve"><value>Export PDF</value></data>
+  <data name="ExportExcelButton" xml:space="preserve"><value>Export Excel</value></data>
+  <data name="ReportCategoryPeriodOption" xml:space="preserve"><value>Report for selected category over a period</value></data>
+  <data name="ReportMonthlyPlanOption" xml:space="preserve"><value>Planned expenses for selected month</value></data>
+  <data name="ReportMonthlyExpensesOption" xml:space="preserve"><value>Monthly expenses for selected period</value></data>
+  <data name="BalanceLabel" xml:space="preserve"><value>Balance</value></data>
+  <data name="ReportCategoryPeriodTitle" xml:space="preserve"><value>Report for selected category over a period</value></data>
+  <data name="ReportExpenseSumPrefix" xml:space="preserve"><value>Expense total</value></data>
+  <data name="ReportTransactionCountPrefix" xml:space="preserve"><value>Transaction count</value></data>
+  <data name="ReportMonthlyPlanTitle" xml:space="preserve"><value>Planned expenses for selected month</value></data>
+  <data name="ReportFactPrefix" xml:space="preserve"><value>Actual</value></data>
+  <data name="ReportPlanPrefix" xml:space="preserve"><value>Plan</value></data>
+  <data name="RecentTransactionsTitle" xml:space="preserve"><value>Recent transactions</value></data>
+  <data name="DateRangePreviousMonth" xml:space="preserve"><value>Previous month</value></data>
+  <data name="DateRangeThisMonth" xml:space="preserve"><value>This month</value></data>
+  <data name="DateRangeNextMonth" xml:space="preserve"><value>Next month</value></data>
+  <data name="DateRangeLastHour" xml:space="preserve"><value>Last hour</value></data>
+  <data name="DateRangeLastTwoHours" xml:space="preserve"><value>Last 2 hours</value></data>
+  <data name="DateRangeLastThreeHours" xml:space="preserve"><value>Last 3 hours</value></data>
+  <data name="DateRangeLastSixHours" xml:space="preserve"><value>Last 6 hours</value></data>
+  <data name="DateRangeLastTwelveHours" xml:space="preserve"><value>Last 12 hours</value></data>
+  <data name="DateRangeLastDay" xml:space="preserve"><value>Last day</value></data>
+  <data name="DateRangeLastWeek" xml:space="preserve"><value>Last week</value></data>
+  <data name="DateRangeLastHalfYear" xml:space="preserve"><value>Last half year</value></data>
+  <data name="DateRangeLastYear" xml:space="preserve"><value>Last year</value></data>
+  <data name="DateRangeCustom" xml:space="preserve"><value>Range</value></data>
   <data name="CategoryGroceries" xml:space="preserve">
     <value>Groceries</value>
   </data>
@@ -489,11 +636,20 @@
   <data name="DeleteCategoryPromptMessage" xml:space="preserve">
     <value>Category “{0}” will be deleted for all app users. This action cannot be undone. Continue?</value>
   </data>
+  <data name="DeleteCategoryErrorTitle" xml:space="preserve">
+    <value>Category deletion error</value>
+  </data>
+  <data name="DeleteCategoryInUseError" xml:space="preserve">
+    <value>This category is already in use. It cannot be deleted.</value>
+  </data>
   <data name="YesButton" xml:space="preserve">
     <value>Yes</value>
   </data>
   <data name="NoButton" xml:space="preserve">
     <value>No</value>
+  </data>
+  <data name="OkButton" xml:space="preserve">
+    <value>OK</value>
   </data>
   <data name="ScheduledPaymentsTitle" xml:space="preserve">
     <value>Scheduled payments</value>
@@ -509,6 +665,18 @@
   </data>
   <data name="ScheduledPaymentCustomRepeatHint" xml:space="preserve">
     <value>10 years and 3 months</value>
+  </data>
+  <data name="ScheduledRepeatYearOption" xml:space="preserve">
+    <value>Years</value>
+  </data>
+  <data name="ScheduledRepeatMonthOption" xml:space="preserve">
+    <value>Months</value>
+  </data>
+  <data name="ScheduledRepeatWeekOption" xml:space="preserve">
+    <value>Weeks</value>
+  </data>
+  <data name="ScheduledRepeatDayOption" xml:space="preserve">
+    <value>Days</value>
   </data>
   <data name="ScheduledRepeatOnce" xml:space="preserve">
     <value>Once</value>
@@ -565,13 +733,13 @@
     <value>Paid</value>
   </data>
   <data name="ScheduledPaymentsTotalCardTitle" xml:space="preserve">
-    <value>Scheduled</value>
+    <value>Scheduled this month</value>
   </data>
   <data name="ScheduledPaymentsPaidThisMonthCardTitle" xml:space="preserve">
     <value>Paid this month</value>
   </data>
   <data name="ScheduledPaymentsUnpaidCardTitle" xml:space="preserve">
-    <value>Unpaid</value>
+    <value>Unpaid this month</value>
   </data>
   <data name="ScheduledPaymentsOverdueCardTitle" xml:space="preserve">
     <value>Overdue</value>
@@ -585,6 +753,21 @@
   <data name="ScheduledPaymentsFilterOverdue" xml:space="preserve">
     <value>Overdue</value>
   </data>
+  <data name="ScheduledPaymentsCurrencyFilterPlaceholder" xml:space="preserve">
+    <value>Currency</value>
+  </data>
+  <data name="ScheduledPaymentsCategoryFilterPlaceholder" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="ScheduledPaymentsGroupsFilterTitle" xml:space="preserve">
+    <value>Groups</value>
+  </data>
+  <data name="ScheduledPaymentsUsersFilterTitle" xml:space="preserve">
+    <value>Users</value>
+  </data>
+  <data name="ScheduledPaymentsClearAdvancedFilters" xml:space="preserve">
+    <value>Clear filter</value>
+  </data>
   <data name="ScheduledPaymentsToday" xml:space="preserve">
     <value>Today</value>
   </data>
@@ -597,11 +780,11 @@
   <data name="ThemeLabel" xml:space="preserve">
     <value>Theme</value>
   </data>
-  <data name="Theme1Name" xml:space="preserve">
-    <value>Theme 1</value>
+  <data name="LightThemeName" xml:space="preserve">
+    <value>Light</value>
   </data>
-  <data name="Theme2Name" xml:space="preserve">
-    <value>Theme 2</value>
+  <data name="DarkThemeName" xml:space="preserve">
+    <value>Dark</value>
   </data>
   <data name="MergeCategoriesTitle" xml:space="preserve">
     <value>Merge categories</value>
@@ -634,7 +817,7 @@
     <value>Rate history</value>
   </data>
   <data name="SavingsDeadlineLabel" xml:space="preserve">
-    <value>Deadline (dd.MM.yyyy)</value>
+    <value>Target date</value>
   </data>
   <data name="SavingsDeadlineHint" xml:space="preserve">
     <value>31.12.2026</value>
@@ -642,14 +825,32 @@
   <data name="UserLogsTitle" xml:space="preserve">
     <value>User and group logs</value>
   </data>
+  <data name="ViewAllButton" xml:space="preserve">
+    <value>View all</value>
+  </data>
+  <data name="LogActionLabel" xml:space="preserve">
+    <value>Action</value>
+  </data>
   <data name="GroupNameHint" xml:space="preserve">
     <value>Group name</value>
   </data>
   <data name="UsersTitle" xml:space="preserve">
     <value>Users</value>
   </data>
+  <data name="RegistrationSettingsTitle" xml:space="preserve">
+    <value>Registration</value>
+  </data>
+  <data name="RegistrationEnabledLabel" xml:space="preserve">
+    <value>Allow new registrations</value>
+  </data>
+  <data name="AdminRegisterButton" xml:space="preserve">
+    <value>Register user</value>
+  </data>
   <data name="GroupsTitle" xml:space="preserve">
     <value>Groups</value>
+  </data>
+  <data name="NoGroupsText" xml:space="preserve">
+    <value>No groups</value>
   </data>
   <data name="AddGroupButton" xml:space="preserve">
     <value>Add group</value>
@@ -659,6 +860,12 @@
   </data>
   <data name="GroupAccessTitle" xml:space="preserve">
     <value>Group access</value>
+  </data>
+  <data name="OwnerLabel" xml:space="preserve">
+    <value>Owner:</value>
+  </data>
+  <data name="GroupsLabel" xml:space="preserve">
+    <value>Groups:</value>
   </data>
   <data name="GroupMemberSearchHint" xml:space="preserve">
     <value>Search by username, email or name</value>
@@ -684,14 +891,41 @@
   <data name="TransferOwnerButton" xml:space="preserve">
     <value>Make owner</value>
   </data>
+  <data name="LeaveGroupButton" xml:space="preserve">
+    <value>Leave</value>
+  </data>
+  <data name="GroupRoleOwner" xml:space="preserve">
+    <value>Owner</value>
+  </data>
+  <data name="GroupRoleMember" xml:space="preserve">
+    <value>Member</value>
+  </data>
+  <data name="GroupRoleViewer" xml:space="preserve">
+    <value>Viewer</value>
+  </data>
+  <data name="LeaveGroupPromptTitle" xml:space="preserve">
+    <value>Leave group?</value>
+  </data>
+  <data name="LeaveGroupPromptMessage" xml:space="preserve">
+    <value>You will lose access to this group and its shared data. Your savings, scheduled payments and accounts will no longer be shown in the group. Payments that were already paid will stay in the group history.</value>
+  </data>
+  <data name="TransferOwnerPromptTitle" xml:space="preserve">
+    <value>Transfer ownership?</value>
+  </data>
+  <data name="TransferOwnerPromptMessage" xml:space="preserve">
+    <value>After confirmation, the selected member will become the group owner.</value>
+  </data>
   <data name="ShareAccountButton" xml:space="preserve">
     <value>Share account</value>
   </data>
   <data name="ShareSavingsButton" xml:space="preserve">
-    <value>Share savings</value>
+    <value>Share access</value>
   </data>
   <data name="GroupAccessAccountsTitle" xml:space="preserve">
     <value>Accounts</value>
+  </data>
+  <data name="GroupAccessScheduledPaymentsTitle" xml:space="preserve">
+    <value>Scheduled payments</value>
   </data>
   <data name="GroupAccessTransactionsTitle" xml:space="preserve">
     <value>Transactions</value>
@@ -701,5 +935,32 @@
   </data>
   <data name="UserAccessLabel" xml:space="preserve">
     <value>Login allowed</value>
+  </data>
+  <data name="NavHomeTooltip" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="NavBankAccountsTooltip" xml:space="preserve">
+    <value>Bank accounts</value>
+  </data>
+  <data name="NavScheduledPaymentsTooltip" xml:space="preserve">
+    <value>Scheduled payments</value>
+  </data>
+  <data name="NavSavingsTooltip" xml:space="preserve">
+    <value>Savings</value>
+  </data>
+  <data name="NavAllTransactionsTooltip" xml:space="preserve">
+    <value>All transactions</value>
+  </data>
+  <data name="NavGroupsTooltip" xml:space="preserve">
+    <value>Groups</value>
+  </data>
+  <data name="NavCategoriesTooltip" xml:space="preserve">
+    <value>Categories</value>
+  </data>
+  <data name="NavReportingTooltip" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="NavSettingsTooltip" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>

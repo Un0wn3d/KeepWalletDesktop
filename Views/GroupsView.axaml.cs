@@ -8,7 +8,7 @@ namespace KeepWalletDesktop.Views;
 
 public partial class GroupsView : UserControl
 {
-    private readonly IconPickerModule iconPicker = new();
+    private readonly IconPickerModuleView iconPicker = new();
 
     public GroupsView()
     {
@@ -22,7 +22,14 @@ public partial class GroupsView : UserControl
             return;
         }
 
-        iconPicker.Show(button, viewModel.CategoryIconOptions, iconKey => viewModel.NewGroupIconKey = iconKey, viewModel.Texts.IconSearchHint);
+        iconPicker.Show(
+            button,
+            viewModel.CategoryIconOptions,
+            viewModel.SavingColorOptions,
+            iconKey => viewModel.NewGroupIconKey = iconKey,
+            color => viewModel.NewGroupColor = color,
+            viewModel.Texts.IconSearchHint,
+            circularIcons: false);
     }
 
     private void SelectedGroupIconButton_OnClick(object? sender, RoutedEventArgs e)
@@ -34,7 +41,30 @@ public partial class GroupsView : UserControl
             return;
         }
 
-        iconPicker.Show(button, viewModel.CategoryIconOptions, iconKey => viewModel.SelectedAccessGroup.SelectedIconKey = iconKey, viewModel.Texts.IconSearchHint);
+        iconPicker.Show(
+            button,
+            viewModel.CategoryIconOptions,
+            viewModel.SavingColorOptions,
+            iconKey =>
+            {
+                viewModel.SelectedAccessGroup.SelectedIconKey = iconKey;
+                SaveSelectedGroupImmediately(viewModel);
+            },
+            color =>
+            {
+                viewModel.SelectedAccessGroup.SelectedColor = color;
+                SaveSelectedGroupImmediately(viewModel);
+            },
+            viewModel.Texts.IconSearchHint,
+            circularIcons: false);
+    }
+
+    private static void SaveSelectedGroupImmediately(MainViewModel viewModel)
+    {
+        if (viewModel.UpdateGroupCommand.CanExecute(null))
+        {
+            _ = viewModel.UpdateGroupCommand.ExecuteAsync(null);
+        }
     }
 
     private void SelectedGroupName_OnDoubleTapped(object? sender, TappedEventArgs e)
@@ -101,9 +131,9 @@ public partial class GroupsView : UserControl
 
         viewModel.SelectedBankAccount = account;
 
-        if (viewModel.EditBankAccountCommand.CanExecute(account))
+        if (viewModel.SelectBankAccountCommand.CanExecute(account))
         {
-            viewModel.EditBankAccountCommand.Execute(account);
+            viewModel.SelectBankAccountCommand.Execute(account);
         }
     }
 
@@ -120,19 +150,22 @@ public partial class GroupsView : UserControl
         }
     }
 
-    private void OpenGroupSaving_OnClick(object? sender, RoutedEventArgs e)
+    private async void OpenGroupSaving_OnClick(object? sender, RoutedEventArgs e)
     {
         if (sender is not Control { DataContext: SavingOptionViewModel saving } || DataContext is not MainViewModel viewModel)
         {
             return;
         }
 
-        if (viewModel.SelectSavingCommand.CanExecute(saving))
+        if (viewModel.OpenSavingsCommand.CanExecute(null))
         {
-            viewModel.SelectSavingCommand.Execute(saving);
+            await viewModel.OpenSavingsCommand.ExecuteAsync(null);
         }
 
-        GroupSavingOverlay.IsVisible = true;
+        if (viewModel.SelectSavingCommand.CanExecute(saving))
+        {
+            await viewModel.SelectSavingCommand.ExecuteAsync(saving);
+        }
     }
 
     private void CloseGroupSavingOverlay_OnClick(object? sender, RoutedEventArgs e)
