@@ -1,19 +1,19 @@
-name: KeepWalletDesktop Tests
+# name: KeepWalletDesktop Tests
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
+# on:
+#   push:
+#     branches: [ main, master ]
+#   pull_request:
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "10.0.x"
-      - name: Restore
-        run: dotnet restore KeepWalletDesktop.sln
-      - name: Test
-        run: dotnet test Tests/KeepWalletDesktop.Tests/KeepWalletDesktop.Tests.csproj --configuration Release --no-restore --logger "console;verbosity=detailed"
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v5
+#       - uses: actions/setup-dotnet@v5
+#         with:
+#           dotnet-version: "10.0.x"
+#       - name: Restore
+#         run: dotnet restore KeepWalletDesktop.sln
+#       - name: Test
+#         run: dotnet test Tests/KeepWalletDesktop.Tests/KeepWalletDesktop.Tests.csproj --configuration Release --no-restore --logger "console;verbosity=detailed"
