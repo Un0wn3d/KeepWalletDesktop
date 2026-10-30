@@ -21,7 +21,7 @@ public partial class MainViewModel
         {
             return;
         }
-
+        
         try
         {
             EnsureApiClient();
